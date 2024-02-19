@@ -1,9 +1,15 @@
 #pragma once
 
+#ifdef WIN32
 #define VK_USE_PLATFORM_WIN32_KHR
+#else
+#define VK_USE_PLATFORM_WAYLAND_KHR
+#define VK_USE_PLATFORM_XLIB_KHR
+#endif
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
+// #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 #include "VulkanUtil.h"
 
@@ -17,6 +23,7 @@
 #include <set>
 #include <limits>
 #include <algorithm>
+#include "Thing/ShaderModule.h"
 
 
 const std::vector<const char*> validationLayers = {
@@ -135,6 +142,9 @@ private:
 	// simple fragment + vertex shader creation functions
 	// These 5 functions should be refactored into a separate C++ class
 	// with the correct internal state.
+
+	std::unique_ptr<ShaderModule> shaderModuleUPtr{};
+
 
 	GLFWwindow* window;
 	void initWindow();

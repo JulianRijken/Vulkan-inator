@@ -56,7 +56,8 @@ void VulkanBase::createRenderPass() {
 	}
 }
 
-void VulkanBase::createGraphicsPipeline() {
+void VulkanBase::createGraphicsPipeline()
+{
 	VkPipelineViewportStateCreateInfo viewportState{};
 	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	viewportState.viewportCount = 1;
@@ -106,7 +107,8 @@ void VulkanBase::createGraphicsPipeline() {
 	pipelineLayoutInfo.setLayoutCount = 0;
 	pipelineLayoutInfo.pushConstantRangeCount = 0;
 
-	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) 
+	{
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
 
@@ -114,18 +116,23 @@ void VulkanBase::createGraphicsPipeline() {
 
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 
-	VkPipelineShaderStageCreateInfo vertShaderStageInfo = createVertexShaderInfo();
-	VkPipelineShaderStageCreateInfo fragShaderStageInfo = createFragmentShaderInfo();
+	shaderModuleUPtr = std::make_unique<ShaderModule>("shaders/shader.vert.spv", "shaders/shader.frag.spv", device);
+
+	VkPipelineShaderStageCreateInfo vertShaderStageInfo = shaderModuleUPtr->getVertexInfo();
+	VkPipelineShaderStageCreateInfo fragShaderStageInfo = shaderModuleUPtr->getFragmentInfo();
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = {
 		vertShaderStageInfo,
 		fragShaderStageInfo
 	};
 
+    auto vertexInputState{ createVertexInputStateInfo() };
+    auto inputAssemblyState{ createInputAssemblyStateInfo() };
+
 	pipelineInfo.stageCount = 2;
 	pipelineInfo.pStages = shaderStages;
-	pipelineInfo.pVertexInputState = &createVertexInputStateInfo();
-	pipelineInfo.pInputAssemblyState = &createInputAssemblyStateInfo();
+	pipelineInfo.pVertexInputState = &vertexInputState;
+	pipelineInfo.pInputAssemblyState = &inputAssemblyState;
 
 	pipelineInfo.pViewportState = &viewportState;
 	pipelineInfo.pRasterizationState = &rasterizer;
