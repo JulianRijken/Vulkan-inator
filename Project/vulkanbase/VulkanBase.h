@@ -23,7 +23,7 @@
 #include <set>
 #include <limits>
 #include <algorithm>
-#include "Thing/ShaderModule.h"
+#include "Thing/Shader.h"
 
 
 const std::vector<const char*> validationLayers = {
@@ -72,7 +72,10 @@ private:
 		// week 04 
 		createSwapChain();
 		createImageViews();
-		
+
+		m_GradientShaderUPtr = std::make_unique<Shader>();
+		m_GradientShaderUPtr->Initialize("shaders/shader.vert.spv", "shaders/shader.frag.spv", device);
+
 		// week 03
 		createRenderPass();
 		createGraphicsPipeline();
@@ -135,25 +138,20 @@ private:
 		}
 	}
 
-	
+
 
 	// Week 01: 
 	// Actual window
 	// simple fragment + vertex shader creation functions
 	// These 5 functions should be refactored into a separate C++ class
 	// with the correct internal state.
+	std::unique_ptr<Shader> m_GradientShaderUPtr{};
 
-	std::unique_ptr<ShaderModule> shaderModuleUPtr{};
 
 
 	GLFWwindow* window;
-	void initWindow();
 
-	VkPipelineShaderStageCreateInfo createFragmentShaderInfo();
-	VkPipelineShaderStageCreateInfo createVertexShaderInfo();
-	VkPipelineVertexInputStateCreateInfo createVertexInputStateInfo();
-	VkPipelineInputAssemblyStateCreateInfo createInputAssemblyStateInfo();
-	VkShaderModule createShaderModule(const std::vector<char>& code);
+	void initWindow();
 
 	void drawScene();
 

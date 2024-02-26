@@ -1,4 +1,5 @@
 #include "vulkanbase/VulkanBase.h"
+#include "Thing/Shader.h"
 
 void VulkanBase::createFrameBuffers() {
 	swapChainFramebuffers.resize(swapChainImageViews.size());
@@ -116,18 +117,14 @@ void VulkanBase::createGraphicsPipeline()
 
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 
-	shaderModuleUPtr = std::make_unique<ShaderModule>("shaders/shader.vert.spv", "shaders/shader.frag.spv", device);
-
-	VkPipelineShaderStageCreateInfo vertShaderStageInfo = shaderModuleUPtr->getVertexInfo();
-	VkPipelineShaderStageCreateInfo fragShaderStageInfo = shaderModuleUPtr->getFragmentInfo();
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = {
-		vertShaderStageInfo,
-		fragShaderStageInfo
+		m_GradientShaderUPtr->GetVertexInfo(),
+		m_GradientShaderUPtr->GetFragmentInfo()
 	};
 
-    auto vertexInputState{ createVertexInputStateInfo() };
-    auto inputAssemblyState{ createInputAssemblyStateInfo() };
+    auto vertexInputState{ m_GradientShaderUPtr->CreateVertexInputStateInfo() };
+    auto inputAssemblyState{ m_GradientShaderUPtr->CreateInputAssemblyStateInfo() };
 
 	pipelineInfo.stageCount = 2;
 	pipelineInfo.pStages = shaderStages;
@@ -148,6 +145,5 @@ void VulkanBase::createGraphicsPipeline()
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
 
-	vkDestroyShaderModule(device, vertShaderStageInfo.module, nullptr);
-	vkDestroyShaderModule(device, fragShaderStageInfo.module, nullptr);
+	m_GradientShaderUPtr->DestroyShaderModules(device);
 }

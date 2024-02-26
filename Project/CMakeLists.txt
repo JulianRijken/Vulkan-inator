@@ -38,11 +38,11 @@ set(SOURCES
     "labwork/Week05.cpp"
     "labwork/Week06.cpp"
 
-    "Thing/ShaderModule.cpp"
+    "Thing/Shader.cpp"
 )
 
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES}  "vulkanbase/VulkanUtil.cpp" "labwork/Week03.cpp"   "Thing/ShaderModule.h" "Thing/ShaderModule.cpp" )
+add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES}  "vulkanbase/VulkanUtil.cpp" "labwork/Week03.cpp"   "Thing/Shader.h" "Thing/Shader.cpp" )
 add_dependencies(${PROJECT_NAME} Shaders)
 # Link libraries
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
