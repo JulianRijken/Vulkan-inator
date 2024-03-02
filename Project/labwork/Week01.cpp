@@ -9,6 +9,7 @@ void VulkanBase::initWindow() {
 }
 
 
-void VulkanBase::drawScene() {
+void VulkanBase::drawScene() const
+{
 	vkCmdDraw(commandBuffer, 6, 1, 0, 0);
 }

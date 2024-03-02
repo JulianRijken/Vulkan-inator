@@ -20,12 +20,12 @@ public:
 	Shader& operator=(const Shader&) = delete;
 
 
-	[[nodiscard]] const VkPipelineShaderStageCreateInfo& GetVertexInfo() const { return m_VertexInfo; }
+	[[nodiscard]] const VkPipelineShaderStageCreateInfo& GetVertexInfo() const  { return m_VertexInfo; }
 	[[nodiscard]] const VkPipelineShaderStageCreateInfo& GetFragmentInfo() const { return m_FragmentInfo; }
 
 
-	[[nodiscard]] const VkPipelineVertexInputStateCreateInfo CreateVertexInputStateInfo();
-	[[nodiscard]] const VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyStateInfo();
+	[[nodiscard]] static VkPipelineVertexInputStateCreateInfo   CreateVertexInputStateInfo();
+	[[nodiscard]] static VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyStateInfo();
 
 private:
 

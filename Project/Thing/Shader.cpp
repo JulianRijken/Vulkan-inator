@@ -36,25 +36,6 @@ void Shader::DestroyShaderModules(VkDevice device) const
 }
 
 
-
-
-VkShaderModule Shader::CreateShaderModule(const std::vector<char>& code, VkDevice device)
-{
-	VkShaderModuleCreateInfo createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = code.size();
-	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-	VkShaderModule shaderModule;
-	if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-		throw std::runtime_error("failed to create shader module!");
-
-	return shaderModule;
-}
-
-
-
-
 VkPipelineVertexInputStateCreateInfo Shader::CreateVertexInputStateInfo()
 {
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -71,4 +52,18 @@ VkPipelineInputAssemblyStateCreateInfo Shader::CreateInputAssemblyStateInfo()
 	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	inputAssembly.primitiveRestartEnable = VK_FALSE;
 	return inputAssembly;
+}
+
+VkShaderModule Shader::CreateShaderModule(const std::vector<char>& code, VkDevice device)
+{
+	VkShaderModuleCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+	VkShaderModule shaderModule;
+	if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+		throw std::runtime_error("failed to create shader module!");
+
+	return shaderModule;
 }

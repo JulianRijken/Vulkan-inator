@@ -153,7 +153,7 @@ private:
 
 	void initWindow();
 
-	void drawScene();
+	void drawScene() const;
 
 	// Week 02
 	// Queue families
