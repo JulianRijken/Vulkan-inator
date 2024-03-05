@@ -28,22 +28,22 @@ add_custom_target(
 
 set(SOURCES
     "main.cpp"
-    "vulkanbase/VulkanBase.h" 
-    "vulkanbase/VulkanUtil.h"
-    # Add other source files here
-    "labwork/Week01.cpp"
-    "labwork/Week02.cpp" 
+    "vulkanbase/VulkanUtil.cpp"
+    "vulkanbase/Vulkanbase.cpp"
+     
     "labwork/Week03.cpp" 
     "labwork/Week04.cpp" 
     "labwork/Week05.cpp"
     "labwork/Week06.cpp"
 
-    "Thing/Shader.cpp"
+    "jul/Shader.cpp"
+    "jul/CommandBuffer.cpp"
+    "jul/Mesh.cpp"
 )
 
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES}  "vulkanbase/VulkanUtil.cpp" "labwork/Week03.cpp"   "Thing/Shader.h" "Thing/Shader.cpp" )
+add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES})
 add_dependencies(${PROJECT_NAME} Shaders)
 # Link libraries
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES} glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES} glfw glm::glm)

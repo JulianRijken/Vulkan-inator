@@ -8,7 +8,7 @@ void Shader::Initialize(const path& vertexPath, const path& fragmentPath, VkDevi
 	//////////////////////////////
 	/// Create vertex shader info
 	//////////////////////////////
-	const std::vector<char> vertShaderCode = readFile(vertexPath.string());
+	const std::vector<char> vertShaderCode = VkUtils::readFile(vertexPath.string());
 	const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode, device);
 
 	m_VertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -20,7 +20,7 @@ void Shader::Initialize(const path& vertexPath, const path& fragmentPath, VkDevi
 	//////////////////////////////
 	/// Create fragment shader info
 	//////////////////////////////
-	const std::vector<char> fragShaderCode = readFile(fragmentPath.string());
+	const std::vector<char> fragShaderCode = VkUtils::readFile(fragmentPath.string());
 	const VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode, device);
 
 	m_FragmentInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

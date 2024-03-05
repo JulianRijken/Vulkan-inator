@@ -1,10 +1,14 @@
 #include "vulkanbase/VulkanBase.h"
-#include "Thing/Shader.h"
+#include "jul/Shader.h"
 
-void VulkanBase::createFrameBuffers() {
+void VulkanBase::createFrameBuffers()
+{
 	swapChainFramebuffers.resize(swapChainImageViews.size());
-	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-		VkImageView attachments[] = {
+
+	for (size_t i = 0; i < swapChainImageViews.size(); i++) 
+{
+		VkImageView attachments[] = 
+		{
 			swapChainImageViews[i]
 		};
 
@@ -17,15 +21,15 @@ void VulkanBase::createFrameBuffers() {
 		framebufferInfo.height = swapChainExtent.height;
 		framebufferInfo.layers = 1;
 
-		if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+		if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
 			throw std::runtime_error("failed to create framebuffer!");
-		}
 	}
 }
 
 
 
-void VulkanBase::createRenderPass() {
+void VulkanBase::createRenderPass()
+{
 	VkAttachmentDescription colorAttachment{};
 	colorAttachment.format = swapChainImageFormat;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -52,9 +56,9 @@ void VulkanBase::createRenderPass() {
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
 
-	if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+	if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
 		throw std::runtime_error("failed to create render pass!");
-	}
+	
 }
 
 void VulkanBase::createGraphicsPipeline()
@@ -109,16 +113,16 @@ void VulkanBase::createGraphicsPipeline()
 	pipelineLayoutInfo.pushConstantRangeCount = 0;
 
 	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) 
-	{
 		throw std::runtime_error("failed to create pipeline layout!");
-	}
+	
 
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
 
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 
 
-	VkPipelineShaderStageCreateInfo shaderStages[] = {
+	VkPipelineShaderStageCreateInfo shaderStages[] =
+	{
 		m_GradientShaderUPtr->GetVertexInfo(),
 		m_GradientShaderUPtr->GetFragmentInfo()
 	};
@@ -141,9 +145,9 @@ void VulkanBase::createGraphicsPipeline()
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) 
 		throw std::runtime_error("failed to create graphics pipeline!");
-	}
+	
 
 	m_GradientShaderUPtr->DestroyShaderModules(device);
 }

@@ -11,19 +11,18 @@
 #include <GLFW/glfw3.h>
 // #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
+
 #include "VulkanUtil.h"
 
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-#include <cstring>
-#include <cstdlib>
 #include <cstdint>
 #include <optional>
-#include <set>
-#include <limits>
-#include <algorithm>
-#include "Thing/Shader.h"
+
+
+#include "jul/CommandBuffer.h"
+#include "jul/Shader.h"
 
 
 const std::vector<const char*> validationLayers = {
@@ -34,14 +33,6 @@ const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-struct QueueFamilyIndices {
-	std::optional<uint32_t> graphicsFamily;
-	std::optional<uint32_t> presentFamily;
-
-	bool isComplete() {
-		return graphicsFamily.has_value() && presentFamily.has_value();
-	}
-};
 
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
@@ -59,7 +50,8 @@ public:
 	}
 
 private:
-	void initVulkan() {
+	void initVulkan()
+	{
 		// week 06
 		createInstance();
 		setupDebugMessenger();
@@ -80,16 +72,24 @@ private:
 		createRenderPass();
 		createGraphicsPipeline();
 		createFrameBuffers();
+
+
 		// week 02
-		createCommandPool();
-		createCommandBuffer();
+		VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(physicalDevice, surface);
+		m_CommandBufferUPtr = std::make_unique<CommandBuffer>(device, indices.graphicsFamily.value());
+
+
+		//createCommandPool();
+		//createCommandBuffer();
 
 		// week 06
 		createSyncObjects();
 	}
 
-	void mainLoop() {
-		while (!glfwWindowShouldClose(window)) {
+	void mainLoop()
+	{
+		while (!glfwWindowShouldClose(window)) 
+		{
 			glfwPollEvents();
 			// week 06
 			drawFrame();
@@ -97,13 +97,17 @@ private:
 		vkDeviceWaitIdle(device);
 	}
 
-	void cleanup() {
+	void cleanup()
+	{
 		vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
 		vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
 		vkDestroyFence(device, inFlightFence, nullptr);
 
-		vkDestroyCommandPool(device, commandPool, nullptr);
-		for (auto framebuffer : swapChainFramebuffers) {
+		// Cleanup command buffer
+		m_CommandBufferUPtr.reset();
+
+		for (auto framebuffer : swapChainFramebuffers) 
+		{
 			vkDestroyFramebuffer(device, framebuffer, nullptr);
 		}
 
@@ -111,12 +115,13 @@ private:
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);
 
-		for (auto imageView : swapChainImageViews) {
+		for (auto imageView : swapChainImageViews) 
+		{
 			vkDestroyImageView(device, imageView, nullptr);
 		}
 
 		if (enableValidationLayers) {
-			DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+			VkUtils::DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 		}
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
 		vkDestroyDevice(device, nullptr);
@@ -132,7 +137,8 @@ private:
 
 	
 
-	void createSurface() {
+	void createSurface()
+	{
 		if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create window surface!");
 		}
@@ -146,7 +152,7 @@ private:
 	// These 5 functions should be refactored into a separate C++ class
 	// with the correct internal state.
 	std::unique_ptr<Shader> m_GradientShaderUPtr{};
-
+	
 
 
 	GLFWwindow* window;
@@ -158,16 +164,9 @@ private:
 	// Week 02
 	// Queue families
 	// CommandBuffer concept
+	std::unique_ptr<CommandBuffer> m_CommandBufferUPtr{};
 
-	VkCommandPool commandPool;
-	VkCommandBuffer commandBuffer;
-
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-
-	void drawFrame(uint32_t imageIndex);
-	void createCommandBuffer();
-	void createCommandPool(); 
-	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+	void Render(uint32_t imageIndex) const;
 	
 	// Week 03
 	// Renderpass concept
