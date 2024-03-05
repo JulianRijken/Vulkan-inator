@@ -1,4 +1,8 @@
 #include "Shader.h"
+
+#include <array>
+
+#include "Mesh.h"
 #include "vulkanbase/VulkanBase.h"
 
 
@@ -40,8 +44,16 @@ VkPipelineVertexInputStateCreateInfo Shader::CreateVertexInputStateInfo()
 {
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
+
+	const auto bindingDescription = Mesh::Vertex::GetBindingDescriptor();
+	const auto attributeDescriptions = Mesh::Vertex::GetAttributeDescriptions();
+
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
 	return vertexInputInfo;
 }
 
