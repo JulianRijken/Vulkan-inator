@@ -11,6 +11,7 @@ void VulkanBase::initWindow() {
 
 void VulkanBase::drawScene() const
 {
+    m_TestMesh->Draw(m_CommandBufferUPtr->Get());
 	vkCmdDraw(m_CommandBufferUPtr->Get(), 6, 1, 0, 0);
 }
 

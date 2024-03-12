@@ -43,18 +43,19 @@ void Shader::DestroyShaderModules(VkDevice device) const
 VkPipelineVertexInputStateCreateInfo Shader::CreateVertexInputStateInfo()
 {
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-	const auto bindingDescription = Mesh::Vertex::GetBindingDescriptor();
-	const auto attributeDescriptions = Mesh::Vertex::GetAttributeDescriptions();
+    bindingDescription = Mesh::Vertex::GetBindingDescriptor();
+    attributeDescriptions = Mesh::Vertex::GetAttributeDescriptions();
 
-	vertexInputInfo.vertexBindingDescriptionCount = 1;
-	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 
-	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+    vertexInputInfo.vertexAttributeDescriptionCount =
+        static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
-	return vertexInputInfo;
+    return vertexInputInfo;
 }
 
 VkPipelineInputAssemblyStateCreateInfo Shader::CreateInputAssemblyStateInfo()

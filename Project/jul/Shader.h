@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <vulkan/vulkan_core.h>
+#include <array>
 
 using path = std::filesystem::path;
 
@@ -24,13 +25,15 @@ public:
 	[[nodiscard]] const VkPipelineShaderStageCreateInfo& GetFragmentInfo() const { return m_FragmentInfo; }
 
 
-	[[nodiscard]] static VkPipelineVertexInputStateCreateInfo   CreateVertexInputStateInfo();
-	[[nodiscard]] static VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyStateInfo();
+    [[nodiscard]] VkPipelineVertexInputStateCreateInfo   CreateVertexInputStateInfo();
+    [[nodiscard]] VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyStateInfo();
 
 private:
 
 	[[nodiscard]] VkShaderModule CreateShaderModule(const std::vector<char>& code, VkDevice device);
 
+    VkVertexInputBindingDescription bindingDescription;
+    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
 
 	VkPipelineShaderStageCreateInfo m_VertexInfo{};
 	VkPipelineShaderStageCreateInfo m_FragmentInfo{};

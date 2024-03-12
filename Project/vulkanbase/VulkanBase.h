@@ -23,7 +23,7 @@
 
 #include "jul/CommandBuffer.h"
 #include "jul/Shader.h"
-
+#include "jul/Mesh.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -40,7 +40,9 @@ struct SwapChainSupportDetails {
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
-class VulkanBase {
+class VulkanBase
+{
+
 public:
 	void run()
 	{
@@ -79,9 +81,14 @@ private:
 		VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(physicalDevice, surface);
 		m_CommandBufferUPtr = std::make_unique<CommandBuffer>(device, indices.graphicsFamily.value());
 
+        const std::vector<Mesh::Vertex> vertices = {
+            {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+        };
 
-		//createCommandPool();
-		//createCommandBuffer();
+        m_TestMesh = std::make_unique<Mesh>(device, vertices, physicalDevice);
+
 
 		// week 06
 		createSyncObjects();
@@ -104,7 +111,7 @@ private:
 		vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
 		vkDestroyFence(device, inFlightFence, nullptr);
 
-		// Cleanup command buffer
+        m_TestMesh.reset();
 		m_CommandBufferUPtr.reset();
 
 		for (auto framebuffer : swapChainFramebuffers) 
@@ -166,6 +173,8 @@ private:
 	// Queue families
 	// CommandBuffer concept
 	std::unique_ptr<CommandBuffer> m_CommandBufferUPtr{};
+    std::unique_ptr<Mesh> m_TestMesh{};
+
 
 	void Render(uint32_t imageIndex) const;
 	

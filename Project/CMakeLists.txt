@@ -43,6 +43,9 @@ set(SOURCES
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES})
+
+# target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wpedantic)
+
 add_dependencies(${PROJECT_NAME} Shaders)
 # Link libraries
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
