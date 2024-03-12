@@ -87,7 +87,7 @@ private:
             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
         };
 
-        m_TestMesh = std::make_unique<Mesh>(device, vertices, physicalDevice);
+        m_TestMesh = std::make_unique<Mesh>(device, vertices, physicalDevice, graphicsQueue);
 
 
 		// week 06

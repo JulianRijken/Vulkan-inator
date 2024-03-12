@@ -2,24 +2,28 @@
 
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
-#include "vulkanbase/VulkanBase.h"
 
 
 CommandBuffer::CommandBuffer(VkDevice device, uint32_t familyIndex) :
 	m_Device(device)
 {
-	VkCommandPoolCreateInfo poolInfo{};
-	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-	poolInfo.queueFamilyIndex = familyIndex;
+    s_AliveBuffers++;
 
-	if (vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_CommandPool) != VK_SUCCESS)
-		throw std::runtime_error("failed to create command pool!");
-	
+    // Init command pull if static is not initialized
+    if(s_CommandPool == nullptr)
+    {
+        VkCommandPoolCreateInfo poolInfo{};
+        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        poolInfo.queueFamilyIndex = familyIndex;
+
+        if (vkCreateCommandPool(m_Device, &poolInfo, nullptr, &s_CommandPool) != VK_SUCCESS)
+            throw std::runtime_error("failed to create command pool!");
+    }
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = m_CommandPool;
+    allocInfo.commandPool = s_CommandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandBufferCount = 1;
 
@@ -29,7 +33,15 @@ CommandBuffer::CommandBuffer(VkDevice device, uint32_t familyIndex) :
 
 CommandBuffer::~CommandBuffer()
 {
-	vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
+    vkFreeCommandBuffers(m_Device , s_CommandPool , 1 , & m_CommandBuffer);
+
+    s_AliveBuffers--;
+
+    if(s_AliveBuffers <= 0)
+    {
+        vkDestroyCommandPool(m_Device, s_CommandPool, nullptr);
+        s_CommandPool = nullptr;
+    }
 }
 
 void CommandBuffer::BeginCommandBuffer() const

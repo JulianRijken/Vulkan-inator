@@ -32,10 +32,6 @@ private:
 
 	[[nodiscard]] VkShaderModule CreateShaderModule(const std::vector<char>& code, VkDevice device);
 
-    VkVertexInputBindingDescription bindingDescription;
-    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
-
 	VkPipelineShaderStageCreateInfo m_VertexInfo{};
 	VkPipelineShaderStageCreateInfo m_FragmentInfo{};
-
 };

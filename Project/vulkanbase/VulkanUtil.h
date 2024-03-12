@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #ifdef WIN32
 #define VK_USE_PLATFORM_WIN32_KHR
 #else
@@ -26,6 +24,7 @@ const bool enableValidationLayers = true;
 #include <vector>
 #include <string>
 #include <optional>
+#include <tuple>
 
 
 namespace VkUtils
@@ -46,8 +45,12 @@ namespace VkUtils
 
 	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
-	std::vector<char> readFile(const std::string& filename);
+    std::vector<char> ReadFile(const std::string& filename);
 
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+
+    std::tuple<VkBuffer,VkDeviceMemory> CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDevice device,VkPhysicalDevice physicalDevice);
+    void CopyBuffer(VkBuffer srcBuffer , VkBuffer dstBuffer , VkDeviceSize size, VkDevice device, VkQueue graphicsQueue);
+
 
 }

@@ -1,6 +1,8 @@
 #include "VulkanUtil.h"
-#include <string>
 #include <fstream>
+#include <jul/CommandBuffer.h>
+#include <memory>
+#include <string>
 
 VkResult VkUtils::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -19,7 +21,7 @@ void VkUtils::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMes
 	}
 }
 
-std::vector<char> VkUtils::readFile(const std::string& filename)
+std::vector<char> VkUtils::ReadFile(const std::string& filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
@@ -70,4 +72,86 @@ VkUtils::QueueFamilyIndices VkUtils::FindQueueFamilies(VkPhysicalDevice device, 
 	}
 
 	return indices;
+}
+
+uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice)
+{
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+    {
+        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+            return i;
+    }
+
+    return -1;
+}
+
+
+std::tuple<VkBuffer, VkDeviceMemory> VkUtils::CreateBuffer(VkDeviceSize size,
+                                                           VkBufferUsageFlags usage,
+                                                           VkMemoryPropertyFlags properties,
+                                                           VkDevice device,
+                                                           VkPhysicalDevice physicalDevice)
+{
+
+    VkBuffer m_VertexBuffer;
+    VkDeviceMemory m_VertexBufferMemory;
+
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateBuffer(device, &bufferInfo, nullptr, &m_VertexBuffer) != VK_SUCCESS)
+        throw std::runtime_error("failed to create vertex buffer!");
+
+
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, m_VertexBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = FindMemoryType(
+        memRequirements.memoryTypeBits,
+        properties,
+        physicalDevice);
+
+    if (vkAllocateMemory(device, &allocInfo, nullptr, &m_VertexBufferMemory) != VK_SUCCESS)
+        throw std::runtime_error("failed to allocate vertex buffer memory!");
+
+    vkBindBufferMemory(device, m_VertexBuffer, m_VertexBufferMemory, 0);
+
+    return {m_VertexBuffer,m_VertexBufferMemory};
+}
+
+void VkUtils::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDevice device, VkQueue graphicsQueue)
+{
+    auto commandBufferUPtr = std::make_unique<CommandBuffer>(device);
+
+    VkBufferCopy copyRegion{};
+    copyRegion.size = size;
+
+    commandBufferUPtr->BeginCommandBuffer();
+    {
+        vkCmdCopyBuffer(commandBufferUPtr->Get(),srcBuffer,dstBuffer,1,&copyRegion);
+    }
+    commandBufferUPtr->EndCommandBuffer();
+
+    // Needed in order to pass ref
+    VkCommandBuffer shittyCopyElision{commandBufferUPtr->Get()};
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &shittyCopyElision;
+
+    vkQueueSubmit(graphicsQueue , 1 , & submitInfo , VK_NULL_HANDLE);
+    vkQueueWaitIdle(graphicsQueue);
+
+
 }

@@ -12,7 +12,7 @@ void Shader::Initialize(const path& vertexPath, const path& fragmentPath, VkDevi
 	//////////////////////////////
 	/// Create vertex shader info
 	//////////////////////////////
-	const std::vector<char> vertShaderCode = VkUtils::readFile(vertexPath.string());
+    const std::vector<char> vertShaderCode = VkUtils::ReadFile(vertexPath.string());
 	const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode, device);
 
 	m_VertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -24,7 +24,7 @@ void Shader::Initialize(const path& vertexPath, const path& fragmentPath, VkDevi
 	//////////////////////////////
 	/// Create fragment shader info
 	//////////////////////////////
-	const std::vector<char> fragShaderCode = VkUtils::readFile(fragmentPath.string());
+    const std::vector<char> fragShaderCode = VkUtils::ReadFile(fragmentPath.string());
 	const VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode, device);
 
 	m_FragmentInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -45,15 +45,12 @@ VkPipelineVertexInputStateCreateInfo Shader::CreateVertexInputStateInfo()
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-    bindingDescription = Mesh::Vertex::GetBindingDescriptor();
-    attributeDescriptions = Mesh::Vertex::GetAttributeDescriptions();
-
     vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.pVertexBindingDescriptions = &Mesh::Vertex::BINDING_DESCRIPTION;
 
     vertexInputInfo.vertexAttributeDescriptionCount =
-        static_cast<uint32_t>(attributeDescriptions.size());
-    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+        static_cast<uint32_t>(Mesh::Vertex::ATTRIBUTE_DESCRIPTIONS.size());
+    vertexInputInfo.pVertexAttributeDescriptions = Mesh::Vertex::ATTRIBUTE_DESCRIPTIONS.data();
 
     return vertexInputInfo;
 }
