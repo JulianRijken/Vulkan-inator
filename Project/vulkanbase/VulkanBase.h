@@ -42,7 +42,8 @@ struct SwapChainSupportDetails {
 
 class VulkanBase {
 public:
-	void run() {
+	void run()
+	{
 		initWindow();
 		initVulkan();
 		mainLoop();

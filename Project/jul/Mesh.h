@@ -14,9 +14,4 @@ public:
 		[[nodiscard]] static VkVertexInputBindingDescription GetBindingDescriptor();
 		[[nodiscard]] static std::array<VkVertexInputAttributeDescription,2> GetAttributeDescriptions();
 	};
-
-private:
-
-
-
 };
