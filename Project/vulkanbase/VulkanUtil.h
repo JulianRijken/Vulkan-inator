@@ -26,7 +26,6 @@ const bool enableValidationLayers = true;
 #include <optional>
 #include <tuple>
 
-
 namespace VkUtils
 {
 	struct QueueFamilyIndices

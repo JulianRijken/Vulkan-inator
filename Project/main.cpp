@@ -1,4 +1,5 @@
 #include "vulkanbase/VulkanBase.h"
+#include <iostream>
 
 int main() 
 {
@@ -10,7 +11,7 @@ int main()
 
 	try 
 	{
-		app.run();
+        app.Run();
 	}
 	catch (const std::exception& e) 
 	{

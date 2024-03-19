@@ -40,7 +40,7 @@ Mesh::Mesh(VkDevice device, std::vector<Vertex> vertices, VkPhysicalDevice physi
     // Create staging buffer
     std::tie(m_StagingBuffer, m_StagingBufferMemory) = VkUtils::CreateBuffer(
         bufferSize,
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         device,
         physicalDevice);
@@ -56,7 +56,7 @@ Mesh::Mesh(VkDevice device, std::vector<Vertex> vertices, VkPhysicalDevice physi
     // Create Vertex buffer
     std::tie(m_VertexBuffer, m_VertexBufferMemory) = VkUtils::CreateBuffer(
         bufferSize,
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         device,
         physicalDevice);

@@ -2,23 +2,30 @@
 
 #include "jul/Mesh.h"
 #include "jul/Shader.h"
-#include "vulkan/vulkan_core.h"
 
 class Pipeline
 {
 public:
-    Pipeline();
+    Pipeline(VkDevice device, VkRenderPass m_RenderPass);
     ~Pipeline();
-    void Record(const VkExtent2D& swapChainExtent,VkFramebuffer swapChainFramebuffers, VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+    void Draw(const VkExtent2D& swapChainExtent,const std::vector<VkFramebuffer>& swapChainFramebuffers, VkCommandBuffer commandBuffer, uint32_t imageIndex);
+    void InitScene(VkPhysicalDevice physicalDevice,VkQueue graphicsQueue);
 
 private:
 
     void DrawScene(VkCommandBuffer commandBuffer);
 
-    VkRenderPass m_RenderPass;
+    void createGraphicsPipeline();
+
+
     VkPipeline m_Pipeline{};
-    Shader m_Shader{};
+    VkPipelineLayout m_PipelineLayout{};
     std::vector<Mesh> m_Meshes{};
 
+    VkRenderPass m_RenderPass;
+    Shader m_GradientShader;
+
+    VkDevice m_Device;
 };
 

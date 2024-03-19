@@ -3,34 +3,33 @@
 #include <array>
 
 #include "Mesh.h"
-#include "vulkanbase/VulkanBase.h"
+#include "vulkanbase/VulkanUtil.h"
 
 
-
-void Shader::Initialize(const path& vertexPath, const path& fragmentPath, VkDevice device)
+Shader::Shader(const path& vertexPath, const path& fragmentPath, VkDevice device)
 {
-	//////////////////////////////
-	/// Create vertex shader info
-	//////////////////////////////
+    //////////////////////////////
+    /// Create vertex shader info
+    //////////////////////////////
     const std::vector<char> vertShaderCode = VkUtils::ReadFile(vertexPath.string());
-	const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode, device);
+    const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode, device);
 
-	m_VertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	m_VertexInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	m_VertexInfo.module = vertShaderModule;
-	m_VertexInfo.pName = "main";
+    m_VertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    m_VertexInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    m_VertexInfo.module = vertShaderModule;
+    m_VertexInfo.pName = "main";
 
 
-	//////////////////////////////
-	/// Create fragment shader info
-	//////////////////////////////
+    //////////////////////////////
+    /// Create fragment shader info
+    //////////////////////////////
     const std::vector<char> fragShaderCode = VkUtils::ReadFile(fragmentPath.string());
-	const VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode, device);
+    const VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode, device);
 
-	m_FragmentInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	m_FragmentInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	m_FragmentInfo.module = fragShaderModule;
-	m_FragmentInfo.pName = "main";
+    m_FragmentInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    m_FragmentInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    m_FragmentInfo.module = fragShaderModule;
+    m_FragmentInfo.pName = "main";
 }
 
 void Shader::DestroyShaderModules(VkDevice device) const

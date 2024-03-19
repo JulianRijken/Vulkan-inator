@@ -7,4 +7,5 @@ build/web/*
 .cache/
 .vs/
 out/
-*.user*
+.user
+CMakeLists.txt.user

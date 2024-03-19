@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <vulkan/vulkan_core.h>
-#include <array>
 
 using path = std::filesystem::path;
 
@@ -10,9 +9,8 @@ class Shader final
 {
 public:
 
-	Shader() = default;
+    Shader(const path& vertexPath, const path& fragmentPath, VkDevice device);
 
-	void Initialize(const path& vertexPath, const path& fragmentPath, VkDevice device);
 	void DestroyShaderModules(VkDevice device) const;
 
 	Shader(Shader&&) = delete;
