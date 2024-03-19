@@ -31,8 +31,8 @@ const std::array<VkVertexInputAttributeDescription, 2> Mesh::Vertex::ATTRIBUTE_D
 
 
 Mesh::Mesh(VkDevice device, std::vector<Vertex> vertices, VkPhysicalDevice physicalDevice, VkQueue graphicsQueue) :
-    m_NumVerts{ static_cast<uint32_t>(vertices.size()) },
-    m_Device{ device }
+    m_Device{ device },
+    m_NumVerts{ static_cast<uint32_t>(vertices.size()) }
 {
     VkDeviceSize bufferSize{sizeof(Vertex) * vertices.size()};
 

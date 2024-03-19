@@ -51,7 +51,7 @@ void VulkanBase::drawFrame()
 	m_CommandBufferUPtr->BeginCommandBuffer();
 
 	// All rendering goes here
-	Render(imageIndex);
+    m_TestPipline->Record(swapChainExtent,swapChainFramebuffers, imageIndex);
 
 	m_CommandBufferUPtr->EndCommandBuffer();
 

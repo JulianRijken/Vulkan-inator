@@ -27,18 +27,19 @@ add_custom_target(
 
 
 set(SOURCES
-    "main.cpp"
-    "vulkanbase/VulkanUtil.cpp"
-    "vulkanbase/Vulkanbase.cpp"
-     
-    "labwork/Week03.cpp" 
-    "labwork/Week04.cpp" 
-    "labwork/Week05.cpp"
-    "labwork/Week06.cpp"
+    main.cpp
+    vulkanbase/VulkanUtil.cpp
+    vulkanbase/Vulkanbase.cpp
 
-    "jul/Shader.cpp"
-    "jul/CommandBuffer.cpp"
-    "jul/Mesh.cpp"
+    labwork/Week03.cpp
+    labwork/Week04.cpp
+    labwork/Week05.cpp
+    labwork/Week06.cpp
+
+    jul/Shader.cpp
+    jul/CommandBuffer.cpp
+    jul/Mesh.cpp
+    jul/Pipeline.cpp
 )
 
 # Create the executable

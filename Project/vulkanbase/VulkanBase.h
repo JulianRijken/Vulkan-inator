@@ -1,5 +1,6 @@
 #pragma once
 
+#include "jul/Pipeline.h"
 #ifdef WIN32
 #define VK_USE_PLATFORM_WIN32_KHR
 #else
@@ -153,6 +154,9 @@ private:
 	}
 
 
+    std::unique_ptr<Pipeline> m_TestPipline{};
+
+
 
 	// Week 01: 
 	// Actual window
@@ -167,17 +171,12 @@ private:
 
 	void initWindow();
 
-	void drawScene() const;
-
 	// Week 02
 	// Queue families
 	// CommandBuffer concept
 	std::unique_ptr<CommandBuffer> m_CommandBufferUPtr{};
     std::unique_ptr<Mesh> m_TestMesh{};
 
-
-	void Render(uint32_t imageIndex) const;
-	
 	// Week 03
 	// Renderpass concept
 	// Graphics pipeline
@@ -185,7 +184,6 @@ private:
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
-	VkRenderPass renderPass;
 
 	void createFrameBuffers();
 	void createRenderPass();
