@@ -10,70 +10,89 @@ void VulkanBase::Run()
 
 void VulkanBase::InitVulkan()
 {
-    createInstance();
-    setupDebugMessenger();
+    CreateInstance();
+    SetupDebugMessenger();
     CreateSurface();
 
-    pickPhysicalDevice();
-    createLogicalDevice();
+    PickPhysicalDevice();
+    CreateLogicalDevice();
 
-    createSwapChain();
-    createImageViews();
+    CreateSwapChain();
+    CreateImageViews();
 
-    createRenderPass(swapChainImageFormat);
+    m_RenderPass = std::make_unique<RenderPass>(m_Device, m_SwapChainImageFormat);
 
-    m_TestPipline = std::make_unique<Pipeline>(device,m_RenderPass);
-    createFrameBuffers();
+    m_Pipline2D = std::make_unique<Pipeline<Mesh::Vertex2D>>(m_Device,*m_RenderPass);
+    m_Pipline3D = std::make_unique<Pipeline<Mesh::Vertex3D>>(m_Device,*m_RenderPass);
 
-    VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(physicalDevice, surface);
-    m_CommandBufferUPtr = std::make_unique<CommandBuffer>(device, indices.graphicsFamily.value());
+    CreateFrameBuffers();
 
-    createSyncObjects();
+    VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(m_PhysicalDevice, m_Surface);
+    m_CommandBufferUPtr = std::make_unique<CommandBuffer>(m_Device, indices.graphicsFamily.value());
 
-    m_TestPipline->InitScene(physicalDevice,graphicsQueue);
+    CreateSyncObjects();
+
+
+
+    const std::vector<Mesh::Vertex2D> VERTICES = {{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+                                                  {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                                                  {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
+
+
+    m_Pipline2D->AddMesh(Mesh{m_Device,m_PhysicalDevice, m_GraphicsQueue,
+        Mesh::VertexData
+        {
+            .data = (void*) VERTICES.data(),
+            .vertexCount = static_cast<uint32_t>(VERTICES.size()),
+            .typeSize = sizeof(Mesh::Vertex2D)},
+        });
+
+
+    // m_Pipline2D->InitScene(physicalDevice,graphicsQueue);
+    // m_Pipline3D->InitScene(physicalDevice,graphicsQueue);
 }
 
 void VulkanBase::MainLoop()
 {
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(m_window))
     {
         glfwPollEvents();
         DrawFrame();
     }
-    vkDeviceWaitIdle(device);
+    vkDeviceWaitIdle(m_Device);
 }
 
 void VulkanBase::Cleanup()
 {
-    vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
-    vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
-    vkDestroyFence(device, inFlightFence, nullptr);
+    vkDestroySemaphore(m_Device, m_RenderFinishedSemaphore, nullptr);
+    vkDestroySemaphore(m_Device, m_ImageAvailableSemaphore, nullptr);
+    vkDestroyFence(m_Device, m_InFlightFence, nullptr);
 
     m_CommandBufferUPtr.reset();
 
-    for (auto&& framebuffer : swapChainFramebuffers)
-    {
-        vkDestroyFramebuffer(device, framebuffer, nullptr);
-    }
+    for (auto&& framebuffer : m_SwapChainFramebuffers)
+        vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
 
-    m_TestPipline.reset();
-    vkDestroyRenderPass(device, m_RenderPass, nullptr);
 
-    for (auto&& imageView : swapChainImageViews)
-    {
-        vkDestroyImageView(device, imageView, nullptr);
-    }
+    m_Pipline2D.reset();
+    m_Pipline3D.reset();
 
-    if (enableValidationLayers) {
-        VkUtils::DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-    }
-    vkDestroySwapchainKHR(device, swapChain, nullptr);
-    vkDestroyDevice(device, nullptr);
+    m_RenderPass.reset();
 
-    vkDestroySurfaceKHR(instance, surface, nullptr);
-    vkDestroyInstance(instance, nullptr);
+    for (auto&& imageView : m_SwapChainImageViews)
+        vkDestroyImageView(m_Device, imageView, nullptr);
 
-    glfwDestroyWindow(window);
+    if (enableValidationLayers)
+        VkUtils::DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
+
+    vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
+    vkDestroyDevice(m_Device, nullptr);
+
+    vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+    vkDestroyInstance(m_Instance, nullptr);
+
+    glfwDestroyWindow(m_window);
     glfwTerminate();
 }
 
@@ -82,46 +101,15 @@ void VulkanBase::InitWindow()
     glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+    m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 }
 
 void VulkanBase::CreateSurface()
 {
-    if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(m_Instance, m_window, nullptr, &m_Surface) != VK_SUCCESS)
         throw std::runtime_error("failed to create window surface!");
 }
 
 
 
-void VulkanBase::createRenderPass(VkFormat swapChainImageFormat)
-{
-    VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = swapChainImageFormat;
-    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-    VkAttachmentReference colorAttachmentRef{};
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkSubpassDescription subpass{};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-
-    VkRenderPassCreateInfo renderPassInfo{};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = 1;
-    renderPassInfo.pAttachments = &colorAttachment;
-    renderPassInfo.subpassCount = 1;
-    renderPassInfo.pSubpasses = &subpass;
-
-    if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS)
-        throw std::runtime_error("failed to create render pass!");
-
-}

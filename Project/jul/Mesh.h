@@ -21,6 +21,7 @@ public:
     struct Vertex3D
     {
         glm::vec3 pos;
+        glm::vec3 normal;
         glm::vec3 color;
 
         static const VkVertexInputBindingDescription BINDING_DESCRIPTION;
@@ -34,8 +35,15 @@ public:
         uint32_t typeSize;
     };
 
-    Mesh(VkDevice device,const VertexData& vertexData, VkPhysicalDevice physicalDevice, VkQueue graphicsQueue);
+
+    Mesh(VkDevice device,VkPhysicalDevice physicalDevice, VkQueue graphicsQueue, const VertexData &vertexData);
     ~Mesh();
+
+    Mesh(Mesh&&) noexcept;
+    Mesh(const Mesh &) = delete;
+    Mesh &operator=(Mesh &&) = delete;
+    Mesh &operator=(const Mesh &) = delete;
+
 
     void Draw(VkCommandBuffer commandBuf) const;
 

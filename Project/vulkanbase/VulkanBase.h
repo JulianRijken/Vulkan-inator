@@ -19,9 +19,10 @@
 
 #include "jul/Pipeline.h"
 #include "jul/CommandBuffer.h"
+#include "jul/RenderPass.h"
 
-const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
-const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+const std::array<const char*,1> VALIDATION_LAYERS = { "VK_LAYER_KHRONOS_validation" };
+const std::array<const char*,1> DEVICE_EXTENSIONS = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 
 struct SwapChainSupportDetails
@@ -45,57 +46,55 @@ private:
     void InitWindow();
 
     void CreateSurface();
-    void createFrameBuffers();
-    void createSwapChain();
-    void createImageViews();
-    void createInstance();
-    void createSyncObjects();
-    void createLogicalDevice();
+    void CreateFrameBuffers();
+    void CreateSwapChain();
+    void CreateImageViews();
+    void CreateInstance();
+    void CreateSyncObjects();
+    void CreateLogicalDevice();
 
-    void pickPhysicalDevice();
+    void PickPhysicalDevice();
 
     void DrawFrame();
 
-    bool isDeviceSuitable(VkPhysicalDevice device);
-    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-    VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+    bool IsDeviceSuitable(VkPhysicalDevice device);
+    bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
+    SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
+    VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+    VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+    VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 
-    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-    void setupDebugMessenger();
-    std::vector<const char*> getRequiredExtensions();
+    void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+    void SetupDebugMessenger();
+    std::vector<const char*> GetRequiredExtensions();
 
-    GLFWwindow* window;
+    GLFWwindow* m_window;
 
-    std::unique_ptr<Pipeline> m_TestPipline{};
+    std::unique_ptr<Pipeline<Mesh::Vertex2D>> m_Pipline2D{};
+    std::unique_ptr<Pipeline<Mesh::Vertex3D>> m_Pipline3D{};
+
     std::unique_ptr<CommandBuffer> m_CommandBufferUPtr{};
-
-    // TODO: Should the pipline own the render pass?
-    void createRenderPass(VkFormat swapChainImageFormat);
-    VkRenderPass m_RenderPass;
-
+    std::unique_ptr<RenderPass> m_RenderPass{};
 
     // TODO: Abstract swap chain
-    VkFormat swapChainImageFormat;
-    VkExtent2D swapChainExtent;
-    VkSwapchainKHR swapChain;
-    std::vector<VkFramebuffer> swapChainFramebuffers;
-	std::vector<VkImage> swapChainImages;
-    std::vector<VkImageView> swapChainImageViews;
+    VkFormat m_SwapChainImageFormat;
+    VkExtent2D m_SwapChainExtent;
+    VkSwapchainKHR m_SwapChain;
+    std::vector<VkFramebuffer> m_SwapChainFramebuffers;
+    std::vector<VkImage> m_SwapChainImages;
+    std::vector<VkImageView> m_SwapChainImageViews;
 
 
-	VkQueue graphicsQueue;
-	VkQueue presentQueue;
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-	
-	VkInstance instance;
-	VkDebugUtilsMessengerEXT debugMessenger;
-	VkDevice device = VK_NULL_HANDLE;
-	VkSurfaceKHR surface;
+    VkQueue m_GraphicsQueue;
+    VkQueue m_PresentQueue;
+    VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 
-    VkFence inFlightFence;
-	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
+    VkInstance m_Instance;
+    VkDebugUtilsMessengerEXT m_DebugMessenger;
+    VkDevice m_Device = VK_NULL_HANDLE;
+    VkSurfaceKHR m_Surface;
+
+    VkFence m_InFlightFence;
+    VkSemaphore m_ImageAvailableSemaphore;
+    VkSemaphore m_RenderFinishedSemaphore;
 };

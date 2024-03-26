@@ -28,22 +28,23 @@ add_custom_target(
 
 set(SOURCES
     main.cpp
-    vulkanbase/VulkanUtil.cpp
-    vulkanbase/Vulkanbase.cpp
+    vulkanbase/VulkanUtil.cpp  vulkanbase/VulkanUtil.h
+    vulkanbase/Vulkanbase.cpp  vulkanbase/Vulkanbase.h
 
     labwork/Week03.cpp
     labwork/Week04.cpp
     labwork/Week05.cpp
     labwork/Week06.cpp
 
-    jul/Shader.cpp
-    jul/CommandBuffer.cpp
-    jul/Mesh.cpp
-    jul/Pipeline.cpp
+    jul/Shader.cpp          jul/Shader.h
+    jul/CommandBuffer.cpp   jul/CommandBuffer.h
+    jul/Mesh.cpp            jul/Mesh.h
+    jul/Pipeline.cpp        jul/Pipeline.h
 )
 
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES}
+    jul/RenderPass.h jul/RenderPass.cpp)
 
 # target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wpedantic)
 

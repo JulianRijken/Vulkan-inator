@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Mesh.h"
-
 #include <filesystem>
 #include <vulkan/vulkan_core.h>
 
@@ -13,7 +11,7 @@ public:
 
     Shader(const path& vertexPath, const path& fragmentPath, VkDevice device);
 
-	void DestroyShaderModules(VkDevice device) const;
+    void DestroyShaderModules(VkDevice device) const;
 
 	Shader(Shader&&) = delete;
 	Shader(const Shader&) = delete;
@@ -26,7 +24,7 @@ public:
 
 
     template<typename Vertex>
-    [[nodiscard]] VkPipelineVertexInputStateCreateInfo   CreateVertexInputStateInfo()
+    [[nodiscard]] VkPipelineVertexInputStateCreateInfo CreateVertexInputStateInfo()
     {
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

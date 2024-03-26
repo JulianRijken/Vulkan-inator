@@ -1,10 +1,9 @@
 #include "Mesh.h"
 #include "vulkanbase/VulkanUtil.h"
 
-
-Mesh::Mesh(VkDevice device,const VertexData& vertexData, VkPhysicalDevice physicalDevice, VkQueue graphicsQueue) :
-    m_Device{ device },
-    m_NumVerts{ vertexData.vertexCount}
+Mesh::Mesh(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue graphicsQueue, const VertexData& vertexData) :
+      m_Device{device},
+      m_NumVerts{vertexData.vertexCount}
 {
     VkDeviceSize const BUFFER_SIZE{vertexData.typeSize * vertexData.vertexCount};
 
@@ -37,11 +36,36 @@ Mesh::Mesh(VkDevice device,const VertexData& vertexData, VkPhysicalDevice physic
     VkUtils::CopyBuffer(m_StagingBuffer,m_VertexBuffer,BUFFER_SIZE,device,graphicsQueue);
 }
 
+Mesh::Mesh(Mesh&& other) noexcept :
+      m_Device(other.m_Device),
+      m_NumVerts(other.m_NumVerts),
+      m_StagingBuffer(other.m_StagingBuffer),
+      m_VertexBuffer(other.m_VertexBuffer),
+      m_StagingBufferMemory(other.m_StagingBufferMemory),
+      m_VertexBufferMemory(other.m_VertexBufferMemory)
+{
+    other.m_StagingBuffer = VK_NULL_HANDLE;
+    other.m_StagingBufferMemory = VK_NULL_HANDLE;
+    other.m_VertexBuffer = VK_NULL_HANDLE;
+    other.m_VertexBufferMemory = VK_NULL_HANDLE;
+}
+
 Mesh::~Mesh()
 {
-    vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
-    vkFreeMemory(m_Device, m_VertexBufferMemory, nullptr);
+    if(m_StagingBuffer != VK_NULL_HANDLE)
+        vkDestroyBuffer(m_Device, m_StagingBuffer, nullptr);
+
+    if(m_StagingBufferMemory != VK_NULL_HANDLE)
+        vkFreeMemory(m_Device, m_StagingBufferMemory, nullptr);
+
+    if(m_VertexBuffer != VK_NULL_HANDLE)
+        vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
+
+    if(m_VertexBufferMemory != VK_NULL_HANDLE)
+        vkFreeMemory(m_Device, m_VertexBufferMemory, nullptr);
 }
+
+
 
 void Mesh::Draw(VkCommandBuffer commandBuf) const
 {
@@ -85,36 +109,32 @@ const std::array<VkVertexInputAttributeDescription,2> Mesh::Vertex2D::ATTRIBUTE_
 
 const VkVertexInputBindingDescription Mesh::Vertex3D::BINDING_DESCRIPTION
     {
-
         .binding = 0,
         .stride = sizeof(Mesh::Vertex3D),
         .inputRate = VK_VERTEX_INPUT_RATE_VERTEX
-
     };
 
 const std::array<VkVertexInputAttributeDescription,3> Mesh::Vertex3D::ATTRIBUTE_DESCRIPTIONS
     {
-
         VkVertexInputAttributeDescription
         {
             .location = 0,
             .binding = 0,
-            .format = VK_FORMAT_R32G32_SFLOAT,
-            .offset = offsetof(Mesh::Vertex3D, pos),
-        },
-        {
-            .location = 1,
-            .bind ing = 0,
             .format = VK_FORMAT_R32G32B32_SFLOAT,
-            .offset = offsetof(Mesh::Vertex3D, color)
+            .offset = offsetof(Mesh::Vertex3D, pos),
         },
         {
             .location = 1,
             .binding = 0,
             .format = VK_FORMAT_R32G32B32_SFLOAT,
+            .offset = offsetof(Mesh::Vertex3D, normal)
+        },
+        {
+            .location = 2,
+            .binding = 0,
+            .format = VK_FORMAT_R32G32B32_SFLOAT,
             .offset = offsetof(Mesh::Vertex3D, color)
         }
-
     };
 
 
