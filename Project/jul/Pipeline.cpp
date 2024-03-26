@@ -1,11 +1,10 @@
 #include "Pipeline.h"
 #include "vulkan/vulkan_core.h"
-#include "vulkanbase/VulkanUtil.h"
 
-Pipeline::Pipeline(VkDevice device, VkRenderPass m_RenderPass) :
-      m_Device(device),
-      m_GradientShader("shaders/shader.vert.spv", "shaders/shader.frag.spv", device),
-      m_RenderPass(m_RenderPass)
+Pipeline::Pipeline(VkDevice device, VkRenderPass renderPass) :
+    m_RenderPass(renderPass),
+    m_GradientShader("shaders/shader.vert.spv", "shaders/shader.frag.spv", device),
+    m_Device(device)
 {
     createGraphicsPipeline();
 }
@@ -18,6 +17,7 @@ Pipeline::~Pipeline()
 
 void Pipeline::Draw(const VkExtent2D& swapChainExtent,const std::vector<VkFramebuffer>& swapChainFramebuffers, VkCommandBuffer commandBuffer, uint32_t imageIndex)
 {
+    // TODO: move begin render pass outside of pipeline becasue of clear color
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = m_RenderPass;
@@ -123,11 +123,11 @@ void Pipeline::createGraphicsPipeline()
 
     VkPipelineShaderStageCreateInfo shaderStages[] =
         {
-                                                      m_GradientShader.GetVertexInfo(),
-        m_GradientShader.GetFragmentInfo()
+            m_GradientShader.GetVertexInfo(),
+            m_GradientShader.GetFragmentInfo()
         };
 
-    auto vertexInputState{ m_GradientShader.CreateVertexInputStateInfo() };
+    auto vertexInputState{ m_GradientShader.CreateVertexInputStateInfo<Mesh::Vertex2D>() };
     auto inputAssemblyState{ m_GradientShader.CreateInputAssemblyStateInfo() };
 
     pipelineInfo.stageCount = 2;
@@ -154,13 +154,20 @@ void Pipeline::createGraphicsPipeline()
 
 void Pipeline::InitScene(VkPhysicalDevice physicalDevice,VkQueue graphicsQueue)
 {
-    const std::vector<Mesh::Vertex> vertices =
+    const std::vector<Mesh::Vertex2D> VERTICES =
         {
             {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
             {{0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
         };
 
-    m_Meshes.emplace_back(m_Device, vertices, physicalDevice, graphicsQueue);
+    m_Meshes.emplace_back(m_Device,
+    Mesh::VertexData
+    {
+        .data =  (void*)VERTICES.data(),
+        .vertexCount = static_cast<uint32_t>(VERTICES.size()),
+                              .typeSize = sizeof(Mesh::Vertex2D)
+    },
+    physicalDevice, graphicsQueue);
 
 }

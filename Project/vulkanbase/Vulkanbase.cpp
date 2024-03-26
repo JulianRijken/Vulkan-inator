@@ -51,7 +51,7 @@ void VulkanBase::Cleanup()
 
     m_CommandBufferUPtr.reset();
 
-    for (auto framebuffer : swapChainFramebuffers)
+    for (auto&& framebuffer : swapChainFramebuffers)
     {
         vkDestroyFramebuffer(device, framebuffer, nullptr);
     }
@@ -59,7 +59,7 @@ void VulkanBase::Cleanup()
     m_TestPipline.reset();
     vkDestroyRenderPass(device, m_RenderPass, nullptr);
 
-    for (auto imageView : swapChainImageViews)
+    for (auto&& imageView : swapChainImageViews)
     {
         vkDestroyImageView(device, imageView, nullptr);
     }
