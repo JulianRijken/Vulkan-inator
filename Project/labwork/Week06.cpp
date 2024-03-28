@@ -30,7 +30,8 @@ void VulkanBase::SetupDebugMessenger()
         throw std::runtime_error("failed to set up debug messenger!");
 }
 
-void VulkanBase::CreateSyncObjects() {
+void VulkanBase::CreateSyncObjects()
+{
 	VkSemaphoreCreateInfo semaphoreInfo{};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -150,7 +151,7 @@ std::vector<const char*> VulkanBase::GetRequiredExtensions()
 
 bool VulkanBase::CheckDeviceExtensionSupport(VkPhysicalDevice device)
 {
-	uint32_t extensionCount;
+    uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
 	std::vector<VkExtensionProperties> availableExtensions(extensionCount);

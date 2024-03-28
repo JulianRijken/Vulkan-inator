@@ -17,13 +17,10 @@ void VulkanBase::InitVulkan()
     PickPhysicalDevice();
     CreateLogicalDevice();
 
-    CreateSwapChain();
-    CreateImageViews();
-
-    m_RenderPass = std::make_unique<RenderPass>(m_Device, m_SwapChainImageFormat);
-
-    m_Pipline2D = std::make_unique<Pipeline<Mesh::Vertex2D>>(m_Device,*m_RenderPass);
-    m_Pipline3D = std::make_unique<Pipeline<Mesh::Vertex3D>>(m_Device,*m_RenderPass);
+    m_SwapChain  = std::make_unique<SwapChain>();
+    m_RenderPass = std::make_unique<RenderPass>(m_Device, m_SwapChain->GetImageFormat());
+    m_Pipline2D  = std::make_unique<Pipeline<Mesh::Vertex2D>>(m_Device,*m_RenderPass);
+    m_Pipline3D  = std::make_unique<Pipeline<Mesh::Vertex3D>>(m_Device,*m_RenderPass);
 
     CreateFrameBuffers();
 
@@ -71,23 +68,19 @@ void VulkanBase::Cleanup()
 
     m_CommandBufferUPtr.reset();
 
-    for (auto&& framebuffer : m_SwapChainFramebuffers)
-        vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
-
+    // TODO try moving this in to the destructor of swap chain
+    m_SwapChain->DestroyFrameBuffer();
 
     m_Pipline2D.reset();
     m_Pipline3D.reset();
-
     m_RenderPass.reset();
+    m_SwapChain.reset();
 
-    for (auto&& imageView : m_SwapChainImageViews)
-        vkDestroyImageView(m_Device, imageView, nullptr);
+
+    vkDestroyDevice(m_Device, nullptr);
 
     if (enableValidationLayers)
         VkUtils::DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
-
-    vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
-    vkDestroyDevice(m_Device, nullptr);
 
     vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
     vkDestroyInstance(m_Instance, nullptr);
