@@ -1,47 +1,58 @@
 #include "Shader.h"
 #include "vulkanbase/VulkanUtil.h"
 
-
-Shader::Shader(const path& vertexPath, const path& fragmentPath, VkDevice device)
+Shader::Shader(const path& vertexPath, const path& fragmentPath, VkDevice device) :
+    m_Device(device)
 {
     //////////////////////////////
     /// Create vertex shader info
     //////////////////////////////
-    const std::vector<char> VERT_SHADER_CODE = VkUtils::ReadFile(vertexPath.string());
-    const VkShaderModule VERT_SHADER_MODULE = CreateShaderModule(VERT_SHADER_CODE, device);
+    const std::vector<char> vertShaderCode = VkUtils::ReadFile(vertexPath.string());
+    const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode, device);
 
     m_VertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     m_VertexInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    m_VertexInfo.module = VERT_SHADER_MODULE;
+    m_VertexInfo.module = vertShaderModule;
     m_VertexInfo.pName = "main";
 
 
     //////////////////////////////
     /// Create fragment shader info
     //////////////////////////////
-    const std::vector<char> FRAG_SHADER_CODE = VkUtils::ReadFile(fragmentPath.string());
-    const VkShaderModule FRAG_SHADER_MODULE = CreateShaderModule(FRAG_SHADER_CODE, device);
+    const std::vector<char> fragShaderCode = VkUtils::ReadFile(fragmentPath.string());
+    const VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode, device);
 
     m_FragmentInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     m_FragmentInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    m_FragmentInfo.module = FRAG_SHADER_MODULE;
+    m_FragmentInfo.module = fragShaderModule;
     m_FragmentInfo.pName = "main";
 }
 
-void Shader::DestroyShaderModules(VkDevice device) const
+Shader::~Shader()
 {
-	vkDestroyShaderModule(device, m_VertexInfo.module, nullptr);
-	vkDestroyShaderModule(device, m_FragmentInfo.module, nullptr);
+    if(m_VertexInfo.module != VK_NULL_HANDLE)
+        vkDestroyShaderModule(m_Device, m_VertexInfo.module, nullptr);
+
+    if(m_FragmentInfo.module != VK_NULL_HANDLE)
+        vkDestroyShaderModule(m_Device, m_FragmentInfo.module, nullptr);
 }
 
-
-VkPipelineInputAssemblyStateCreateInfo Shader::CreateInputAssemblyStateInfo()
+Shader::Shader(Shader&& other) noexcept :
+    m_VertexInfo(other.m_VertexInfo),
+    m_Device(other.m_Device),
+    m_FragmentInfo(other.m_FragmentInfo)
 {
-	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-	inputAssembly.primitiveRestartEnable = VK_FALSE;
-	return inputAssembly;
+    other.m_VertexInfo.module = VK_NULL_HANDLE;
+    other.m_FragmentInfo.module = VK_NULL_HANDLE;
+}
+
+VkPipelineInputAssemblyStateCreateInfo Shader::CreateInputAssemblyStateInfo() const
+{
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+    inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+    return inputAssembly;
 }
 
 VkShaderModule Shader::CreateShaderModule(const std::vector<char>& code, VkDevice device)

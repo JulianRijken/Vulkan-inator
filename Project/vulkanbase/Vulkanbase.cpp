@@ -25,8 +25,13 @@ void VulkanBase::InitVulkan()
     m_SwapChain = std::make_unique<SwapChain>(m_Device, m_PhysicalDevice, m_Surface, windowSize);
     m_RenderPass = std::make_unique<RenderPass>(m_Device, m_SwapChain->GetImageFormat());
 
-    m_Pipline2D = std::make_unique<Pipeline<Mesh::Vertex2D>>(m_Device, *m_RenderPass);
-    m_Pipline3D  = std::make_unique<Pipeline<Mesh::Vertex3D>>(m_Device,*m_RenderPass);
+
+    m_Pipline2D = std::make_unique<Pipeline<Mesh::Vertex2D>>(
+        m_Device, *m_RenderPass, Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv", m_Device });
+
+    m_Pipline3D = std::make_unique<Pipeline<Mesh::Vertex3D>>(
+        m_Device, *m_RenderPass, Shader{ "shaders/shader3D.vert.spv", "shaders/shader3D.frag.spv", m_Device });
+
 
     m_SwapChain->CreateFrameBuffers(m_RenderPass.get());
 
@@ -35,25 +40,62 @@ void VulkanBase::InitVulkan()
 
     CreateSyncObjects();
 
+    {
+        const std::vector<Mesh::Vertex2D> vertices = {
+            {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
+            { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
+            {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
+        };
 
-    const std::vector<Mesh::Vertex2D> vertices = {
-        {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
-        { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
-        {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
-    };
-
-    const std::vector<uint32_t> indeces = { 0, 1, 2 };
+        const std::vector<uint32_t> indeces = { 0, 1, 2 };
 
 
-    m_Pipline2D->AddMesh(Mesh{
-        m_Device,
-        m_PhysicalDevice,
-        m_GraphicsQueue,
-        indeces,
-        Mesh::VertexData{.data = (void*)vertices.data(),
-                         .vertexCount = static_cast<uint32_t>(vertices.size()),
-                         .typeSize = sizeof(Mesh::Vertex2D)}
-    });
+        // m_Pipline2D->AddMesh(Mesh{
+        //     m_Device,
+        //     m_PhysicalDevice,
+        //     m_GraphicsQueue,
+        //     indeces,
+        //     Mesh::VertexData{.data = (void*)vertices.data(),
+        //                      .vertexCount = static_cast<uint32_t>(vertices.size()),
+        //                      .typeSize = sizeof(Mesh::Vertex2D)}
+        // });
+    }
+
+    {
+
+        const std::vector<Mesh::Vertex3D> vertices{
+  // front
+            { { -0.5f, -0.5f, 0.5f }, {}, { 1, 0, 1 }}, // 0
+            {  { 0.5f, -0.5f, 0.5f }, {}, { 1, 0, 1 }}, // 1
+            {   { 0.5f, 0.5f, 0.5f }, {}, { 1, 0, 1 }}, // 2
+            {  { -0.5f, 0.5f, 0.5f }, {}, { 1, 0, 1 }}, // 3
+
+  // back
+            {{ -0.5f, -0.5f, -0.5f }, {}, { 1, 0, 1 }}, // 4
+            { { 0.5f, -0.5f, -0.5f }, {}, { 1, 0, 1 }}, // 5
+            {  { 0.5f, 0.5f, -0.5f }, {}, { 1, 0, 1 }}, // 6
+            { { -0.5f, 0.5f, -0.5f }, {}, { 1, 0, 1 }}  // 7
+        };
+
+        const std::vector<uint32_t> indeces{
+            0, 1, 2, 2, 3, 0,  // front
+            1, 5, 6, 6, 2, 1,  // right
+            5, 4, 7, 7, 6, 5,  // back
+            4, 0, 3, 3, 7, 4,  // left
+            3, 2, 6, 6, 7, 3,  // top
+            4, 5, 1, 1, 0, 4   // bottom
+        };
+
+        m_Pipline3D->AddMesh(Mesh{
+            m_Device,
+            m_PhysicalDevice,
+            m_GraphicsQueue,
+            indeces,
+            Mesh::VertexData{.data = (void*)vertices.data(),
+                             .vertexCount = static_cast<uint32_t>(vertices.size()),
+                             .typeSize = sizeof(Mesh::Vertex2D)}
+        });
+    }
 }
 
 void VulkanBase::MainLoop()

@@ -10,21 +10,20 @@ class Shader final
 public:
 
     Shader(const path& vertexPath, const path& fragmentPath, VkDevice device);
+    ~Shader();
 
-    void DestroyShaderModules(VkDevice device) const;
+    Shader(Shader&& other) noexcept;
 
-	Shader(Shader&&) = delete;
-	Shader(const Shader&) = delete;
-	Shader& operator=(Shader&&) = delete;
-	Shader& operator=(const Shader&) = delete;
+    Shader(const Shader&) = delete;
+    Shader& operator=(Shader&&) = delete;
+    Shader& operator=(const Shader&) = delete;
 
+    [[nodiscard]] const VkPipelineShaderStageCreateInfo& GetVertexInfo() const { return m_VertexInfo; }
 
-	[[nodiscard]] const VkPipelineShaderStageCreateInfo& GetVertexInfo() const  { return m_VertexInfo; }
-	[[nodiscard]] const VkPipelineShaderStageCreateInfo& GetFragmentInfo() const { return m_FragmentInfo; }
-
+    [[nodiscard]] const VkPipelineShaderStageCreateInfo& GetFragmentInfo() const { return m_FragmentInfo; }
 
     template<typename Vertex>
-    [[nodiscard]] VkPipelineVertexInputStateCreateInfo CreateVertexInputStateInfo()
+    [[nodiscard]] VkPipelineVertexInputStateCreateInfo CreateVertexInputStateInfo() const
     {
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -39,7 +38,7 @@ public:
         return vertexInputInfo;
     }
 
-    [[nodiscard]] VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyStateInfo();
+    [[nodiscard]] VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyStateInfo() const;
 
 private:
 
@@ -47,4 +46,6 @@ private:
 
 	VkPipelineShaderStageCreateInfo m_VertexInfo{};
 	VkPipelineShaderStageCreateInfo m_FragmentInfo{};
+
+    VkDevice m_Device{};
 };
