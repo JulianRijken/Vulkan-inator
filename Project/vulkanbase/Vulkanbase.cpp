@@ -1,5 +1,6 @@
 #include "vulkanbase/VulkanBase.h"
 
+
 void VulkanBase::Run()
 {
     InitWindow();
@@ -17,12 +18,16 @@ void VulkanBase::InitVulkan()
     PickPhysicalDevice();
     CreateLogicalDevice();
 
-    m_SwapChain  = std::make_unique<SwapChain>();
+
+    glm::ivec2 windowSize{};
+    glfwGetFramebufferSize(m_window, &windowSize.x, &windowSize.y);
+
+    m_SwapChain = std::make_unique<SwapChain>(m_Device, m_PhysicalDevice, m_Surface, windowSize);
     m_RenderPass = std::make_unique<RenderPass>(m_Device, m_SwapChain->GetImageFormat());
     m_Pipline2D  = std::make_unique<Pipeline<Mesh::Vertex2D>>(m_Device,*m_RenderPass);
     m_Pipline3D  = std::make_unique<Pipeline<Mesh::Vertex3D>>(m_Device,*m_RenderPass);
 
-    CreateFrameBuffers();
+    m_SwapChain->CreateFrameBuffers(m_RenderPass.get());
 
     VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(m_PhysicalDevice, m_Surface);
     m_CommandBufferUPtr = std::make_unique<CommandBuffer>(m_Device, indices.graphicsFamily.value());
@@ -30,20 +35,21 @@ void VulkanBase::InitVulkan()
     CreateSyncObjects();
 
 
+    const std::vector<Mesh::Vertex2D> vertices = {
+        {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
+        { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
+        {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
+    };
 
-    const std::vector<Mesh::Vertex2D> VERTICES = {{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-                                                  {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-                                                  {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
-
-
-    m_Pipline2D->AddMesh(Mesh{m_Device,m_PhysicalDevice, m_GraphicsQueue,
-        Mesh::VertexData
-        {
-            .data = (void*) VERTICES.data(),
-            .vertexCount = static_cast<uint32_t>(VERTICES.size()),
-            .typeSize = sizeof(Mesh::Vertex2D)},
-        });
+    m_Pipline2D->AddMesh(Mesh{
+        m_Device,
+        m_PhysicalDevice,
+        m_GraphicsQueue,
+        Mesh::VertexData{.data = (void*)vertices.data(),
+                         .vertexCount = static_cast<uint32_t>(vertices.size()),
+                         .typeSize = sizeof(Mesh::Vertex2D)},
+    });
 
 
     // m_Pipline2D->InitScene(physicalDevice,graphicsQueue);

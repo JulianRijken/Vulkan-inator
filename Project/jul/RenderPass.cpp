@@ -41,12 +41,12 @@ RenderPass::~RenderPass()
     vkDestroyRenderPass(m_Divice, m_RenderPass, nullptr);
 }
 
-void RenderPass::Begin(std::vector<VkFramebuffer> swapChainFramebuffers,int imageIndex,VkExtent2D swapChainExtent,VkCommandBuffer commandBuffer)
+void RenderPass::Begin(VkFramebuffer swapChainFramebuffers, VkExtent2D swapChainExtent, VkCommandBuffer commandBuffer)
 {
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = m_RenderPass;
-    renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+    renderPassInfo.framebuffer = swapChainFramebuffers;
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = swapChainExtent;
 

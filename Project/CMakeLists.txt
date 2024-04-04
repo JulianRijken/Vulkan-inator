@@ -38,11 +38,12 @@ set(SOURCES
     jul/CommandBuffer.cpp   jul/CommandBuffer.h
     jul/Mesh.cpp            jul/Mesh.h
     jul/Pipeline.cpp        jul/Pipeline.h
+    jul/RenderPass.cpp      jul/RenderPass.h
+    jul/SwapChain.cpp       jul/SwapChain.h
 )
 
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES}
-    jul/RenderPass.h jul/RenderPass.cpp)
+add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES})
 
 # target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wpedantic)
 
