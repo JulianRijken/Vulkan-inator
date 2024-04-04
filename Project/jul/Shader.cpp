@@ -1,32 +1,31 @@
 #include "Shader.h"
-#include "vulkanbase/VulkanBase.h"
+#include "vulkanbase/VulkanUtil.h"
 
 
-
-void Shader::Initialize(const path& vertexPath, const path& fragmentPath, VkDevice device)
+Shader::Shader(const path& vertexPath, const path& fragmentPath, VkDevice device)
 {
-	//////////////////////////////
-	/// Create vertex shader info
-	//////////////////////////////
-	const std::vector<char> vertShaderCode = VkUtils::readFile(vertexPath.string());
-	const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode, device);
+    //////////////////////////////
+    /// Create vertex shader info
+    //////////////////////////////
+    const std::vector<char> VERT_SHADER_CODE = VkUtils::ReadFile(vertexPath.string());
+    const VkShaderModule VERT_SHADER_MODULE = CreateShaderModule(VERT_SHADER_CODE, device);
 
-	m_VertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	m_VertexInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	m_VertexInfo.module = vertShaderModule;
-	m_VertexInfo.pName = "main";
+    m_VertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    m_VertexInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    m_VertexInfo.module = VERT_SHADER_MODULE;
+    m_VertexInfo.pName = "main";
 
 
-	//////////////////////////////
-	/// Create fragment shader info
-	//////////////////////////////
-	const std::vector<char> fragShaderCode = VkUtils::readFile(fragmentPath.string());
-	const VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode, device);
+    //////////////////////////////
+    /// Create fragment shader info
+    //////////////////////////////
+    const std::vector<char> FRAG_SHADER_CODE = VkUtils::ReadFile(fragmentPath.string());
+    const VkShaderModule FRAG_SHADER_MODULE = CreateShaderModule(FRAG_SHADER_CODE, device);
 
-	m_FragmentInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	m_FragmentInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	m_FragmentInfo.module = fragShaderModule;
-	m_FragmentInfo.pName = "main";
+    m_FragmentInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    m_FragmentInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    m_FragmentInfo.module = FRAG_SHADER_MODULE;
+    m_FragmentInfo.pName = "main";
 }
 
 void Shader::DestroyShaderModules(VkDevice device) const
@@ -35,15 +34,6 @@ void Shader::DestroyShaderModules(VkDevice device) const
 	vkDestroyShaderModule(device, m_FragmentInfo.module, nullptr);
 }
 
-
-VkPipelineVertexInputStateCreateInfo Shader::CreateVertexInputStateInfo()
-{
-	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-	return vertexInputInfo;
-}
 
 VkPipelineInputAssemblyStateCreateInfo Shader::CreateInputAssemblyStateInfo()
 {

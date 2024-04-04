@@ -5,7 +5,7 @@
 class CommandBuffer final
 {
 public:
-	CommandBuffer(VkDevice device,uint32_t familyIndex);
+    CommandBuffer(VkDevice device,uint32_t familyIndex = 0);
 	~CommandBuffer();
 
 	[[nodiscard]] VkCommandBuffer Get() const { return m_CommandBuffer; }
@@ -14,7 +14,9 @@ public:
 	void EndCommandBuffer() const;
 
 private:
-	VkCommandPool m_CommandPool{};
+    static inline VkCommandPool s_CommandPool{nullptr};
+    static inline int s_AliveBuffers{};
+
 	VkCommandBuffer m_CommandBuffer{};
 	VkDevice m_Device;
 };

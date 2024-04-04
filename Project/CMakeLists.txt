@@ -27,22 +27,26 @@ add_custom_target(
 
 
 set(SOURCES
-    "main.cpp"
-    "vulkanbase/VulkanUtil.cpp"
-    "vulkanbase/Vulkanbase.cpp"
-     
-    "labwork/Week03.cpp" 
-    "labwork/Week04.cpp" 
-    "labwork/Week05.cpp"
-    "labwork/Week06.cpp"
+    main.cpp
+    vulkanbase/VulkanUtil.cpp  vulkanbase/VulkanUtil.h
+    vulkanbase/Vulkanbase.cpp  vulkanbase/Vulkanbase.h
 
-    "jul/Shader.cpp"
-    "jul/CommandBuffer.cpp"
-    "jul/Mesh.cpp"
+    labwork/Week05.cpp
+    labwork/Week06.cpp
+
+    jul/Shader.cpp          jul/Shader.h
+    jul/CommandBuffer.cpp   jul/CommandBuffer.h
+    jul/Mesh.cpp            jul/Mesh.h
+    jul/Pipeline.cpp        jul/Pipeline.h
+    jul/RenderPass.cpp      jul/RenderPass.h
+    jul/SwapChain.cpp       jul/SwapChain.h
 )
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES})
+
+# target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wpedantic)
+
 add_dependencies(${PROJECT_NAME} Shaders)
 # Link libraries
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

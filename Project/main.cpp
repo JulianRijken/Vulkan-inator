@@ -1,16 +1,20 @@
 #include "vulkanbase/VulkanBase.h"
+#include <iostream>
 
-int main() {
+int main() 
+{
 	// DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 = 1
 	//DISABLE_LAYER_NV_OPTIMUS_1 = 1
 	//_putenv_s("DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1", "1");
 	//_putenv_s("DISABLE_LAYER_NV_OPTIMUS_1", "1");
 	VulkanBase app;
 
-	try {
-		app.run();
+	try 
+	{
+        app.Run();
 	}
-	catch (const std::exception& e) {
+	catch (const std::exception& e) 
+	{
 		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
