@@ -50,6 +50,4 @@ namespace VkUtils
 
     std::tuple<VkBuffer,VkDeviceMemory> CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDevice device,VkPhysicalDevice physicalDevice);
     void CopyBuffer(VkBuffer srcBuffer , VkBuffer dstBuffer , VkDeviceSize size, VkDevice device, VkQueue graphicsQueue);
-
-
 }

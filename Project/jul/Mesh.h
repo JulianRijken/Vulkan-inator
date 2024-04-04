@@ -1,8 +1,10 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <array>
 #include <vulkan/vulkan_core.h>
+
+#include <array>
+#include <glm/glm.hpp>
+#include <vector>
 
 class Mesh final
 {
@@ -35,8 +37,8 @@ public:
         uint32_t typeSize;
     };
 
-
-    Mesh(VkDevice device,VkPhysicalDevice physicalDevice, VkQueue graphicsQueue, const VertexData &vertexData);
+    Mesh(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue graphicsQueue, const std::vector<uint32_t>& indicies,
+         const VertexData& vertexData);
     ~Mesh();
 
     Mesh(Mesh&&) noexcept;
@@ -53,8 +55,12 @@ private:
     VkBuffer m_VertexBuffer{};
     VkDeviceMemory m_VertexBufferMemory{};
 
+    VkBuffer m_IndexBuffer{};
+    VkDeviceMemory m_IndexBufferMemory{};
+
+
     VkBuffer m_StagingBuffer{};
     VkDeviceMemory m_StagingBufferMemory{};
 
-    uint32_t m_NumVerts;
+    uint32_t m_NumIndices;
 };

@@ -24,7 +24,8 @@ void VulkanBase::InitVulkan()
 
     m_SwapChain = std::make_unique<SwapChain>(m_Device, m_PhysicalDevice, m_Surface, windowSize);
     m_RenderPass = std::make_unique<RenderPass>(m_Device, m_SwapChain->GetImageFormat());
-    m_Pipline2D  = std::make_unique<Pipeline<Mesh::Vertex2D>>(m_Device,*m_RenderPass);
+
+    m_Pipline2D = std::make_unique<Pipeline<Mesh::Vertex2D>>(m_Device, *m_RenderPass);
     m_Pipline3D  = std::make_unique<Pipeline<Mesh::Vertex3D>>(m_Device,*m_RenderPass);
 
     m_SwapChain->CreateFrameBuffers(m_RenderPass.get());
@@ -41,19 +42,18 @@ void VulkanBase::InitVulkan()
         {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
     };
 
+    const std::vector<uint32_t> indeces = { 0, 1, 2 };
+
 
     m_Pipline2D->AddMesh(Mesh{
         m_Device,
         m_PhysicalDevice,
         m_GraphicsQueue,
+        indeces,
         Mesh::VertexData{.data = (void*)vertices.data(),
                          .vertexCount = static_cast<uint32_t>(vertices.size()),
-                         .typeSize = sizeof(Mesh::Vertex2D)},
+                         .typeSize = sizeof(Mesh::Vertex2D)}
     });
-
-
-    // m_Pipline2D->InitScene(physicalDevice,graphicsQueue);
-    // m_Pipline3D->InitScene(physicalDevice,graphicsQueue);
 }
 
 void VulkanBase::MainLoop()

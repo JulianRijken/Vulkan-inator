@@ -50,10 +50,8 @@ public:
 private:
     void DrawScene(VkCommandBuffer commandBuffer)
     {
-        for (auto&& mesh : m_Meshes) {
-            mesh.Draw(commandBuffer);
-            vkCmdDraw(commandBuffer, 6, 1, 0, 0);
-        }
+        for(auto&& mesh : m_Meshes)
+            mesh.Draw(commandBuffer);   
     }
 
     void CreateGraphicsPipeline()
