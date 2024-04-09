@@ -28,6 +28,11 @@ public:
 
     VkExtent2D GetExtent() { return m_SwapChainExtent; }
 
+    [[nodiscard]] float GetAspect() const
+    {
+        return static_cast<float>(m_SwapChainExtent.width) / static_cast<float>(m_SwapChainExtent.height);
+    }
+
     VkFramebuffer GetFrameBuffer(int index) { return m_SwapChainFramebuffers[index]; }
 
     [[nodiscard]] int GetImageCount();

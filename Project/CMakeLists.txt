@@ -37,11 +37,12 @@ set(SOURCES
     jul/Shader.cpp          jul/Shader.h
     jul/CommandBuffer.cpp   jul/CommandBuffer.h
     jul/Mesh.cpp            jul/Mesh.h
-    jul/Pipeline.cpp        jul/Pipeline.h
+                            jul/Pipeline.h
     jul/RenderPass.cpp      jul/RenderPass.h
     jul/SwapChain.cpp       jul/SwapChain.h
     jul/Buffer.cpp          jul/Buffer.h
     jul/DescriptorPool.cpp  jul/DescriptorPool.h
+    jul/Camera.cpp          jul/Camera.h
 )
 
 # Create the executable

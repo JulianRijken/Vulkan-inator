@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "DescriptorPool.h"
+#include "jul/Camera.h"
 #include "jul/Mesh.h"
 #include "jul/Shader.h"
 
@@ -12,10 +13,11 @@ class Pipeline
 {
 public:
     Pipeline(VkDevice device, VkPhysicalDevice physicalDevice, VkRenderPass renderPass, const Shader& shader,
-             int maxFramesCount) :
+             int maxFramesCount, Camera* camera = nullptr) :
         m_RenderPass(renderPass),
         m_Device(device),
-        m_PhysicalDevice(physicalDevice)
+        m_PhysicalDevice(physicalDevice),
+        m_Camera(camera)
     {
         CreateDescriptorSetLayout();
         CreateUniformbuffers(maxFramesCount);
@@ -143,7 +145,6 @@ public:
                                 nullptr);
 
 
-        // Draw scene
         for(auto&& mesh : m_Meshes)
             mesh.Draw(commandBuffer);
     }
@@ -210,12 +211,12 @@ private:
 
 
         UniformBufferObject ubo{};
-        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
-        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ubo.model[3] = { 0.0f, std::sin(time), 0.0f, 1.0f };
 
-        ubo.proj =
-            glm::perspective(glm::radians(45.0f), float(swapChainExtent.width) / swapChainExtent.height, 0.1f, 10.0f);
+        ubo.view = m_Camera->GetViewMatrix();
+        ubo.proj = m_Camera->GetProjectionMatrix();
 
         // Flip the Y as described in the vulcan tutorial
         ubo.proj[1][1] *= -1;
@@ -227,13 +228,15 @@ private:
     VkPipelineLayout m_PipelineLayout{};
 
     VkDescriptorSetLayout m_DescriptorSetlayout{};
+
     std::vector<std::unique_ptr<Buffer>> m_UniformBuffers{};
+    std::unique_ptr<DescriptorPool> m_DescriptorPoolUPtr;
 
     VkRenderPass m_RenderPass;
     VkDevice m_Device;
     VkPhysicalDevice m_PhysicalDevice;
 
-    std::unique_ptr<DescriptorPool> m_DescriptorPoolUPtr;
+    Camera* m_Camera = nullptr;
 
     std::vector<Mesh> m_Meshes{};
 };

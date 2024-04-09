@@ -15,11 +15,11 @@
 #include <memory>
 #include <vector>
 
+#include "jul/Camera.h"
 #include "jul/CommandBuffer.h"
 #include "jul/Pipeline.h"
 #include "jul/RenderPass.h"
 #include "jul/SwapChain.h"
-#include "VulkanUtil.h"
 
 const std::array<const char*,1> VALIDATION_LAYERS = { "VK_LAYER_KHRONOS_validation" };
 const std::array<const char*,1> DEVICE_EXTENSIONS = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
@@ -61,6 +61,7 @@ private:
     std::unique_ptr<RenderPass> m_RenderPass{};
     std::unique_ptr<SwapChain> m_SwapChain{};
 
+    std::unique_ptr<Camera> m_Camera;
 
     void CreateLogicalDevice();
     VkQueue m_GraphicsQueue;

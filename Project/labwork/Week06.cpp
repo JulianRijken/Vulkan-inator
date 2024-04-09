@@ -2,6 +2,7 @@
 #include <set>
 
 #include "vulkanbase/VulkanBase.h"
+#include "vulkanbase/VulkanUtil.h"
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                     VkDebugUtilsMessageTypeFlagsEXT messageType,
