@@ -35,7 +35,7 @@ void VulkanBase::PickPhysicalDevice()
 bool VulkanBase::IsDeviceSuitable(VkPhysicalDevice device)
 {
     VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(device,m_Surface);
-    return indices.isComplete() && CheckDeviceExtensionSupport(device);
+    return indices.IsComplete() && CheckDeviceExtensionSupport(device);
 }
 
 void VulkanBase::CreateLogicalDevice()

@@ -24,20 +24,16 @@ const bool enableValidationLayers = true;
 #include <vector>
 #include <string>
 #include <optional>
-#include <tuple>
 
 namespace VkUtils
 {
 	struct QueueFamilyIndices
 	{
 		std::optional<uint32_t> graphicsFamily;
-		std::optional<uint32_t> presentFamily;
+        std::optional<uint32_t> presentFamily;
 
-		bool isComplete()
-		{
-			return graphicsFamily.has_value() && presentFamily.has_value();
-		}
-	};
+        bool IsComplete() { return graphicsFamily.has_value() && presentFamily.has_value(); }
+    };
 
 
 	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
@@ -48,6 +44,5 @@ namespace VkUtils
 
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 
-    std::tuple<VkBuffer,VkDeviceMemory> CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDevice device,VkPhysicalDevice physicalDevice);
     void CopyBuffer(VkBuffer srcBuffer , VkBuffer dstBuffer , VkDeviceSize size, VkDevice device, VkQueue graphicsQueue);
 }

@@ -40,6 +40,8 @@ set(SOURCES
     jul/Pipeline.cpp        jul/Pipeline.h
     jul/RenderPass.cpp      jul/RenderPass.h
     jul/SwapChain.cpp       jul/SwapChain.h
+    jul/Buffer.cpp          jul/Buffer.h
+    jul/DescriptorPool.cpp  jul/DescriptorPool.h
 )
 
 # Create the executable

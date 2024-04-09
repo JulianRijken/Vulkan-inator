@@ -56,6 +56,8 @@ void SwapChain::CreateFrameBuffers(RenderPass* renderPass)
 
 SwapChain::operator VkSwapchainKHR() { return m_SwapChain; }
 
+int SwapChain::GetImageCount() { return static_cast<int>(m_SwapChainImages.size()); }
+
 void SwapChain::CreateSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, const glm::ivec2& extents)
 {
     SwapChainSupportDetails const swapChainSupport = QuerySwapChainSupport(physicalDevice, surface);

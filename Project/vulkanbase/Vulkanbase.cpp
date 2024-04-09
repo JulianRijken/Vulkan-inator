@@ -27,10 +27,18 @@ void VulkanBase::InitVulkan()
 
 
     m_Pipline2D = std::make_unique<Pipeline<Mesh::Vertex2D>>(
-        m_Device, *m_RenderPass, Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv", m_Device });
+        m_Device,
+        m_PhysicalDevice,
+        *m_RenderPass,
+        Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv", m_Device },
+        m_SwapChain->GetImageCount());
 
     m_Pipline3D = std::make_unique<Pipeline<Mesh::Vertex3D>>(
-        m_Device, *m_RenderPass, Shader{ "shaders/shader3D.vert.spv", "shaders/shader3D.frag.spv", m_Device });
+        m_Device,
+        m_PhysicalDevice,
+        *m_RenderPass,
+        Shader{ "shaders/shader3D.vert.spv", "shaders/shader3D.frag.spv", m_Device },
+        m_SwapChain->GetImageCount());
 
 
     m_SwapChain->CreateFrameBuffers(m_RenderPass.get());
@@ -39,7 +47,6 @@ void VulkanBase::InitVulkan()
     m_CommandBufferUPtr = std::make_unique<CommandBuffer>(m_Device, indices.graphicsFamily.value());
 
     CreateSyncObjects();
-
     {
         const std::vector<Mesh::Vertex2D> vertices = {
             {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
@@ -100,7 +107,7 @@ void VulkanBase::InitVulkan()
 
 void VulkanBase::MainLoop()
 {
-    while (!glfwWindowShouldClose(m_window))
+    while(not glfwWindowShouldClose(m_window))
     {
         glfwPollEvents();
         DrawFrame();

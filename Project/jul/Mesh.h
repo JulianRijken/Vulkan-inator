@@ -4,7 +4,10 @@
 
 #include <array>
 #include <glm/glm.hpp>
+#include <memory>
 #include <vector>
+
+#include "Buffer.h"
 
 class Mesh final
 {
@@ -39,28 +42,15 @@ public:
 
     Mesh(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue graphicsQueue, const std::vector<uint32_t>& indicies,
          const VertexData& vertexData);
-    ~Mesh();
 
-    Mesh(Mesh&&) noexcept;
-    Mesh(const Mesh &) = delete;
-    Mesh &operator=(Mesh &&) = delete;
-    Mesh &operator=(const Mesh &) = delete;
-
-
-    void Draw(VkCommandBuffer commandBuf) const;
+    void Draw(VkCommandBuffer commandBuffer) const;
 
 private:
+    std::unique_ptr<Buffer> m_StagingBuffer;
+    std::unique_ptr<Buffer> m_VertexBuffer;
+    std::unique_ptr<Buffer> m_IndexBuffer;
 
     VkDevice m_Device;
-    VkBuffer m_VertexBuffer{};
-    VkDeviceMemory m_VertexBufferMemory{};
-
-    VkBuffer m_IndexBuffer{};
-    VkDeviceMemory m_IndexBufferMemory{};
-
-
-    VkBuffer m_StagingBuffer{};
-    VkDeviceMemory m_StagingBufferMemory{};
 
     uint32_t m_NumIndices;
 };

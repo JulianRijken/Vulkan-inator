@@ -30,6 +30,8 @@ public:
 
     VkFramebuffer GetFrameBuffer(int index) { return m_SwapChainFramebuffers[index]; }
 
+    [[nodiscard]] int GetImageCount();
+
 private:
     void CreateSwapChain(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, const glm::ivec2& extents);
     void CreateImageViews();
