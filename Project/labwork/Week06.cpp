@@ -70,7 +70,7 @@ void VulkanBase::DrawFrame()
     m_RenderPass->Begin(m_SwapChain->GetFrameBuffer(imageIndex), m_SwapChain->GetExtent(), m_CommandBufferUPtr->Get());
 
     // All rendering goes here
-    m_Pipline2D->Draw(m_SwapChain->GetExtent(), m_CommandBufferUPtr->Get(), imageIndex);
+    // m_Pipline2D->Draw(m_SwapChain->GetExtent(), m_CommandBufferUPtr->Get(), imageIndex);
     m_Pipline3D->Draw(m_SwapChain->GetExtent(), m_CommandBufferUPtr->Get(), imageIndex);
 
     m_RenderPass->End(m_CommandBufferUPtr->Get());

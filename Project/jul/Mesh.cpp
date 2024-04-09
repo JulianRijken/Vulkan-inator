@@ -77,6 +77,8 @@ const std::array<VkVertexInputAttributeDescription, 3> Mesh::Vertex3D::ATTRIBUTE
                                       .format = VK_FORMAT_R32G32B32_SFLOAT,
                                       .offset = offsetof(Mesh::Vertex3D, pos),
                                       },
-    { .location = 1, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, normal) },
-    { .location = 2, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, color) }
+    VkVertexInputAttributeDescription{
+                                      .location = 1, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, normal) },
+    VkVertexInputAttributeDescription{
+                                      .location = 2, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, color) }
 };
