@@ -3,7 +3,6 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
-#include <ostream>
 
 #include "jul/GameTime.h"
 #include "jul/Input.h"
@@ -23,25 +22,24 @@ void Camera::Update()
     m_TargetPitch += mouseDelta.y * ROTATE_SPEED;
     m_TargetYaw -= mouseDelta.x * ROTATE_SPEED;
 
-    m_IsBoosting = Input::GetKeyPressed(GLFW_KEY_LEFT_SHIFT);
+    m_IsBoosting = Input::GetKeyHeld(GLFW_KEY_LEFT_SHIFT);
 
     glm::vec3 movementInputVector{};
-    if(Input::GetKeyPressed(GLFW_KEY_W))
+    if(Input::GetKeyHeld(GLFW_KEY_W))
         movementInputVector.z += 1;
-    if(Input::GetKeyPressed(GLFW_KEY_S))
+    if(Input::GetKeyHeld(GLFW_KEY_S))
         movementInputVector.z -= 1;
-    if(Input::GetKeyPressed(GLFW_KEY_A))
+    if(Input::GetKeyHeld(GLFW_KEY_A))
         movementInputVector.x += 1;
-    if(Input::GetKeyPressed(GLFW_KEY_D))
+    if(Input::GetKeyHeld(GLFW_KEY_D))
         movementInputVector.x -= 1;
-    if(Input::GetKeyPressed(GLFW_KEY_E))
+    if(Input::GetKeyHeld(GLFW_KEY_E))
         movementInputVector.y += 1;
-    if(Input::GetKeyPressed(GLFW_KEY_Q))
+    if(Input::GetKeyHeld(GLFW_KEY_Q))
         movementInputVector.y -= 1;
 
     m_Pitch = jul::math::LerpSmooth(m_Pitch, m_TargetPitch, jul::GameTime::GetDeltaTimeF(), ROTATE_LERP_DURATION);
     m_Yaw = jul::math::LerpSmooth(m_Yaw, m_TargetYaw, jul::GameTime::GetDeltaTimeF(), ROTATE_LERP_DURATION);
-
 
     const glm::mat4x4 pitchYawRotation = glm::yawPitchRoll(glm::radians(m_Yaw), glm::radians(m_Pitch), 0.0f);
     m_Right = pitchYawRotation[0];

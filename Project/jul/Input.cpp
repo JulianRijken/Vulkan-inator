@@ -38,7 +38,7 @@ bool Input::GetKeyDown(int key) { return s_Keys[key] == 1; }
 
 bool Input::GetKeyUp(int key) { return s_Keys[key] == 0; }
 
-bool Input::GetKeyPressed(int key) { return s_Keys[key] >= 1; }
+bool Input::GetKeyHeld(int key) { return s_Keys[key] >= 1; }
 
 glm::vec2 Input::GetMousePosition() { return s_CurrentMousePosition; }
 

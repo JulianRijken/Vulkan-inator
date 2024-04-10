@@ -29,7 +29,7 @@ void VulkanBase::InitVulkan()
     m_SwapChain = std::make_unique<SwapChain>(m_Device, m_PhysicalDevice, m_Surface, windowSize);
     m_RenderPass = std::make_unique<RenderPass>(m_Device, m_SwapChain->GetImageFormat());
 
-    m_Camera = std::make_unique<Camera>(glm::vec3{ 0.0f, 2.0f, -2.0f }, 80.0f, m_SwapChain->GetAspect());
+    m_Camera = std::make_unique<Camera>(glm::vec3{ 0.0f, 1.0f, -2.0f }, 80.0f, m_SwapChain->GetAspect());
 
 
     m_Pipline2D = std::make_unique<Pipeline<Mesh::Vertex2D>>(

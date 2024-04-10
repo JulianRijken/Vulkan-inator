@@ -20,7 +20,7 @@ public:
 
     static bool GetKeyDown(int key);
     static bool GetKeyUp(int key);
-    static bool GetKeyPressed(int key);
+    static bool GetKeyHeld(int key);
 
 
     static glm::vec2 GetMousePosition();
