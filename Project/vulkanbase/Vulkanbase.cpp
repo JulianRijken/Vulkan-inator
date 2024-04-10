@@ -1,5 +1,7 @@
 #include "vulkanbase/VulkanBase.h"
 
+#include "jul/GameTime.h"
+#include "jul/Input.h"
 #include "VulkanUtil.h"
 
 
@@ -119,9 +121,15 @@ void VulkanBase::MainLoop()
 {
     while(not glfwWindowShouldClose(m_window))
     {
+        jul::GameTime::Update();
+
+        Input::Update();
         glfwPollEvents();
+
         m_Camera->Update();
         DrawFrame();
+
+        jul::GameTime::AddToFrameCount();
     }
     vkDeviceWaitIdle(m_Device);
 }
@@ -161,6 +169,21 @@ void VulkanBase::InitWindow()
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    glfwSetKeyCallback(m_window,
+                       [](GLFWwindow*, int key, int, int action, int)
+                       {
+                           if(action == GLFW_PRESS)
+                               Input::OnKeyDown(key);
+                           else if(action == GLFW_RELEASE)
+                               Input::OnKeyUp(key);
+                       });
+    glfwSetCursorPosCallback(m_window,
+                             [](GLFWwindow* window, double xpos, double ypos) {
+                                 Input::OnMouseMove({ xpos, ypos });
+                             });
 }
 
 void VulkanBase::CreateSurface()

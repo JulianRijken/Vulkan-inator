@@ -43,6 +43,10 @@ set(SOURCES
     jul/Buffer.cpp          jul/Buffer.h
     jul/DescriptorPool.cpp  jul/DescriptorPool.h
     jul/Camera.cpp          jul/Camera.h
+    jul/Input.cpp           jul/Input.h
+    jul/GameTime.cpp        jul/GameTime.h
+                            jul/MathExtensions.h
+
 )
 
 # Create the executable

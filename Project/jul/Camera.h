@@ -50,32 +50,26 @@ private:
     glm::vec3 m_Up{ 0, 1, 0 };
     glm::vec3 m_Right{ 1, 0, 0 };
 
-    float m_Pitch{};
-    float m_TargetPitch{ -45 };
-    float m_Yaw{};
-    float m_TargetYaw{};
+    float m_Pitch{ 0 };
+    float m_TargetPitch{ 0 };
+    float m_Yaw{ 0 };
+    float m_TargetYaw{ 0 };
 
-    bool m_BoostingSpeed{};
+    bool m_IsBoosting{};
 
     float m_AspectRatio{};
 
     glm::mat4 m_ViewMatrix{};
     glm::mat4 m_ProjectionMatrix{};
 
-
-    // inline static constexpr glm::vec3 UNIT_FOARWARD{ 0, 0, 1 };
-    // inline static constexpr glm::vec3 UNIT_UP{ 0, 1, 0 };
-    // inline static constexpr glm::vec3 UNIT_RIGHT{ 1, 0, 0 };
-
     inline static constexpr float MAX_FOV{ 175.0f };
     inline static constexpr float MIN_FOV{ 5.0f };
 
-    inline static constexpr float KEY_MOVE_SPEED{ 70.0f };
-    inline static constexpr float MOUSE_MOVE_SPEED{ 0.07f };
-    inline static constexpr float ROTATE_SPEED{ 0.001f };
+    inline static constexpr float KEY_MOVE_SPEED{ 10.0f };
+    inline static constexpr float ROTATE_SPEED{ 0.05f };
 
-    inline static constexpr float ROTATE_LERP_SPEED{ 20.0f };
-    inline static constexpr float MOVE_LERP_SPEED{ 10.0f };
+    inline static constexpr float ROTATE_LERP_DURATION{ 0.2f };
+    inline static constexpr float MOVE_LERP_DURATION{ 0.7f };
 
     inline static constexpr float BOOST_SPEED_MULTIPLIER{ 3.0f };
 };
