@@ -61,22 +61,16 @@ void VulkanBase::DrawFrame()
     vkResetFences(m_Device, 1, &m_InFlightFence);
 
     uint32_t imageIndex = 0;
-    vkAcquireNextImageKHR(m_Device, *m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    vkAcquireNextImageKHR(
+        m_Device, *m_SwapChainUPtr, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
     vkResetCommandBuffer(m_CommandBufferUPtr->Get(), /*VkCommandBufferResetFlagBits*/ 0);
 
     m_CommandBufferUPtr->BeginCommandBuffer();
-
-
-    m_RenderPass->Begin(m_SwapChain->GetFrameBuffer(imageIndex), m_SwapChain->GetExtent(), m_CommandBufferUPtr->Get());
-
-    // All rendering goes here
-    // m_Pipline2D->Draw(m_SwapChain->GetExtent(), m_CommandBufferUPtr->Get(), imageIndex);
-    m_Pipline3D->Draw(m_SwapChain->GetExtent(), m_CommandBufferUPtr->Get(), imageIndex);
-
-    m_RenderPass->End(m_CommandBufferUPtr->Get());
-
-
+    m_RenderPassUPtr->Begin(
+        m_SwapChainUPtr->GetFrameBuffer(imageIndex), m_SwapChainUPtr->GetExtent(), m_CommandBufferUPtr->Get());
+    m_GameUPtr->Draw(m_CommandBufferUPtr->Get(), imageIndex);
+    m_RenderPassUPtr->End(m_CommandBufferUPtr->Get());
     m_CommandBufferUPtr->EndCommandBuffer();
 
     VkSubmitInfo submitInfo{};
@@ -105,7 +99,7 @@ void VulkanBase::DrawFrame()
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
-    VkSwapchainKHR swapChains[] = { *m_SwapChain };
+    VkSwapchainKHR swapChains[] = { *m_SwapChainUPtr };
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
 

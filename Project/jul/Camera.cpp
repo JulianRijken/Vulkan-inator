@@ -2,16 +2,17 @@
 
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include <iostream>
 
 #include "jul/GameTime.h"
 #include "jul/Input.h"
 #include "jul/MathExtensions.h"
+#include "SwapChain.h"
+#include "vulkanbase/VulkanGlobals.h"
 
-Camera::Camera(const glm::vec3& origin, float fovAngle, float aspectRatio) :
+Camera::Camera(const glm::vec3& origin, float fovAngle) :
     m_Origin{ origin },
     m_TargetOrigin{ m_Origin },
-    m_AspectRatio{ aspectRatio },
+    m_AspectRatio{ VulkanGlobals::GetSwapChain().GetAspect() },
     m_FovAngle{ fovAngle }
 {
 }

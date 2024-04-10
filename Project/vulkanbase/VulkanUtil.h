@@ -44,5 +44,5 @@ namespace VkUtils
 
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 
-    void CopyBuffer(VkBuffer srcBuffer , VkBuffer dstBuffer , VkDeviceSize size, VkDevice device, VkQueue graphicsQueue);
+    void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 }

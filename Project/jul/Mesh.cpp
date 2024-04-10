@@ -2,9 +2,7 @@
 
 #include "vulkanbase/VulkanUtil.h"
 
-Mesh::Mesh(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue graphicsQueue,
-           const std::vector<uint32_t>& indicies, const VertexData& vertexData) :
-    m_Device{ device },
+Mesh::Mesh(const std::vector<uint32_t>& indicies, const VertexData& vertexData) :
     m_NumIndices{ static_cast<uint32_t>(indicies.size()) }
 {
     const VkDeviceSize vertexBufferSize{ vertexData.typeSize * vertexData.vertexCount };
@@ -14,30 +12,30 @@ Mesh::Mesh(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue graphicsQue
     m_StagingBuffer =
         std::make_unique<Buffer>(std::max(vertexBufferSize, indicesBufferSize),
                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                 device,
-                                 physicalDevice);
+                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+
+        );
 
 
     m_StagingBuffer->Upload(vertexData.data, (size_t)vertexBufferSize);
     m_VertexBuffer = std::make_unique<Buffer>(vertexBufferSize,
                                               VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                              device,
-                                              physicalDevice);
+                                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+
+    );
 
 
-    VkUtils::CopyBuffer(*m_StagingBuffer, *m_VertexBuffer, vertexBufferSize, device, graphicsQueue);
+    VkUtils::CopyBuffer(*m_StagingBuffer, *m_VertexBuffer, vertexBufferSize);
 
 
     m_StagingBuffer->Upload((void*)indicies.data(), indicesBufferSize);
     m_IndexBuffer = std::make_unique<Buffer>(indicesBufferSize,
                                              VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                             device,
-                                             physicalDevice);
+                                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 
-    VkUtils::CopyBuffer(*m_StagingBuffer, *m_IndexBuffer, indicesBufferSize, device, graphicsQueue);
+    );
+
+    VkUtils::CopyBuffer(*m_StagingBuffer, *m_IndexBuffer, indicesBufferSize);
 }
 
 void Mesh::Draw(VkCommandBuffer commandBuffer) const

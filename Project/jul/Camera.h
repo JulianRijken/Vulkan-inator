@@ -9,7 +9,7 @@ class Camera
 {
 
 public:
-    Camera(const glm::vec3& origin, float fovAngle, float aspectRatio);
+    Camera(const glm::vec3& origin, float fovAngle);
 
     void Update();
 

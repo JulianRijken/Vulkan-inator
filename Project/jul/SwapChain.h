@@ -1,9 +1,10 @@
+#pragma once
+
 #include <vector>
 
 #include "glm/vec2.hpp"
 #include "RenderPass.h"
 #include "vulkan/vulkan_core.h"
-
 
 struct SwapChainSupportDetails
 {

@@ -5,8 +5,7 @@
 class Buffer
 {
 public:
-    Buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDevice device,
-           VkPhysicalDevice physicalDevice);
+    Buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 
     ~Buffer();
 
@@ -25,7 +24,6 @@ public:
 private:
     VkBuffer m_Buffer{};
     VkDeviceMemory m_BufferMemory{};
-    VkDevice m_Device;
 
     void* m_BufferDataPtr = nullptr;
 };

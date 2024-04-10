@@ -2,7 +2,8 @@
 
 #include "jul/GameTime.h"
 #include "jul/Input.h"
-#include "VulkanUtil.h"
+#include "vulkanbase/VulkanGlobals.h"
+#include "vulkanbase/VulkanUtil.h"
 
 
 void VulkanBase::Run()
@@ -22,103 +23,27 @@ void VulkanBase::InitVulkan()
     PickPhysicalDevice();
     CreateLogicalDevice();
 
-
     glm::ivec2 windowSize{};
     glfwGetFramebufferSize(m_window, &windowSize.x, &windowSize.y);
+    m_SwapChainUPtr = std::make_unique<SwapChain>(m_Device, m_PhysicalDevice, m_Surface, windowSize);
+    VulkanGlobals::s_SwapChainPtr = m_SwapChainUPtr.get();
 
-    m_SwapChain = std::make_unique<SwapChain>(m_Device, m_PhysicalDevice, m_Surface, windowSize);
-    m_RenderPass = std::make_unique<RenderPass>(m_Device, m_SwapChain->GetImageFormat());
+    m_RenderPassUPtr = std::make_unique<RenderPass>(m_Device, m_SwapChainUPtr->GetImageFormat());
+    VulkanGlobals::s_RenderPassPtr = m_RenderPassUPtr.get();
 
-    m_Camera = std::make_unique<Camera>(glm::vec3{ 0.0f, 1.0f, -2.0f }, 80.0f, m_SwapChain->GetAspect());
-
-
-    m_Pipline2D = std::make_unique<Pipeline<Mesh::Vertex2D>>(
-        m_Device,
-        m_PhysicalDevice,
-        *m_RenderPass,
-        Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv", m_Device },
-        m_SwapChain->GetImageCount(),
-        m_Camera.get());
-
-    m_Pipline3D = std::make_unique<Pipeline<Mesh::Vertex3D>>(
-        m_Device,
-        m_PhysicalDevice,
-        *m_RenderPass,
-        Shader{ "shaders/shader3D.vert.spv", "shaders/shader3D.frag.spv", m_Device },
-        m_SwapChain->GetImageCount(),
-        m_Camera.get());
-
-
-    m_SwapChain->CreateFrameBuffers(m_RenderPass.get());
 
     VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(m_PhysicalDevice, m_Surface);
     m_CommandBufferUPtr = std::make_unique<CommandBuffer>(m_Device, indices.graphicsFamily.value());
 
+    m_SwapChainUPtr->CreateFrameBuffers(m_RenderPassUPtr.get());
 
     CreateSyncObjects();
-    {
-        const std::vector<Mesh::Vertex2D> vertices = {
-            {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
-            { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
-            {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
-        };
-
-        const std::vector<uint32_t> indeces = { 0, 1, 2 };
-
-
-        m_Pipline2D->AddMesh(Mesh{
-            m_Device,
-            m_PhysicalDevice,
-            m_GraphicsQueue,
-            indeces,
-            Mesh::VertexData{.data = (void*)vertices.data(),
-                             .vertexCount = static_cast<uint32_t>(vertices.size()),
-                             .typeSize = sizeof(Mesh::Vertex2D)}
-        });
-    }
-
-    {
-
-        const std::vector<Mesh::Vertex3D> vertices{
-  // front
-            { { -0.5f, -0.5f, 0.5f }, {}, { 1, 0, 0 }}, // 0
-            {  { 0.5f, -0.5f, 0.5f }, {}, { 0, 1, 0 }}, // 1
-            {   { 0.5f, 0.5f, 0.5f }, {}, { 1, 1, 0 }}, // 2
-            {  { -0.5f, 0.5f, 0.5f }, {}, { 0, 0, 1 }}, // 3
-
-  // back
-            {{ -0.5f, -0.5f, -0.5f }, {}, { 1, 0, 1 }}, // 4
-            { { 0.5f, -0.5f, -0.5f }, {}, { 0, 1, 1 }}, // 5
-            {  { 0.5f, 0.5f, -0.5f }, {}, { 1, 1, 1 }}, // 6
-            { { -0.5f, 0.5f, -0.5f }, {}, { 1, 0, 1 }}  // 7
-        };
-
-        // clang-format off
-        const std::vector<uint32_t> indeces{
-            0, 1, 2, 2, 3, 0, // front
-            1, 5, 6, 6, 2, 1, // right
-            5, 4, 7, 7, 6, 5, // back
-            4, 0, 3, 3, 7, 4, // left
-            3, 2, 6, 6, 7, 3, // top
-            4, 5, 1, 1, 0, 4  // bottom
-        };
-        // clang-format on
-
-
-        m_Pipline3D->AddMesh(Mesh{
-            m_Device,
-            m_PhysicalDevice,
-            m_GraphicsQueue,
-            indeces,
-            Mesh::VertexData{.data = (void*)vertices.data(),
-                             .vertexCount = static_cast<uint32_t>(vertices.size()),
-                             .typeSize = sizeof(Mesh::Vertex3D)}
-        });
-    }
 }
 
 void VulkanBase::MainLoop()
 {
+    m_GameUPtr = std::make_unique<Game>();
+
     while(not glfwWindowShouldClose(m_window))
     {
         jul::GameTime::Update();
@@ -126,7 +51,7 @@ void VulkanBase::MainLoop()
         Input::Update();
         glfwPollEvents();
 
-        m_Camera->Update();
+        m_GameUPtr->Update();
         DrawFrame();
 
         jul::GameTime::AddToFrameCount();
@@ -143,12 +68,12 @@ void VulkanBase::Cleanup()
     m_CommandBufferUPtr.reset();
 
     // TODO try moving this in to the destructor of swap chain
-    m_SwapChain->DestroyFrameBuffer();
+    m_SwapChainUPtr->DestroyFrameBuffer();
 
-    m_Pipline2D.reset();
-    m_Pipline3D.reset();
-    m_RenderPass.reset();
-    m_SwapChain.reset();
+    m_GameUPtr.reset();
+
+    m_RenderPassUPtr.reset();
+    m_SwapChainUPtr.reset();
 
 
     vkDestroyDevice(m_Device, nullptr);
@@ -181,7 +106,7 @@ void VulkanBase::InitWindow()
                                Input::OnKeyUp(key);
                        });
     glfwSetCursorPosCallback(m_window,
-                             [](GLFWwindow* window, double xpos, double ypos) {
+                             [](GLFWwindow*, double xpos, double ypos) {
                                  Input::OnMouseMove({ xpos, ypos });
                              });
 }

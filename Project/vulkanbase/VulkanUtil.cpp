@@ -1,8 +1,12 @@
 #include "VulkanUtil.h"
-#include <fstream>
+
 #include <jul/CommandBuffer.h>
+
+#include <fstream>
 #include <memory>
 #include <string>
+
+#include "vulkanbase/VulkanGlobals.h"
 
 VkResult VkUtils::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -71,10 +75,9 @@ VkUtils::QueueFamilyIndices VkUtils::FindQueueFamilies(VkPhysicalDevice device, 
 	return indices;
 }
 
-
-void VkUtils::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDevice device, VkQueue graphicsQueue)
+void VkUtils::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
-    auto commandBufferUPtr = std::make_unique<CommandBuffer>(device);
+    auto commandBufferUPtr = std::make_unique<CommandBuffer>(VulkanGlobals::GetDevice());
 
     VkBufferCopy copyRegion{};
     copyRegion.size = size;
@@ -93,8 +96,6 @@ void VkUtils::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize si
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &shittyCopyElision;
 
-    vkQueueSubmit(graphicsQueue , 1 , & submitInfo , VK_NULL_HANDLE);
-    vkQueueWaitIdle(graphicsQueue);
-
-
+    vkQueueSubmit(VulkanGlobals::GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(VulkanGlobals::GetGraphicsQueue());
 }

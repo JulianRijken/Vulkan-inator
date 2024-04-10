@@ -1,14 +1,15 @@
 #include "Shader.h"
+
+#include "vulkanbase/VulkanGlobals.h"
 #include "vulkanbase/VulkanUtil.h"
 
-Shader::Shader(const path& vertexPath, const path& fragmentPath, VkDevice device) :
-    m_Device(device)
+Shader::Shader(const path& vertexPath, const path& fragmentPath)
 {
     //////////////////////////////
     /// Create vertex shader info
     //////////////////////////////
     const std::vector<char> vertShaderCode = VkUtils::ReadFile(vertexPath.string());
-    const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode, device);
+    const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode, VulkanGlobals::GetDevice());
 
     m_VertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     m_VertexInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -20,7 +21,7 @@ Shader::Shader(const path& vertexPath, const path& fragmentPath, VkDevice device
     /// Create fragment shader info
     //////////////////////////////
     const std::vector<char> fragShaderCode = VkUtils::ReadFile(fragmentPath.string());
-    const VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode, device);
+    const VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode, VulkanGlobals::GetDevice());
 
     m_FragmentInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     m_FragmentInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -31,22 +32,21 @@ Shader::Shader(const path& vertexPath, const path& fragmentPath, VkDevice device
 Shader::~Shader()
 {
     if(m_VertexInfo.module != VK_NULL_HANDLE)
-        vkDestroyShaderModule(m_Device, m_VertexInfo.module, nullptr);
+        vkDestroyShaderModule(VulkanGlobals::GetDevice(), m_VertexInfo.module, nullptr);
 
     if(m_FragmentInfo.module != VK_NULL_HANDLE)
-        vkDestroyShaderModule(m_Device, m_FragmentInfo.module, nullptr);
+        vkDestroyShaderModule(VulkanGlobals::GetDevice(), m_FragmentInfo.module, nullptr);
 }
 
 Shader::Shader(Shader&& other) noexcept :
     m_VertexInfo(other.m_VertexInfo),
-    m_Device(other.m_Device),
     m_FragmentInfo(other.m_FragmentInfo)
 {
     other.m_VertexInfo.module = VK_NULL_HANDLE;
     other.m_FragmentInfo.module = VK_NULL_HANDLE;
 }
 
-VkPipelineInputAssemblyStateCreateInfo Shader::CreateInputAssemblyStateInfo() const
+VkPipelineInputAssemblyStateCreateInfo Shader::CreateInputAssemblyStateInfo()
 {
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

@@ -1,7 +1,4 @@
-#ifndef INPUT_H
-#define INPUT_H
-
-
+#pragma once
 #include <GLFW/glfw3.h>
 
 #include <array>
@@ -35,4 +32,3 @@ private:
     static inline glm::vec2 s_MouseDelta{};
 };
 
-#endif  // INPUT_H

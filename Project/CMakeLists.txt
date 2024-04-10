@@ -29,11 +29,13 @@ add_custom_target(
 set(SOURCES
     main.cpp
     vulkanbase/VulkanUtil.cpp  vulkanbase/VulkanUtil.h
-    vulkanbase/Vulkanbase.cpp  vulkanbase/Vulkanbase.h
+    vulkanbase/VulkanBase.cpp  vulkanbase/VulkanBase.h
+    vulkanbase/VulkanGlobals.h
 
     labwork/Week05.cpp
     labwork/Week06.cpp
 
+    jul/Pipeline.cpp        jul/Pipeline.h
     jul/Shader.cpp          jul/Shader.h
     jul/CommandBuffer.cpp   jul/CommandBuffer.h
     jul/Mesh.cpp            jul/Mesh.h
@@ -45,8 +47,8 @@ set(SOURCES
     jul/Camera.cpp          jul/Camera.h
     jul/Input.cpp           jul/Input.h
     jul/GameTime.cpp        jul/GameTime.h
+    jul/Game.cpp            jul/Game.h
                             jul/MathExtensions.h
-
 )
 
 # Create the executable

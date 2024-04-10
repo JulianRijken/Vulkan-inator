@@ -15,9 +15,8 @@
 #include <memory>
 #include <vector>
 
-#include "jul/Camera.h"
 #include "jul/CommandBuffer.h"
-#include "jul/Pipeline.h"
+#include "jul/Game.h"
 #include "jul/RenderPass.h"
 #include "jul/SwapChain.h"
 
@@ -31,19 +30,16 @@ public:
     void Run();
 
 private:
-
     void InitVulkan();
-        void InitWindow();
-        void PickPhysicalDevice();
-        void CreateSurface();
-        void CreateInstance();
+    void InitWindow();
+    void PickPhysicalDevice();
+    void CreateSurface();
+    void CreateInstance();
 
     void MainLoop();
         void DrawFrame();
 
     void Cleanup();
-
-
 
     void CreateSyncObjects();
     void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
@@ -55,13 +51,11 @@ private:
 
     GLFWwindow* m_window;
 
-    std::unique_ptr<Pipeline<Mesh::Vertex2D>> m_Pipline2D{};
-    std::unique_ptr<Pipeline<Mesh::Vertex3D>> m_Pipline3D{};
+    std::unique_ptr<Game> m_GameUPtr{};
     std::unique_ptr<CommandBuffer> m_CommandBufferUPtr{};
-    std::unique_ptr<RenderPass> m_RenderPass{};
-    std::unique_ptr<SwapChain> m_SwapChain{};
+    std::unique_ptr<RenderPass> m_RenderPassUPtr{};
+    std::unique_ptr<SwapChain> m_SwapChainUPtr{};
 
-    std::unique_ptr<Camera> m_Camera;
 
     void CreateLogicalDevice();
     VkQueue m_GraphicsQueue;

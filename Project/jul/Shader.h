@@ -8,8 +8,7 @@ using path = std::filesystem::path;
 class Shader final
 {
 public:
-
-    Shader(const path& vertexPath, const path& fragmentPath, VkDevice device);
+    Shader(const path& vertexPath, const path& fragmentPath);
     ~Shader();
 
     Shader(Shader&& other) noexcept;
@@ -23,7 +22,7 @@ public:
     [[nodiscard]] const VkPipelineShaderStageCreateInfo& GetFragmentInfo() const { return m_FragmentInfo; }
 
     template<typename Vertex>
-    [[nodiscard]] VkPipelineVertexInputStateCreateInfo CreateVertexInputStateInfo() const
+    [[nodiscard]] static VkPipelineVertexInputStateCreateInfo CreateVertexInputStateInfo()
     {
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -38,7 +37,7 @@ public:
         return vertexInputInfo;
     }
 
-    [[nodiscard]] VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyStateInfo() const;
+    [[nodiscard]] static VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyStateInfo();
 
 private:
 
@@ -46,6 +45,4 @@ private:
 
 	VkPipelineShaderStageCreateInfo m_VertexInfo{};
 	VkPipelineShaderStageCreateInfo m_FragmentInfo{};
-
-    VkDevice m_Device{};
 };

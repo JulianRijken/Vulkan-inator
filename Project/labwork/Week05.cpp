@@ -1,6 +1,7 @@
 #include <set>
 
 #include "vulkanbase/VulkanBase.h"
+#include "vulkanbase/VulkanGlobals.h"
 #include "vulkanbase/VulkanUtil.h"
 
 void VulkanBase::PickPhysicalDevice()
@@ -18,7 +19,7 @@ void VulkanBase::PickPhysicalDevice()
     if (deviceCount == 0)
 		throw std::runtime_error("failed to find GPUs with Vulkan support!");
 
-
+    // TODO: Make sure it picks the dedicated wamm... gpu I mean :)
     for (const auto& device : devices)
     {
         if (IsDeviceSuitable(device))
@@ -31,6 +32,7 @@ void VulkanBase::PickPhysicalDevice()
     if (m_PhysicalDevice == VK_NULL_HANDLE)
 		throw std::runtime_error("failed to find a suitable GPU!");
 
+    VulkanGlobals::s_PhysicalDevice = m_PhysicalDevice;
 }
 
 bool VulkanBase::IsDeviceSuitable(VkPhysicalDevice device)
@@ -89,8 +91,12 @@ void VulkanBase::CreateLogicalDevice()
         // Create the actual device
         if (vkCreateDevice(m_PhysicalDevice, &createInfo, nullptr, &m_Device) != VK_SUCCESS)
             throw std::runtime_error("failed to create logical device!");
+
+        VulkanGlobals::s_Device = m_Device;
     }
 
     vkGetDeviceQueue(m_Device, queueFamilyIndices.graphicsFamily.value(), 0, &m_GraphicsQueue);
+    VulkanGlobals::s_GraphicsQueue = m_GraphicsQueue;
+
     vkGetDeviceQueue(m_Device, queueFamilyIndices.presentFamily.value(), 0, &m_PresentQueue);
 }
