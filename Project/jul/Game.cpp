@@ -1,14 +1,21 @@
 #include "Game.h"
 
+#include "jul/GameTime.h"
+
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/matrix_transform.hpp>
+
+
 Game::Game()
 {
     m_Pipline2D = std::make_unique<Pipeline>(Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv" },
-                                             &m_Camera,
-                                             Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>());
+                                             Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
+                                             sizeof(UniformBufferObject2D),
+                                             VK_CULL_MODE_NONE);
 
     m_Pipline3D = std::make_unique<Pipeline>(Shader{ "shaders/shader3D.vert.spv", "shaders/shader3D.frag.spv" },
-                                             &m_Camera,
-                                             Shader::CreateVertexInputStateInfo<Mesh::Vertex3D>());
+                                             Shader::CreateVertexInputStateInfo<Mesh::Vertex3D>(),
+                                             sizeof(UniformBufferObject3D));
 
 
     {
@@ -21,7 +28,7 @@ Game::Game()
         const std::vector<uint32_t> indeces = { 0, 1, 2 };
 
 
-        m_Pipline2D->AddMesh(Mesh{
+        AddMesh(Mesh{
             indeces,
             Mesh::VertexData{.data = (void*)vertices.data(),
                              .vertexCount = static_cast<uint32_t>(vertices.size()),
@@ -57,12 +64,12 @@ Game::Game()
         // clang-format on
 
 
-        m_Pipline3D->AddMesh(Mesh{
-            indeces,
-            Mesh::VertexData{.data = (void*)vertices.data(),
-                             .vertexCount = static_cast<uint32_t>(vertices.size()),
-                             .typeSize = sizeof(Mesh::Vertex3D)}
-        });
+            AddMesh(Mesh{
+                indeces,
+                Mesh::VertexData{.data = (void*)vertices.data(),
+                                 .vertexCount = static_cast<uint32_t>(vertices.size()),
+                                 .typeSize = sizeof(Mesh::Vertex3D)}
+            });
     }
 }
 
@@ -70,6 +77,32 @@ void Game::Update() { m_Camera.Update(); }
 
 void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
 {
-    m_Pipline2D->Draw(commandBuffer, imageIndex);
-    m_Pipline3D->Draw(commandBuffer, imageIndex);
+    // 2D Meshesh
+    UniformBufferObject2D ubo2D{};
+    {
+        ubo2D.model = glm::rotate(
+            glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo2D.model[3][0] = 0.5f;
+        ubo2D.proj = m_Camera.GetOrthoProjectionMatrix();
+    }
+
+    m_Pipline2D->Bind(commandBuffer, imageIndex);
+    m_Pipline2D->UpdateUBO(imageIndex, &ubo2D, sizeof(ubo2D));
+    m_Meshes[0].Draw(commandBuffer);
+
+
+    // 3D Meshesh
+    UniformBufferObject3D ubo3D{};
+    {
+        ubo3D.model = glm::rotate(
+            glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ubo3D.model[3][0] = 1;
+        ubo3D.view = m_Camera.GetViewMatrix();
+        ubo3D.proj = m_Camera.GetProjectionMatrix();
+        ubo3D.proj[1][1] *= -1;
+    }
+
+    m_Pipline3D->Bind(commandBuffer, imageIndex);
+    m_Pipline3D->UpdateUBO(imageIndex, &ubo3D, sizeof(ubo3D));
+    m_Meshes[1].Draw(commandBuffer);
 }

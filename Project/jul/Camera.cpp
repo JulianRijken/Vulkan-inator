@@ -58,6 +58,12 @@ void Camera::Update()
     UpdateProjectionMatrix();
 }
 
+glm::mat4 Camera::GetOrthoProjectionMatrix() const
+{
+    return glm::ortho(
+        -m_OrthoSize * m_AspectRatio, m_OrthoSize * m_AspectRatio, -m_OrthoSize, m_OrthoSize, -1.0f, 1.0f);
+}
+
 void Camera::SetFovAngle(float fovAngle) { m_FovAngle = fovAngle; }
 
 void Camera::SetPosition(glm::vec3 position, bool teleport)

@@ -2,17 +2,35 @@
 #include <vulkan/vulkan_core.h>
 
 #include "Camera.h"
+#include "Mesh.h"
 #include "Pipeline.h"
 
 class Game final
 {
+    struct UniformBufferObject2D
+    {
+        glm::mat4 model;
+        glm::mat4 proj;
+    };
+
+    struct UniformBufferObject3D
+    {
+        glm::mat4 model;
+        glm::mat4 view;
+        glm::mat4 proj;
+    };
+
+
 public:
     Game();
 
     void Update();
     void Draw(VkCommandBuffer commandBuffer, int imageIndex);
 
+
 private:
+    void AddMesh(Mesh&& mesh) { m_Meshes.emplace_back(std::move(mesh)); }
+
     std::unique_ptr<Pipeline> m_Pipline2D{};
     std::unique_ptr<Pipeline> m_Pipline3D{};
 
@@ -22,5 +40,5 @@ private:
         80
     };
 
-    // std::vector<Mesh> m_Meshes{};
+    std::vector<Mesh> m_Meshes{};
 };

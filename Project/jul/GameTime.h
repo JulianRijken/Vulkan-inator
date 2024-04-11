@@ -18,6 +18,8 @@ namespace jul
 
         [[nodiscard]] static double GetElapsedTime() { return s_ElapsedTime; }
 
+        [[nodiscard]] static float GetElapsedTimeF() { return static_cast<float>(s_ElapsedTime); }
+
         [[nodiscard]] static double GetFps() { return 1.0 / s_DeltaTime; }
 
         [[nodiscard]] static double GetSmoothFps() { return s_AverageFps; }

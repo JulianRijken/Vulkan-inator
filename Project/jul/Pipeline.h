@@ -1,35 +1,24 @@
 #pragma once
 
-#define GLM_FORCE_RADIANS
-#include <glm/gtc/matrix_transform.hpp>
 
-#include "jul/Camera.h"
 #include "jul/DescriptorPool.h"
-#include "jul/Mesh.h"
 #include "jul/Shader.h"
 
 class Pipeline
 {
 public:
-    Pipeline(const Shader& shader, Camera* camera, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo);
+    Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo,
+             VkDeviceSize uboSize, VkCullModeFlagBits cullMode = VK_CULL_MODE_FRONT_BIT);
 
     ~Pipeline();
 
-    void Draw(VkCommandBuffer commandBuffer, int imageIndex);
-    void AddMesh(Mesh&& mesh);
+    void Bind(VkCommandBuffer commandBuffer, int imageIndex);
+    void UpdateUBO(int imageIndex, void* uboData, VkDeviceSize uboSize);
 
 private:
-    struct UniformBufferObject
-    {
-        glm::mat4 model;
-        glm::mat4 view;
-        glm::mat4 proj;
-    };
-
     void CreateDescriptorSetLayout();
-    void CreateUniformbuffers(int maxFramesCount);
+    void CreateUniformbuffers(int maxFramesCount, VkDeviceSize uboBufferSize);
 
-    void UpdateUniformBufferObject(int imageIndex, const VkExtent2D& swapChainExtent);
 
     VkPipeline m_Pipeline{};
     VkPipelineLayout m_PipelineLayout{};
@@ -40,8 +29,4 @@ private:
     std::unique_ptr<DescriptorPool> m_DescriptorPoolUPtr;
 
     VkRenderPass m_RenderPass;
-
-    Camera* m_Camera = nullptr;
-
-    std::vector<Mesh> m_Meshes{};
 };

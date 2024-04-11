@@ -15,6 +15,8 @@ public:
 
     [[nodiscard]] const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
 
+    [[nodiscard]] glm::mat4 GetOrthoProjectionMatrix() const;
+
     [[nodiscard]] const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
 
     [[nodiscard]] const glm::vec3& GetOrigin() const { return m_Origin; }
@@ -54,6 +56,8 @@ private:
     float m_TargetPitch{ 0 };
     float m_Yaw{ 0 };
     float m_TargetYaw{ 0 };
+
+    float m_OrthoSize{ 1 };
 
     bool m_IsBoosting{};
 

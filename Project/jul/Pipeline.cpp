@@ -3,13 +3,12 @@
 #include "SwapChain.h"
 #include "vulkanbase/VulkanGlobals.h"
 
-Pipeline::Pipeline(const Shader& shader, Camera* camera,
-                   VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo) :
-    m_RenderPass(*&VulkanGlobals::GetRederPass()),
-    m_Camera(camera)
+Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo,
+                   VkDeviceSize uboSize, VkCullModeFlagBits cullMode) :
+    m_RenderPass(*&VulkanGlobals::GetRederPass())
 {
     CreateDescriptorSetLayout();
-    CreateUniformbuffers(VulkanGlobals::GetSwapChain().GetImageCount());
+    CreateUniformbuffers(VulkanGlobals::GetSwapChain().GetImageCount(), uboSize);
 
 
     VkPipelineViewportStateCreateInfo viewportState{};
@@ -23,7 +22,7 @@ Pipeline::Pipeline(const Shader& shader, Camera* camera,
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
+    rasterizer.cullMode = cullMode;
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 
@@ -107,7 +106,7 @@ Pipeline::~Pipeline()
     vkDestroyDescriptorSetLayout(VulkanGlobals::GetDevice(), m_DescriptorSetlayout, nullptr);
 }
 
-void Pipeline::Draw(VkCommandBuffer commandBuffer, int imageIndex)
+void Pipeline::Bind(VkCommandBuffer commandBuffer, int imageIndex)
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
 
@@ -125,8 +124,6 @@ void Pipeline::Draw(VkCommandBuffer commandBuffer, int imageIndex)
     scissor.extent = VulkanGlobals::GetSwapChain().GetExtent();
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-    UpdateUniformBufferObject(imageIndex, VulkanGlobals::GetSwapChain().GetExtent());
-
     vkCmdBindDescriptorSets(commandBuffer,
                             VK_PIPELINE_BIND_POINT_GRAPHICS,
                             m_PipelineLayout,
@@ -135,13 +132,8 @@ void Pipeline::Draw(VkCommandBuffer commandBuffer, int imageIndex)
                             m_DescriptorPoolUPtr->GetDescriptorSet(imageIndex),
                             0,
                             nullptr);
-
-
-    for(auto&& mesh : m_Meshes)
-        mesh.Draw(commandBuffer);
 }
 
-void Pipeline::AddMesh(Mesh&& mesh) { m_Meshes.emplace_back(std::move(mesh)); }
 
 void Pipeline::CreateDescriptorSetLayout()
 {
@@ -163,38 +155,22 @@ void Pipeline::CreateDescriptorSetLayout()
         throw std::runtime_error("fialed to create descriptor set layout!");
 }
 
-void Pipeline::CreateUniformbuffers(int maxFramesCount)
+void Pipeline::CreateUniformbuffers(int maxFramesCount, VkDeviceSize uboBufferSize)
 {
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
     m_UniformBuffers.reserve(maxFramesCount);
 
     for(size_t i = 0; i < maxFramesCount; i++)
     {
         m_UniformBuffers.emplace_back(
-            std::make_unique<Buffer>(bufferSize,
+            std::make_unique<Buffer>(uboBufferSize,
                                      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
 
-        m_UniformBuffers[i]->Map(bufferSize);
+        m_UniformBuffers[i]->Map(uboBufferSize);
     }
 }
 
-void Pipeline::UpdateUniformBufferObject(int imageIndex, const VkExtent2D& swapChainExtent)
+void Pipeline::UpdateUBO(int imageIndex, void* uboData, VkDeviceSize uboSize)
 {
-    static auto startTime = std::chrono::high_resolution_clock::now();
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    const float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-
-    UniformBufferObject ubo{};
-
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    ubo.view = m_Camera->GetViewMatrix();
-    ubo.proj = m_Camera->GetProjectionMatrix();
-
-    // Flip the Y as described in the vulcan tutorial
-    ubo.proj[1][1] *= -1;
-
-    m_UniformBuffers[imageIndex]->Upload(&ubo, sizeof(ubo));
+    m_UniformBuffers[imageIndex]->Upload(uboData, uboSize);
 }
