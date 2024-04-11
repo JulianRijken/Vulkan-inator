@@ -8,12 +8,13 @@ class Pipeline
 {
 public:
     Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo,
-             VkDeviceSize uboSize, VkCullModeFlagBits cullMode = VK_CULL_MODE_FRONT_BIT);
+             VkDeviceSize uboSize, uint32_t pushConstantSize = 0, VkCullModeFlagBits cullMode = VK_CULL_MODE_FRONT_BIT);
 
     ~Pipeline();
 
     void Bind(VkCommandBuffer commandBuffer, int imageIndex);
     void UpdateUBO(int imageIndex, void* uboData, VkDeviceSize uboSize);
+    void UpdatePushConstant(VkCommandBuffer commandBuffer, void* pushConstants, uint32_t pushConstantSize);
 
 private:
     void CreateDescriptorSetLayout();

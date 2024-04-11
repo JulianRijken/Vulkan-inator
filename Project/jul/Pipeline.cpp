@@ -4,7 +4,7 @@
 #include "vulkanbase/VulkanGlobals.h"
 
 Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo,
-                   VkDeviceSize uboSize, VkCullModeFlagBits cullMode) :
+                   VkDeviceSize uboSize, uint32_t pushConstantSize, VkCullModeFlagBits cullMode) :
     m_RenderPass(*&VulkanGlobals::GetRederPass())
 {
     CreateDescriptorSetLayout();
@@ -53,13 +53,27 @@ Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pi
     dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
     dynamicState.pDynamicStates = dynamicStates.data();
 
+
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetlayout;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
-    
-    if(vkCreatePipelineLayout(VulkanGlobals::GetDevice(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
+
+    const VkPushConstantRange pushConstant{
+        .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+        .offset = 0,
+        .size = pushConstantSize,
+    };
+
+    if(pushConstantSize > 0)
+    {
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstant;
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+    }
+
+    if(vkCreatePipelineLayout(VulkanGlobals::GetDevice(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) !=
+       VK_SUCCESS)
         throw std::runtime_error("failed to create pipeline layout!");
 
 
@@ -173,4 +187,9 @@ void Pipeline::CreateUniformbuffers(int maxFramesCount, VkDeviceSize uboBufferSi
 void Pipeline::UpdateUBO(int imageIndex, void* uboData, VkDeviceSize uboSize)
 {
     m_UniformBuffers[imageIndex]->Upload(uboData, uboSize);
+}
+
+void Pipeline::UpdatePushConstant(VkCommandBuffer commandBuffer, void* pushConstants, uint32_t pushConstantSize)
+{
+    vkCmdPushConstants(commandBuffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstantSize, pushConstants);
 }

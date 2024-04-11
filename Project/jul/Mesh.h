@@ -2,8 +2,10 @@
 
 #include <vulkan/vulkan_core.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <array>
 #include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
 #include <memory>
 #include <vector>
 
@@ -31,6 +33,11 @@ public:
 
         static const VkVertexInputBindingDescription BINDING_DESCRIPTION;
         static const std::array<VkVertexInputAttributeDescription, 3> ATTRIBUTE_DESCRIPTIONS;
+
+        bool operator==(const Vertex3D& other) const
+        {
+            return pos == other.pos and normal == other.normal and color == other.color;
+        }
     };
 
     struct VertexData
@@ -51,3 +58,17 @@ private:
 
     uint32_t m_NumIndices;
 };
+
+namespace std
+{
+    template<>
+    struct hash<Mesh::Vertex3D>
+    {
+        size_t operator()(const Mesh::Vertex3D& vert) const
+        {
+            auto&& hash{ std::hash<glm::vec3>() };
+
+            return (hash(vert.pos) ^ hash(vert.color) << 1) >> 1 ^ hash(vert.normal) << 1;
+        }
+    };
+};  // namespace std

@@ -9,16 +9,21 @@ class Game final
 {
     struct UniformBufferObject2D
     {
-        glm::mat4 model;
         glm::mat4 proj;
     };
 
     struct UniformBufferObject3D
     {
-        glm::mat4 model;
         glm::mat4 view;
         glm::mat4 proj;
     };
+
+    struct MeshPushConstants
+    {
+        glm::mat4 model;
+    };
+
+    static_assert(sizeof(MeshPushConstants) <= 128);
 
 
 public:
