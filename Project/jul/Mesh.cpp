@@ -58,7 +58,7 @@ const std::array<VkVertexInputAttributeDescription, 2> Mesh::Vertex2D::ATTRIBUTE
                                       .location = 0,
                                       .binding = 0,
                                       .format = VK_FORMAT_R32G32_SFLOAT,
-                                      .offset = offsetof(Vertex2D, pos),
+        .offset = offsetof(Vertex2D, position),
                                       },
     { .location = 1, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Vertex2D, color) }
 };

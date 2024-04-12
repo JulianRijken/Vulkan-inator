@@ -17,7 +17,7 @@ public:
 
     struct Vertex2D
     {
-        glm::vec2 pos;
+        glm::vec2 position;
         glm::vec3 color;
 
         static const VkVertexInputBindingDescription BINDING_DESCRIPTION;

@@ -34,7 +34,9 @@ public:
 
 
 private:
-    void AddMesh(Mesh&& mesh) { m_Meshes.emplace_back(std::move(mesh)); }
+    const Mesh& AddMesh(Mesh&& mesh) { return m_Meshes.emplace_back(std::move(mesh)); }
+    Mesh LoadMesh(const std::string& meshPath);
+    Mesh GenerateCircle(glm::vec2 center, glm::vec2 size = { 1, 1 }, uint32_t segmentSize = 64);
 
     std::unique_ptr<Pipeline> m_Pipline2D{};
     std::unique_ptr<Pipeline> m_Pipline3D{};
