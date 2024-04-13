@@ -171,9 +171,9 @@ Mesh Game::LoadMesh(const std::string& meshPath)
                 .pos = {attrib.vertices[3 * index.vertex_index + 0],
                         attrib.vertices[3 * index.vertex_index + 1],
                         attrib.vertices[3 * index.vertex_index + 2]},
-                .normal = { attrib.normals[3 * index.vertex_index + 0],
-                        attrib.normals[3 * index.vertex_index + 1],
-                        attrib.normals[3 * index.vertex_index + 2] },
+                .normal = { attrib.normals[3 * index.normal_index + 0],
+                        attrib.normals[3 * index.normal_index + 1],
+                        attrib.normals[3 * index.normal_index + 2] },
                 .color = {            jul::math::RandomValue<float>(),
                         jul::math::RandomValue<float>(),
                         jul::math::RandomValue<float>()            }

@@ -22,7 +22,10 @@ layout(location = 1) out vec3 outNormal;
 void main()
 {
     gl_Position = vp.proj * vp.view * push.model * vec4(inPosition, 1.0);
-    //gl_Position = vec4(inPosition, 1.0);
+
+    mat4 invModel = inverse(push.model);
+    mat3 modelRotationMatrix = mat3(transpose(invModel));
+
     outFragColor = inColor;
-    outNormal = inNormal;
+    outNormal = modelRotationMatrix * inNormal;
 }

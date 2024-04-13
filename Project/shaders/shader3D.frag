@@ -7,5 +7,8 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {
-    outColor = vec4(fragColor, 1.0);
+    const vec3 lightDirection = normalize(vec3(0,-1,-1));
+
+    float observedArea = max(0.0f, dot(normalize(inNormal), -lightDirection));
+    outColor = vec4(fragColor * observedArea, 1.0);
 }
