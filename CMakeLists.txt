@@ -11,23 +11,23 @@ include(FetchContent)
 
 FetchContent_Declare(
     glfw
-    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_REPOSITORY      https://github.com/glfw/glfw.git
     GIT_SHALLOW TRUE
-    GIT_TAG        3.3.8
+    GIT_TAG 3.3.8
 )
 
 FetchContent_Declare(
     glm
     GIT_REPOSITORY	https://github.com/g-truc/glm.git
     GIT_SHALLOW TRUE
-    GIT_TAG 	1.0.1
+    GIT_TAG 1.0.1
 )
 
 FetchContent_Declare(
     tinyobjloader
     GIT_REPOSITORY	https://github.com/tinyobjloader/tinyobjloader.git
     GIT_SHALLOW TRUE
-    GIT_TAG 	v2.0.0rc13
+    GIT_TAG v2.0.0rc13
 )
 
 

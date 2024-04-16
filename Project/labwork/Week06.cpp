@@ -1,8 +1,11 @@
+
 #include <iostream>
 #include <set>
 
 #include "vulkanbase/VulkanBase.h"
+#include "vulkanbase/VulkanGlobals.h"
 #include "vulkanbase/VulkanUtil.h"
+
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                     VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -58,11 +61,28 @@ void VulkanBase::CreateSyncObjects()
 void VulkanBase::DrawFrame()
 {
     vkWaitForFences(m_Device, 1, &m_InFlightFence, VK_TRUE, UINT64_MAX);
-    vkResetFences(m_Device, 1, &m_InFlightFence);
 
     uint32_t imageIndex = 0;
-    vkAcquireNextImageKHR(
+    VkResult nextImageResult = vkAcquireNextImageKHR(
         m_Device, *m_SwapChainUPtr, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+
+    if(nextImageResult == VK_ERROR_OUT_OF_DATE_KHR or nextImageResult == VK_SUBOPTIMAL_KHR)
+    {
+        vkDeviceWaitIdle(VulkanGlobals::GetDevice());
+
+        glm::ivec2 windowSize{};
+        glfwGetFramebufferSize(m_window, &windowSize.x, &windowSize.y);
+        m_SwapChainUPtr = std::make_unique<SwapChain>(m_Surface, windowSize);
+        m_SwapChainUPtr->CreateFrameBuffers(m_RenderPassUPtr.get());
+
+        VulkanGlobals::s_SwapChainPtr = m_SwapChainUPtr.get();
+
+        return;
+    }
+
+    vkResetFences(m_Device, 1, &m_InFlightFence);
+
 
     vkResetCommandBuffer(m_CommandBufferUPtr->Get(), /*VkCommandBufferResetFlagBits*/ 0);
 

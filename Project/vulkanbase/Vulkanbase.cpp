@@ -25,7 +25,7 @@ void VulkanBase::InitVulkan()
 
     glm::ivec2 windowSize{};
     glfwGetFramebufferSize(m_window, &windowSize.x, &windowSize.y);
-    m_SwapChainUPtr = std::make_unique<SwapChain>(m_Device, m_PhysicalDevice, m_Surface, windowSize);
+    m_SwapChainUPtr = std::make_unique<SwapChain>(m_Surface, windowSize);
     VulkanGlobals::s_SwapChainPtr = m_SwapChainUPtr.get();
 
     m_RenderPassUPtr = std::make_unique<RenderPass>(m_Device, m_SwapChainUPtr->GetImageFormat());
@@ -66,15 +66,9 @@ void VulkanBase::Cleanup()
     vkDestroyFence(m_Device, m_InFlightFence, nullptr);
 
     m_CommandBufferUPtr.reset();
-
-    // TODO try moving this in to the destructor of swap chain
-    m_SwapChainUPtr->DestroyFrameBuffer();
-
     m_GameUPtr.reset();
-
     m_RenderPassUPtr.reset();
     m_SwapChainUPtr.reset();
-
 
     vkDestroyDevice(m_Device, nullptr);
 
@@ -92,7 +86,7 @@ void VulkanBase::InitWindow()
 {
     glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

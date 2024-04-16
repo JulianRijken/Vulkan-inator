@@ -17,12 +17,11 @@ struct SwapChainSupportDetails
 class SwapChain
 {
 public:
-    SwapChain(VkDevice device, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, const glm::ivec2& extents);
+    SwapChain(VkSurfaceKHR surface, const glm::ivec2& extents);
     ~SwapChain();
 
     VkFormat GetImageFormat() {return m_SwapChainImageFormat; }
 
-    void DestroyFrameBuffer();
     void CreateFrameBuffers(RenderPass* renderPass);
 
     operator VkSwapchainKHR();
@@ -56,5 +55,4 @@ private:
     std::vector<VkImageView> m_SwapChainImageViews;
 
     std::vector<VkFramebuffer> m_SwapChainFramebuffers;
-    VkDevice m_Device;
 };
