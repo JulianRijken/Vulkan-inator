@@ -90,6 +90,7 @@ void VulkanBase::InitWindow()
     m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetWindowUserPointer(m_window, this);
 
     glfwSetKeyCallback(m_window,
                        [](GLFWwindow*, int key, int, int action, int)
@@ -102,6 +103,12 @@ void VulkanBase::InitWindow()
     glfwSetCursorPosCallback(m_window,
                              [](GLFWwindow*, double xpos, double ypos) {
                                  Input::OnMouseMove({ xpos, ypos });
+                             });
+    
+    glfwSetFramebufferSizeCallback(m_window,
+                             [](GLFWwindow* window, int, int) {
+                                 auto* app = reinterpret_cast<VulkanBase*>(glfwGetWindowUserPointer(window));
+                                 app->m_NeedsResize = true;
                              });
 }
 

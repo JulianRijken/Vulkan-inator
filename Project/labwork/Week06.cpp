@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <set>
+#include <cstring>
 
 #include "vulkanbase/VulkanBase.h"
 #include "vulkanbase/VulkanGlobals.h"
@@ -67,8 +68,10 @@ void VulkanBase::DrawFrame()
         m_Device, *m_SwapChainUPtr, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
 
-    if(nextImageResult == VK_ERROR_OUT_OF_DATE_KHR or nextImageResult == VK_SUBOPTIMAL_KHR)
+    if(m_NeedsResize || nextImageResult == VK_ERROR_OUT_OF_DATE_KHR or nextImageResult == VK_SUBOPTIMAL_KHR)
     {
+        m_NeedsResize = false;
+
         vkDeviceWaitIdle(VulkanGlobals::GetDevice());
 
         glm::ivec2 windowSize{};

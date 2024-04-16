@@ -1,6 +1,7 @@
 #include "Buffer.h"
 
 #include <stdexcept>
+#include <cstring>
 
 #include "vulkanbase/VulkanGlobals.h"
 

@@ -50,6 +50,7 @@ private:
 
 
     GLFWwindow* m_window;
+    bool m_NeedsResize{ false };
 
     std::unique_ptr<Game> m_GameUPtr{};
     std::unique_ptr<CommandBuffer> m_CommandBufferUPtr{};

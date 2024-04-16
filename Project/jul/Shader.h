@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <vector>
 #include <vulkan/vulkan_core.h>
 
 using path = std::filesystem::path;
