@@ -8,6 +8,7 @@
 #define GLM_FORCE_RADIANS
 #include <tiny_obj_loader.h>
 
+#include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 Game::Game()
@@ -21,8 +22,7 @@ Game::Game()
     m_Pipline3D = std::make_unique<Pipeline>(Shader{ "shaders/shader3D.vert.spv", "shaders/shader3D.frag.spv" },
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex3D>(),
                                              sizeof(UniformBufferObject3D),
-                                             sizeof(MeshPushConstants),
-                                             VK_CULL_MODE_NONE);
+                                             sizeof(MeshPushConstants));
 
 
     const std::vector<Mesh::Vertex2D> triangleVertices = {
@@ -85,7 +85,7 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
     m_Pipline2D->Bind(commandBuffer, imageIndex);
     m_Pipline2D->UpdateUBO(imageIndex, &ubo2D, sizeof(ubo2D));
     m_Pipline2D->UpdatePushConstant(commandBuffer, &meshPushConstant2D, sizeof(meshPushConstant2D));
-    m_Meshes[0].Draw(commandBuffer);
+    // m_Meshes[0].Draw(commandBuffer);
 
 
     MeshPushConstants squarePushConstants{};
@@ -94,7 +94,7 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
             glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         meshPushConstant2D.model[3][0] = 0.5f;
     }
-    m_Meshes[1].Draw(commandBuffer);
+    // m_Meshes[1].Draw(commandBuffer);
 
 
     // 3D Meshesh
@@ -212,10 +212,10 @@ Mesh Game::GenerateCircle(glm::vec2 center, glm::vec2 size, uint32_t segmentCoun
 
     for(uint32_t segment = 0; segment < segmentCount; segment++)
     {
-        const float angle = static_cast<float>(segment) / static_cast<float>(segmentCount - 1) * glm::tau<float>();
+        const float angle = static_cast<float>(segment) / static_cast<float>(segmentCount - 1) * (glm::pi<float>() * 2);
         const glm::vec2 offset = { std::cos(angle) * size.x, std::sin(angle) * size.y };
 
-        circleVertices.push_back({ .position = center + offset, .color = outerColor * angle / glm::tau<float>() });
+        circleVertices.push_back({ .position = center + offset, .color = outerColor * angle / (glm::pi<float>() * 2) });
 
         circleIndices.push_back(0);
         circleIndices.push_back(segment + 1);
