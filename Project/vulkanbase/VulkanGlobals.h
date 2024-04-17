@@ -21,10 +21,14 @@ public:
 
     [[nodiscard]] static inline VkQueue GetGraphicsQueue() { return s_GraphicsQueue; }
 
+    [[nodiscard]] static inline VkSurfaceKHR GetSurface() { return s_Surface; }
+
+
 private:
     static inline VkDevice s_Device{};
     static inline VkPhysicalDevice s_PhysicalDevice{};
     static inline VkQueue s_GraphicsQueue{};
     static inline SwapChain* s_SwapChainPtr{};
     static inline RenderPass* s_RenderPassPtr{};
+    static inline VkSurfaceKHR s_Surface{};
 };

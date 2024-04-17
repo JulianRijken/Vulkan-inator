@@ -32,7 +32,10 @@ public:
 private:
     void InitVulkan();
     void InitWindow();
+
     void PickPhysicalDevice();
+    [[nodiscard]] uint32_t RateDeviceSuitability(VkPhysicalDevice device);
+
     void CreateSurface();
     void CreateInstance();
 
@@ -50,7 +53,7 @@ private:
 
 
     GLFWwindow* m_window;
-    bool m_NeedsResize{ false };
+    bool m_NeedsWindowResize{ false };
 
     std::unique_ptr<Game> m_GameUPtr{};
     std::unique_ptr<CommandBuffer> m_CommandBufferUPtr{};

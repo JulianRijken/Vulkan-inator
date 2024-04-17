@@ -1,7 +1,9 @@
 #pragma once
 
+
 #ifdef WIN32
 #define VK_USE_PLATFORM_WIN32_KHR
+#define NOMINMAX
 #else
 #define VK_USE_PLATFORM_WAYLAND_KHR
 #define VK_USE_PLATFORM_XLIB_KHR
@@ -42,7 +44,7 @@ namespace VkUtils
 
     std::vector<char> ReadFile(const std::string& filename);
 
-	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+    QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 }

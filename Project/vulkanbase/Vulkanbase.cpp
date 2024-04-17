@@ -32,7 +32,7 @@ void VulkanBase::InitVulkan()
     VulkanGlobals::s_RenderPassPtr = m_RenderPassUPtr.get();
 
 
-    VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(m_PhysicalDevice, m_Surface);
+    VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(m_PhysicalDevice);
     m_CommandBufferUPtr = std::make_unique<CommandBuffer>(m_Device, indices.graphicsFamily.value());
 
     m_SwapChainUPtr->CreateFrameBuffers(m_RenderPassUPtr.get());
@@ -108,7 +108,7 @@ void VulkanBase::InitWindow()
     glfwSetFramebufferSizeCallback(m_window,
                              [](GLFWwindow* window, int, int) {
                                  auto* app = reinterpret_cast<VulkanBase*>(glfwGetWindowUserPointer(window));
-                                 app->m_NeedsResize = true;
+                                 app->m_NeedsWindowResize = true;
                              });
 }
 
@@ -116,8 +116,6 @@ void VulkanBase::CreateSurface()
 {
     if (glfwCreateWindowSurface(m_Instance, m_window, nullptr, &m_Surface) != VK_SUCCESS)
         throw std::runtime_error("failed to create window surface!");
+
+    VulkanGlobals::s_Surface = m_Surface;
 }
-
-
-
-
