@@ -118,10 +118,14 @@ void VulkanBase::DrawFrame()
         m_NeedsWindowResize = false;
         vkDeviceWaitIdle(VulkanGlobals::GetDevice());
 
+        m_SwapChainUPtr.reset();
+
         glm::ivec2 windowSize{};
         glfwGetFramebufferSize(m_window, &windowSize.x, &windowSize.y);
         m_SwapChainUPtr = std::make_unique<SwapChain>(m_Surface, windowSize);
         VulkanGlobals::s_SwapChainPtr = m_SwapChainUPtr.get();
+
+        m_GameUPtr->OnResize();
 
         m_SwapChainUPtr->CreateFrameBuffers(m_RenderPassUPtr.get());
         return;

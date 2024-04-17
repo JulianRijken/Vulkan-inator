@@ -4,12 +4,15 @@
 
 #include "jul/GameTime.h"
 #include "jul/MathExtensions.h"
+#include "jul/SwapChain.h"
 
 #define GLM_FORCE_RADIANS
 #include <tiny_obj_loader.h>
+#include <vulkanbase/VulkanGlobals.h>
 
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
 
 Game::Game()
 {
@@ -137,6 +140,8 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
     // m_Pipline3D->UpdatePushConstant(commandBuffer, &TerrainMesh, sizeof(TerrainMesh));
     // m_Meshes[3].Draw(commandBuffer);
 }
+
+void Game::OnResize() { m_Camera.SetAspect(VulkanGlobals::GetSwapChain().GetAspect()); }
 
 Mesh Game::LoadMesh(const std::string& meshPath)
 {

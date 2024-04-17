@@ -108,7 +108,10 @@ void Camera::ChangeFovAngle(float fovAngleChange)
     }
 }
 
+void Camera::SetAspect(float aspectRatio) { m_AspectRatio = aspectRatio; }
+
 void Camera::UpdateViewMatrix() { m_ViewMatrix = glm::lookAt(m_Origin, m_Origin + m_Forward, m_Up); }
+
 
 void Camera::UpdateProjectionMatrix()
 {
