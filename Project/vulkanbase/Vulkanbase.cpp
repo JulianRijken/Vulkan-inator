@@ -108,7 +108,7 @@ void VulkanBase::InitWindow()
     glfwSetFramebufferSizeCallback(m_window,
                              [](GLFWwindow* window, int, int) {
                                  auto* app = reinterpret_cast<VulkanBase*>(glfwGetWindowUserPointer(window));
-                                 app->m_NeedsResize = true;
+                                 app->m_NeedsWindowResize = true;
                              });
 }
 
