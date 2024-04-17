@@ -22,7 +22,7 @@ public:
 
     VkFormat GetImageFormat() {return m_SwapChainImageFormat; }
 
-    void CreateFrameBuffers(RenderPass* renderPass);
+    void CreateFrameBuffers(RenderPass* renderPass, VkImageView depthImageView);
 
     operator VkSwapchainKHR();
 

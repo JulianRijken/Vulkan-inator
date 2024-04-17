@@ -24,26 +24,22 @@ SwapChain::~SwapChain()
     vkDestroySwapchainKHR(VulkanGlobals::GetDevice(), m_SwapChain, nullptr);
 }
 
-
-void SwapChain::CreateFrameBuffers(RenderPass* renderPass)
+void SwapChain::CreateFrameBuffers(RenderPass* renderPass, VkImageView depthImageView)
 {
     m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
 
     for (size_t i = 0; i < m_SwapChainImageViews.size(); i++)
     {
-        const VkImageView attachments[] =
-            {
-                m_SwapChainImageViews[i]
-            };
-
-        VkFramebufferCreateInfo frameBufferInfo{};
-        frameBufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        frameBufferInfo.renderPass = *renderPass;
-        frameBufferInfo.attachmentCount = 1;
-        frameBufferInfo.pAttachments = attachments;
-        frameBufferInfo.width = m_SwapChainExtent.width;
-        frameBufferInfo.height = m_SwapChainExtent.height;
-        frameBufferInfo.layers = 1;
+        std::array<VkImageView, 2> attachments = { m_SwapChainImageViews[i], depthImageView };
+        const VkFramebufferCreateInfo frameBufferInfo{
+            .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+            .renderPass = *renderPass,
+            .attachmentCount = static_cast<uint32_t>(attachments.size()),
+            .pAttachments = attachments.data(),
+            .width = m_SwapChainExtent.width,
+            .height = m_SwapChainExtent.height,
+            .layers = 1,
+        };
 
         if(vkCreateFramebuffer(VulkanGlobals::GetDevice(), &frameBufferInfo, nullptr, &m_SwapChainFramebuffers[i]) !=
            VK_SUCCESS)

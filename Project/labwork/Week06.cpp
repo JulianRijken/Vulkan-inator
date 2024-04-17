@@ -112,7 +112,7 @@ void VulkanBase::DrawFrame()
 
     presentInfo.pImageIndices = &imageIndex;
 
-    VkResult presentResult = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+    const VkResult presentResult = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
     if(m_NeedsWindowResize or presentResult == VK_ERROR_OUT_OF_DATE_KHR)
     {
         m_NeedsWindowResize = false;
@@ -127,7 +127,7 @@ void VulkanBase::DrawFrame()
 
         m_GameUPtr->OnResize();
 
-        m_SwapChainUPtr->CreateFrameBuffers(m_RenderPassUPtr.get());
+        m_SwapChainUPtr->CreateFrameBuffers(m_RenderPassUPtr.get(), m_DepthImageView);
         return;
     }
 }

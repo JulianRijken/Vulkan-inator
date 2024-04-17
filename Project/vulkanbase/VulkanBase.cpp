@@ -33,13 +33,12 @@ void VulkanBase::InitVulkan()
     m_RenderPassUPtr = std::make_unique<RenderPass>(m_Device, m_SwapChainUPtr->GetImageFormat());
     VulkanGlobals::s_RenderPassPtr = m_RenderPassUPtr.get();
 
-
     vulkanUtil::QueueFamilyIndices indices = vulkanUtil::FindQueueFamilies(m_PhysicalDevice);
     m_CommandBufferUPtr = std::make_unique<CommandBuffer>(m_Device, indices.graphicsFamily.value());
 
     CreateDepthResources();
 
-    m_SwapChainUPtr->CreateFrameBuffers(m_RenderPassUPtr.get());
+    m_SwapChainUPtr->CreateFrameBuffers(m_RenderPassUPtr.get(), m_DepthImageView);
 
     CreateSyncObjects();
 }
@@ -73,6 +72,11 @@ void VulkanBase::Cleanup()
     m_GameUPtr.reset();
     m_RenderPassUPtr.reset();
     m_SwapChainUPtr.reset();
+
+    vkDestroyImageView(VulkanGlobals::GetDevice(), m_DepthImageView, nullptr);
+    vkDestroyImage(VulkanGlobals::GetDevice(), m_DepthImage, nullptr);
+    vkFreeMemory(VulkanGlobals::GetDevice(), m_DepthImageMemory, nullptr);
+
 
     vkDestroyDevice(m_Device, nullptr);
 
@@ -234,10 +238,10 @@ void VulkanBase::CreateDepthResources()
                             VK_IMAGE_TILING_OPTIMAL,
                             VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                            depthImage,
-                            depthImageMemory);
+                            m_DepthImage,
+                            m_DepthImageMemory);
 
-    depthImageView = vulkanUtil::CreateImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+    m_DepthImageView = vulkanUtil::CreateImageView(m_DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
 
