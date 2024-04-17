@@ -31,7 +31,7 @@ public:
 
     void Update();
     void Draw(VkCommandBuffer commandBuffer, int imageIndex);
-
+    void OnResize();
 
 private:
     const Mesh& AddMesh(Mesh&& mesh) { return m_Meshes.emplace_back(std::move(mesh)); }

@@ -32,7 +32,6 @@ set(SOURCES
     vulkanbase/VulkanBase.cpp  vulkanbase/VulkanBase.h
     vulkanbase/VulkanGlobals.h
 
-    labwork/Week05.cpp
     labwork/Week06.cpp
 
     jul/Pipeline.cpp        jul/Pipeline.h

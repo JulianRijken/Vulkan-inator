@@ -35,6 +35,7 @@ public:
 
     void ChangeFovAngle(float fovAngleChange);
 
+    void SetAspect(float aspectRatio);
 
 private:
     void UpdateViewMatrix();
