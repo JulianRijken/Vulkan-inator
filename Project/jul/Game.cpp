@@ -20,12 +20,15 @@ Game::Game()
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
                                              sizeof(UniformBufferObject2D),
                                              sizeof(MeshPushConstants),
-                                             VK_CULL_MODE_NONE);
+                                             VK_CULL_MODE_NONE,
+                                             VK_FALSE,
+                                             VK_FALSE);
 
     m_Pipline3D = std::make_unique<Pipeline>(Shader{ "shaders/shader3D.vert.spv", "shaders/shader3D.frag.spv" },
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex3D>(),
                                              sizeof(UniformBufferObject3D),
-                                             sizeof(MeshPushConstants));
+                                             sizeof(MeshPushConstants),
+                                             VK_CULL_MODE_NONE);
 
 
     const std::vector<Mesh::Vertex2D> triangleVertices = {
@@ -79,25 +82,29 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
         ubo2D.proj = m_Camera.GetOrthoProjectionMatrix();
     }
 
+    m_Pipline2D->Bind(commandBuffer, imageIndex);
+    m_Pipline2D->UpdateUBO(imageIndex, &ubo2D, sizeof(ubo2D));
+
+
     MeshPushConstants meshPushConstant2D{};
     {
         meshPushConstant2D.model = glm::rotate(
             glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        meshPushConstant2D.model[3][0] = 0.5f;
+        meshPushConstant2D.model[3][0] = 1.0f;
     }
-    m_Pipline2D->Bind(commandBuffer, imageIndex);
-    m_Pipline2D->UpdateUBO(imageIndex, &ubo2D, sizeof(ubo2D));
+
     m_Pipline2D->UpdatePushConstant(commandBuffer, &meshPushConstant2D, sizeof(meshPushConstant2D));
-    // m_Meshes[0].Draw(commandBuffer);
+    m_Meshes[0].Draw(commandBuffer);
 
 
-    MeshPushConstants squarePushConstants{};
+    MeshPushConstants meshPushConstant2D2{};
     {
-        meshPushConstant2D.model = glm::rotate(
-            glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        meshPushConstant2D.model[3][0] = 0.5f;
+        meshPushConstant2D2.model = glm::rotate(
+            glm::mat4(1.0f), -jul::GameTime::GetElapsedTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        meshPushConstant2D2.model[3][0] = -1.0f;
     }
-    // m_Meshes[1].Draw(commandBuffer);
+    m_Pipline2D->UpdatePushConstant(commandBuffer, &meshPushConstant2D2, sizeof(meshPushConstant2D2));
+    m_Meshes[1].Draw(commandBuffer);
 
 
     // 3D Meshesh

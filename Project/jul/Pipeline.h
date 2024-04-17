@@ -8,7 +8,8 @@ class Pipeline
 {
 public:
     Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo,
-             VkDeviceSize uboSize, uint32_t pushConstantSize = 0, VkCullModeFlagBits cullMode = VK_CULL_MODE_FRONT_BIT);
+             VkDeviceSize uboSize, uint32_t pushConstantSize = 0, VkCullModeFlagBits cullMode = VK_CULL_MODE_FRONT_BIT,
+             VkBool32 depthTestEnable = VK_TRUE, VkBool32 depthWriteEnable = VK_TRUE);
 
     ~Pipeline();
 

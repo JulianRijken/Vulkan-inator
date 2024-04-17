@@ -45,6 +45,7 @@ private:
     glm::vec3 m_TargetOrigin;
 
     float m_FovAngle{};
+    float m_TargetFovAngle{};
 
     float m_NearClippingPlane = 0.1f;
     float m_FarClippingPlane = 100.0f;
@@ -67,14 +68,16 @@ private:
     glm::mat4 m_ViewMatrix{};
     glm::mat4 m_ProjectionMatrix{};
 
-    inline static constexpr float MAX_FOV{ 175.0f };
-    inline static constexpr float MIN_FOV{ 5.0f };
+    inline static constexpr float MAX_FOV{ 120.0f };
+    inline static constexpr float MIN_FOV{ 20.0f };
 
     inline static constexpr float KEY_MOVE_SPEED{ 10.0f };
     inline static constexpr float ROTATE_SPEED{ 0.05f };
+    inline static constexpr float ZOOM_SPEED{ 5.0f };
 
-    inline static constexpr float ROTATE_LERP_DURATION{ 0.2f };
+    inline static constexpr float ROTATE_LERP_DURATION{ 0.3f };
     inline static constexpr float MOVE_LERP_DURATION{ 0.7f };
+    inline static constexpr float ZOOM_LERP_DURATION{ 0.5f };
 
     inline static constexpr float BOOST_SPEED_MULTIPLIER{ 3.0f };
 };

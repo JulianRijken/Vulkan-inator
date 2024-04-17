@@ -113,6 +113,11 @@ void VulkanBase::InitWindow()
                                  Input::OnMouseMove({ xpos, ypos });
                              });
 
+    glfwSetScrollCallback(m_window,
+                          [](GLFWwindow*, double xpos, double ypos) {
+                              Input::OnMouseScroll({ xpos, ypos });
+                          });
+
     glfwSetFramebufferSizeCallback(m_window,
                                    [](GLFWwindow* window, int, int)
                                    {

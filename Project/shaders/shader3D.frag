@@ -9,6 +9,6 @@ void main()
 {
     const vec3 lightDirection = normalize(vec3(0,-1,-1));
 
-    float observedArea = max(0.0f, dot(normalize(inNormal), -lightDirection));
+    float observedArea = max(0.02f, dot(normalize(inNormal), -lightDirection));
     outColor = vec4(fragColor * observedArea, 1.0);
 }

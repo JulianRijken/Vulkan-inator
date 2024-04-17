@@ -12,6 +12,7 @@ public:
     static void OnKeyUp(int key);
 
     static void OnMouseMove(glm::vec2 mousePosition);
+    static void OnMouseScroll(glm::vec2 scroll);
 
     static void Update();
 
@@ -23,6 +24,8 @@ public:
     static glm::vec2 GetMousePosition();
     static glm::vec2 GetMouseDelta();
 
+    static glm::vec2 GetScrollDelta();
+
 private:
     static inline std::array<int, GLFW_KEY_LAST> s_Keys{};
 
@@ -30,5 +33,8 @@ private:
 
     static inline glm::vec2 s_AccumulatedMouseDelta{};
     static inline glm::vec2 s_MouseDelta{};
+
+    static inline glm::vec2 s_AccumulatedScrollDelta{};
+    static inline glm::vec2 s_ScrollDelta{};
 };
 

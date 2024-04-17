@@ -21,8 +21,13 @@ void Input::OnMouseMove(glm::vec2 mousePosition)
     s_LastMousePosition = s_CurrentMousePosition;
 }
 
+void Input::OnMouseScroll(glm::vec2 scrollDelta) { s_AccumulatedScrollDelta += scrollDelta; }
+
 void Input::Update()
 {
+    s_ScrollDelta = s_AccumulatedScrollDelta;
+    s_AccumulatedScrollDelta = {};
+
     s_MouseDelta = s_AccumulatedMouseDelta;
     s_AccumulatedMouseDelta = {};
 
@@ -43,3 +48,5 @@ bool Input::GetKeyHeld(int key) { return s_Keys[key] >= 1; }
 glm::vec2 Input::GetMousePosition() { return s_CurrentMousePosition; }
 
 glm::vec2 Input::GetMouseDelta() { return s_MouseDelta; }
+
+glm::vec2 Input::GetScrollDelta() { return s_ScrollDelta; }

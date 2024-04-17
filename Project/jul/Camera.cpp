@@ -14,7 +14,8 @@ Camera::Camera(const glm::vec3& origin, float fovAngle) :
     m_Origin{ origin },
     m_TargetOrigin{ m_Origin },
     m_AspectRatio{ VulkanGlobals::GetSwapChain().GetAspect() },
-    m_FovAngle{ fovAngle }
+    m_FovAngle{ fovAngle },
+    m_TargetFovAngle{ m_FovAngle }
 {
 }
 
@@ -39,6 +40,10 @@ void Camera::Update()
         movementInputVector.y += 1;
     if(Input::GetKeyHeld(GLFW_KEY_Q))
         movementInputVector.y -= 1;
+
+    ChangeFovAngle(Input::GetScrollDelta().y * -ZOOM_SPEED);
+    m_FovAngle =
+        jul::math::LerpSmooth(m_FovAngle, m_TargetFovAngle, jul::GameTime::GetDeltaTimeF(), ZOOM_LERP_DURATION);
 
     m_Pitch = jul::math::LerpSmooth(m_Pitch, m_TargetPitch, jul::GameTime::GetDeltaTimeF(), ROTATE_LERP_DURATION);
     m_Yaw = jul::math::LerpSmooth(m_Yaw, m_TargetYaw, jul::GameTime::GetDeltaTimeF(), ROTATE_LERP_DURATION);
@@ -93,19 +98,7 @@ void Camera::SetYaw(float yaw)
 
 void Camera::ChangeFovAngle(float fovAngleChange)
 {
-    m_FovAngle += fovAngleChange;
-
-    if(m_FovAngle < MAX_FOV)
-    {
-        m_FovAngle = MAX_FOV;
-        return;
-    }
-
-    if(m_FovAngle > MIN_FOV)
-    {
-        m_FovAngle = MIN_FOV;
-        return;
-    }
+    m_TargetFovAngle = std::clamp(m_TargetFovAngle + fovAngleChange, MIN_FOV, MAX_FOV);
 }
 
 void Camera::SetAspect(float aspectRatio) { m_AspectRatio = aspectRatio; }

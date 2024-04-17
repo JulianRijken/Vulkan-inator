@@ -4,7 +4,8 @@
 #include "vulkanbase/VulkanGlobals.h"
 
 Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo,
-                   VkDeviceSize uboSize, uint32_t pushConstantSize, VkCullModeFlagBits cullMode) :
+                   VkDeviceSize uboSize, uint32_t pushConstantSize, VkCullModeFlagBits cullMode,
+                   VkBool32 depthTestEnable, VkBool32 depthWriteEnable) :
     m_RenderPass(*&VulkanGlobals::GetRederPass())
 {
     CreateDescriptorSetLayout();
@@ -36,8 +37,8 @@ Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pi
 
     VkPipelineDepthStencilStateCreateInfo depthStencil{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-        .depthTestEnable = VK_TRUE,
-        .depthWriteEnable = VK_TRUE,
+        .depthTestEnable = depthTestEnable,
+        .depthWriteEnable = depthWriteEnable,
         .depthCompareOp = VK_COMPARE_OP_LESS,
         .depthBoundsTestEnable = VK_FALSE,
         .stencilTestEnable = VK_FALSE,

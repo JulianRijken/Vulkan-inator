@@ -115,10 +115,20 @@ void VulkanBase::DrawFrame()
     const VkResult presentResult = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
     if(m_NeedsWindowResize or presentResult == VK_ERROR_OUT_OF_DATE_KHR)
     {
+        int width = 0, height = 0;
+        glfwGetFramebufferSize(m_window, &width, &height);
+        while(width == 0 || height == 0)
+        {
+            glfwGetFramebufferSize(m_window, &width, &height);
+            glfwWaitEvents();
+        }
+
+
         m_NeedsWindowResize = false;
         vkDeviceWaitIdle(VulkanGlobals::GetDevice());
 
         m_SwapChainUPtr.reset();
+
 
         glm::ivec2 windowSize{};
         glfwGetFramebufferSize(m_window, &windowSize.x, &windowSize.y);
