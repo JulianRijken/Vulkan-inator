@@ -25,7 +25,7 @@ Mesh::Mesh(const std::vector<uint32_t>& indicies, const VertexData& vertexData) 
     );
 
 
-    VkUtils::CopyBuffer(*m_StagingBuffer, *m_VertexBuffer, vertexBufferSize);
+    vulkanUtil::CopyBuffer(*m_StagingBuffer, *m_VertexBuffer, vertexBufferSize);
 
 
     m_StagingBuffer->Upload((void*)indicies.data(), indicesBufferSize);
@@ -35,7 +35,7 @@ Mesh::Mesh(const std::vector<uint32_t>& indicies, const VertexData& vertexData) 
 
     );
 
-    VkUtils::CopyBuffer(*m_StagingBuffer, *m_IndexBuffer, indicesBufferSize);
+    vulkanUtil::CopyBuffer(*m_StagingBuffer, *m_IndexBuffer, indicesBufferSize);
 }
 
 void Mesh::Draw(VkCommandBuffer commandBuffer) const

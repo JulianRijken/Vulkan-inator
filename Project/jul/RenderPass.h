@@ -6,7 +6,7 @@
 class RenderPass
 {
 public:
-    RenderPass(VkDevice device,VkFormat swapChainImageFormat);
+    RenderPass(VkDevice device, VkFormat swapChainImageFormat);
     ~RenderPass();
 
     void Begin(VkFramebuffer swapChainFramebuffers, VkExtent2D swapChainExtent, VkCommandBuffer commandBuffer);
@@ -15,8 +15,6 @@ public:
     operator VkRenderPass();
 
 private:
-
     VkRenderPass m_RenderPass{};
     VkDevice m_Divice;
 };
-

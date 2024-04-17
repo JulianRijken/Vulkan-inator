@@ -6,8 +6,7 @@
 #include "jul/GameTime.h"
 #include "jul/Input.h"
 #include "vulkanbase/VulkanGlobals.h"
-#include "vulkanbase/VulkanUtil.h"
-
+#include "vulkanbase/vulkanUtil.h"
 
 void VulkanBase::Run()
 {
@@ -35,8 +34,10 @@ void VulkanBase::InitVulkan()
     VulkanGlobals::s_RenderPassPtr = m_RenderPassUPtr.get();
 
 
-    VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(m_PhysicalDevice);
+    vulkanUtil::QueueFamilyIndices indices = vulkanUtil::FindQueueFamilies(m_PhysicalDevice);
     m_CommandBufferUPtr = std::make_unique<CommandBuffer>(m_Device, indices.graphicsFamily.value());
+
+    CreateDepthResources();
 
     m_SwapChainUPtr->CreateFrameBuffers(m_RenderPassUPtr.get());
 
@@ -75,8 +76,8 @@ void VulkanBase::Cleanup()
 
     vkDestroyDevice(m_Device, nullptr);
 
-    if (enableValidationLayers)
-        VkUtils::DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
+    if(enableValidationLayers)
+        vulkanUtil::DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
 
     vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
     vkDestroyInstance(m_Instance, nullptr);
@@ -88,7 +89,7 @@ void VulkanBase::Cleanup()
 void VulkanBase::InitWindow()
 {
     glfwInit();
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 
@@ -107,12 +108,13 @@ void VulkanBase::InitWindow()
                              [](GLFWwindow*, double xpos, double ypos) {
                                  Input::OnMouseMove({ xpos, ypos });
                              });
-    
+
     glfwSetFramebufferSizeCallback(m_window,
-                             [](GLFWwindow* window, int, int) {
-                                 auto* app = reinterpret_cast<VulkanBase*>(glfwGetWindowUserPointer(window));
-                                 app->m_NeedsWindowResize = true;
-                             });
+                                   [](GLFWwindow* window, int, int)
+                                   {
+                                       auto* app = reinterpret_cast<VulkanBase*>(glfwGetWindowUserPointer(window));
+                                       app->m_NeedsWindowResize = true;
+                                   });
 }
 
 void VulkanBase::CreateSurface()
@@ -157,13 +159,13 @@ void VulkanBase::PickPhysicalDevice()
 
 bool VulkanBase::IsDeviceSuitable(VkPhysicalDevice device)
 {
-    VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(device);
+    vulkanUtil::QueueFamilyIndices indices = vulkanUtil::FindQueueFamilies(device);
     return indices.IsComplete() && CheckDeviceExtensionSupport(device);
 }
 
 void VulkanBase::CreateLogicalDevice()
 {
-    VkUtils::QueueFamilyIndices queueFamilyIndices = VkUtils::FindQueueFamilies(m_PhysicalDevice);
+    vulkanUtil::QueueFamilyIndices queueFamilyIndices = vulkanUtil::FindQueueFamilies(m_PhysicalDevice);
     std::set<uint32_t> uniqueQueueFamilies = { queueFamilyIndices.graphicsFamily.value(),
                                                queueFamilyIndices.presentFamily.value() };
 
@@ -222,6 +224,23 @@ void VulkanBase::CreateLogicalDevice()
     vkGetDeviceQueue(m_Device, queueFamilyIndices.presentFamily.value(), 0, &m_PresentQueue);
 }
 
+void VulkanBase::CreateDepthResources()
+{
+    VkFormat depthFormat = vulkanUtil::FindDepthFormat();
+
+    vulkanUtil::CreateImage(VulkanGlobals::GetSwapChain().GetExtent().width,
+                            VulkanGlobals::GetSwapChain().GetExtent().height,
+                            depthFormat,
+                            VK_IMAGE_TILING_OPTIMAL,
+                            VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                            depthImage,
+                            depthImageMemory);
+
+    depthImageView = vulkanUtil::CreateImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+}
+
+
 uint32_t VulkanBase::RateDeviceSuitability(VkPhysicalDevice device)
 {
     VkPhysicalDeviceProperties properties{};
@@ -242,7 +261,7 @@ uint32_t VulkanBase::RateDeviceSuitability(VkPhysicalDevice device)
         score += 100'000'000'000;
     }
 
-    auto&& indices{ VkUtils::FindQueueFamilies(device) };
+    auto&& indices{ vulkanUtil::FindQueueFamilies(device) };
     bool extensionsSupported = CheckDeviceExtensionSupport(device);
     if(not indices.IsComplete() or not extensionsSupported /*or not swapChainAdequate*/)
         return 0;

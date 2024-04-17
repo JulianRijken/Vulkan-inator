@@ -8,7 +8,7 @@ Shader::Shader(const path& vertexPath, const path& fragmentPath)
     //////////////////////////////
     /// Create vertex shader info
     //////////////////////////////
-    const std::vector<char> vertShaderCode = VkUtils::ReadFile(vertexPath.string());
+    const std::vector<char> vertShaderCode = vulkanUtil::ReadFile(vertexPath.string());
     const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode, VulkanGlobals::GetDevice());
 
     m_VertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -20,7 +20,7 @@ Shader::Shader(const path& vertexPath, const path& fragmentPath)
     //////////////////////////////
     /// Create fragment shader info
     //////////////////////////////
-    const std::vector<char> fragShaderCode = VkUtils::ReadFile(fragmentPath.string());
+    const std::vector<char> fragShaderCode = vulkanUtil::ReadFile(fragmentPath.string());
     const VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode, VulkanGlobals::GetDevice());
 
     m_FragmentInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

@@ -20,8 +20,8 @@
 #include "jul/RenderPass.h"
 #include "jul/SwapChain.h"
 
-const std::array<const char*,1> VALIDATION_LAYERS = { "VK_LAYER_KHRONOS_validation" };
-const std::array<const char*,1> DEVICE_EXTENSIONS = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+const std::array<const char*, 1> VALIDATION_LAYERS = { "VK_LAYER_KHRONOS_validation" };
+const std::array<const char*, 1> DEVICE_EXTENSIONS = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 class VulkanBase
 {
@@ -40,8 +40,7 @@ private:
     void CreateInstance();
 
     void MainLoop();
-        void DrawFrame();
-
+    void DrawFrame();
     void Cleanup();
 
     void CreateSyncObjects();
@@ -74,4 +73,14 @@ private:
     VkFence m_InFlightFence;
     VkSemaphore m_ImageAvailableSemaphore;
     VkSemaphore m_RenderFinishedSemaphore;
+
+
+    VkImage depthImage;
+    VkDeviceMemory depthImageMemory;
+    VkImageView depthImageView;
+    void CreateDepthResources();
+    VkFormat FindDepthFormat();
+    VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
+                                 VkFormatFeatureFlags features);
+    bool HasStencilComponent(VkFormat format);
 };
