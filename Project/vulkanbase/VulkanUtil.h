@@ -44,7 +44,7 @@ namespace VkUtils
 
     std::vector<char> ReadFile(const std::string& filename);
 
-	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+    QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 }

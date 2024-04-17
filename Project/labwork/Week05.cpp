@@ -1,3 +1,4 @@
+#include <map>
 #include <set>
 
 #include "vulkanbase/VulkanBase.h"
@@ -19,31 +20,32 @@ void VulkanBase::PickPhysicalDevice()
     if (deviceCount == 0)
 		throw std::runtime_error("failed to find GPUs with Vulkan support!");
 
-    // TODO: Make sure it picks the dedicated wamm... gpu I mean :)
-    for (const auto& device : devices)
-    {
-        if (IsDeviceSuitable(device))
-        {
-            m_PhysicalDevice = device;
-			break;
-		}
-	}
 
-    if (m_PhysicalDevice == VK_NULL_HANDLE)
-		throw std::runtime_error("failed to find a suitable GPU!");
+    std::multimap<int, VkPhysicalDevice> candidates;
+    for(auto&& device : devices)
+        candidates.insert(std::make_pair(RateDeviceSuitability(device), device));
 
+
+    auto&& max = std::ranges::max_element(candidates);
+
+    // If there is no GPU or No GPU is found
+    if(candidates.empty() or max->first == 0)
+        throw std::runtime_error("failed to find a suitable GPU!");
+
+
+    m_PhysicalDevice = max->second;
     VulkanGlobals::s_PhysicalDevice = m_PhysicalDevice;
 }
 
 bool VulkanBase::IsDeviceSuitable(VkPhysicalDevice device)
 {
-    VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(device,m_Surface);
+    VkUtils::QueueFamilyIndices indices = VkUtils::FindQueueFamilies(device);
     return indices.IsComplete() && CheckDeviceExtensionSupport(device);
 }
 
 void VulkanBase::CreateLogicalDevice()
 {
-    VkUtils::QueueFamilyIndices queueFamilyIndices = VkUtils::FindQueueFamilies(m_PhysicalDevice,m_Surface);
+    VkUtils::QueueFamilyIndices queueFamilyIndices = VkUtils::FindQueueFamilies(m_PhysicalDevice);
     std::set<uint32_t> uniqueQueueFamilies = { queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.presentFamily.value() };
 
 
@@ -99,4 +101,43 @@ void VulkanBase::CreateLogicalDevice()
     VulkanGlobals::s_GraphicsQueue = m_GraphicsQueue;
 
     vkGetDeviceQueue(m_Device, queueFamilyIndices.presentFamily.value(), 0, &m_PresentQueue);
+}
+
+uint32_t VulkanBase::RateDeviceSuitability(VkPhysicalDevice device)
+{
+    VkPhysicalDeviceProperties properties{};
+    VkPhysicalDeviceFeatures features{};
+
+    vkGetPhysicalDeviceProperties(device, &properties);
+    vkGetPhysicalDeviceFeatures(device, &features);
+
+    // we need these
+    if(not features.geometryShader or not features.samplerAnisotropy)
+        return 0;
+
+    uint32_t score{ 0 };
+
+    if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+    {
+        // we want this one :P
+        score += 100'000'000'000;
+    }
+
+    auto&& indices{ VkUtils::FindQueueFamilies(device) };
+    bool extensionsSupported = CheckDeviceExtensionSupport(device);
+    if(not indices.IsComplete() or not extensionsSupported /*or not swapChainAdequate*/)
+        return 0;
+
+    VkPhysicalDeviceMemoryProperties memoryProps{};
+    vkGetPhysicalDeviceMemoryProperties(device, &memoryProps);
+
+    auto&& heapsPointer = memoryProps.memoryHeaps;
+    std::vector<VkMemoryHeap> heaps{ heapsPointer, heapsPointer + memoryProps.memoryHeapCount };
+
+    for(const auto& heap : heaps)
+        if(heap.flags & VkMemoryHeapFlagBits::VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
+            score += heap.size;
+
+
+    return score;
 }

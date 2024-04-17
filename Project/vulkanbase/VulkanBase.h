@@ -32,7 +32,10 @@ public:
 private:
     void InitVulkan();
     void InitWindow();
+
     void PickPhysicalDevice();
+    [[nodiscard]] uint32_t RateDeviceSuitability(VkPhysicalDevice device);
+
     void CreateSurface();
     void CreateInstance();
 

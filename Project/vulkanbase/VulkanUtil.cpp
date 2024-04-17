@@ -43,8 +43,7 @@ std::vector<char> VkUtils::ReadFile(const std::string& filename)
 	return buffer;
 }
 
-
-VkUtils::QueueFamilyIndices VkUtils::FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
+VkUtils::QueueFamilyIndices VkUtils::FindQueueFamilies(VkPhysicalDevice device)
 {
 	VkUtils::QueueFamilyIndices indices;
 
@@ -61,7 +60,7 @@ VkUtils::QueueFamilyIndices VkUtils::FindQueueFamilies(VkPhysicalDevice device, 
 			indices.graphicsFamily = i;
 
 		VkBool32 presentSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, VulkanGlobals::GetSurface(), &presentSupport);
 
         if (presentSupport)
             indices.presentFamily = i;
