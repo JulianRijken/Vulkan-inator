@@ -3,8 +3,7 @@
 #include <array>
 #include <stdexcept>
 
-#include "vulkan/vulkan_core.h"
-#include "vulkanbase/vulkanUtil.h"
+#include "vulkanbase/VulkanUtil.h"
 
 RenderPass::RenderPass(VkDevice device,VkFormat swapChainImageFormat) :
       m_Divice(device)

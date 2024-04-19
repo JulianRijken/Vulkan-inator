@@ -1,12 +1,13 @@
 #include "vulkanbase/VulkanBase.h"
 
+#include <algorithm>
 #include <map>
 #include <set>
 
 #include "jul/GameTime.h"
 #include "jul/Input.h"
 #include "vulkanbase/VulkanGlobals.h"
-#include "vulkanbase/vulkanUtil.h"
+#include "vulkanbase/VulkanUtil.h"
 
 void VulkanBase::Run()
 {

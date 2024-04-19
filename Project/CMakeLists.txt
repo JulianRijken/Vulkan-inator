@@ -28,7 +28,7 @@ add_custom_target(
 
 set(SOURCES
     main.cpp
-    vulkanbase/vulkanUtil.cpp  vulkanbase/vulkanUtil.h
+    vulkanbase/VulkanUtil.cpp  vulkanbase/VulkanUtil.h
     vulkanbase/VulkanBase.cpp  vulkanbase/VulkanBase.h
     vulkanbase/VulkanGlobals.h
 

@@ -23,7 +23,7 @@ Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pi
         .depthClampEnable = VK_FALSE,
         .rasterizerDiscardEnable = VK_FALSE,
         .polygonMode = VK_POLYGON_MODE_FILL,
-        .cullMode = cullMode,
+        .cullMode = static_cast<VkCullModeFlags>(cullMode),
         .frontFace = VK_FRONT_FACE_CLOCKWISE,
         .depthBiasEnable = VK_FALSE,
         .lineWidth = 1.0f,

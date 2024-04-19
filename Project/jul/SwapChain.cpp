@@ -1,6 +1,7 @@
 #include "SwapChain.h"
 
 #include <algorithm>
+#include <array>
 #include <stdexcept>
 
 #include "jul/RenderPass.h"
