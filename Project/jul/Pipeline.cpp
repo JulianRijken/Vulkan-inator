@@ -1,24 +1,26 @@
 #include "Pipeline.h"
 
+#include <array>
+
 #include "SwapChain.h"
 #include "vulkanbase/VulkanGlobals.h"
 
 Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo,
-                   VkDeviceSize uboSize, uint32_t pushConstantSize, VkCullModeFlagBits cullMode,
+                   VkDeviceSize uboSize, uint32_t pushConstantSize, Texture* texturePtr, VkCullModeFlagBits cullMode,
                    VkBool32 depthTestEnable, VkBool32 depthWriteEnable) :
     m_RenderPass(*&VulkanGlobals::GetRederPass())
 {
-    CreateDescriptorSetLayout();
+    CreateDescriptorSetLayout(texturePtr);
     CreateUniformbuffers(VulkanGlobals::GetSwapChain().GetImageCount(), uboSize);
 
 
-    VkPipelineViewportStateCreateInfo viewportState{
+    const VkPipelineViewportStateCreateInfo viewportState{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
         .viewportCount = 1,
         .scissorCount = 1,
     };
 
-    VkPipelineRasterizationStateCreateInfo rasterizer{
+    const VkPipelineRasterizationStateCreateInfo rasterizer{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
         .depthClampEnable = VK_FALSE,
         .rasterizerDiscardEnable = VK_FALSE,
@@ -29,13 +31,13 @@ Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pi
         .lineWidth = 1.0f,
     };
 
-    VkPipelineMultisampleStateCreateInfo multisampling{
+    const VkPipelineMultisampleStateCreateInfo multisampling{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
         .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
         .sampleShadingEnable = VK_FALSE,
     };
 
-    VkPipelineDepthStencilStateCreateInfo depthStencil{
+    const VkPipelineDepthStencilStateCreateInfo depthStencil{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
         .depthTestEnable = depthTestEnable,
         .depthWriteEnable = depthWriteEnable,
@@ -49,13 +51,13 @@ Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pi
     };
 
 
-    VkPipelineColorBlendAttachmentState colorBlendAttachment{
+    const VkPipelineColorBlendAttachmentState colorBlendAttachment{
         .blendEnable = VK_FALSE,
         .colorWriteMask =
             VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
     };
 
-    VkPipelineColorBlendStateCreateInfo colorBlending{
+    const VkPipelineColorBlendStateCreateInfo colorBlending{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
         .logicOpEnable = VK_FALSE,
         .logicOp = VK_LOGIC_OP_COPY,
@@ -65,7 +67,7 @@ Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pi
 
 
     std::vector<VkDynamicState> dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
-    VkPipelineDynamicStateCreateInfo dynamicState{
+    const VkPipelineDynamicStateCreateInfo dynamicState{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
         .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size()),
         .pDynamicStates = dynamicStates.data(),
@@ -125,11 +127,17 @@ Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pi
         throw std::runtime_error("failed to create graphics pipeline!");
 
 
+    auto types = std::vector<VkDescriptorType>{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER };
+
+    if(texturePtr != nullptr)
+        types.push_back(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+
     m_DescriptorPoolUPtr = std::make_unique<DescriptorPool>(VulkanGlobals::GetDevice(),
                                                             VulkanGlobals::GetSwapChain().GetImageCount(),
-                                                            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                                            types,
                                                             m_DescriptorSetlayout,
-                                                            m_UniformBuffers);
+                                                            m_UniformBuffers,
+                                                            texturePtr);
 }
 
 Pipeline::~Pipeline()
@@ -167,8 +175,7 @@ void Pipeline::Bind(VkCommandBuffer commandBuffer, int imageIndex)
                             nullptr);
 }
 
-
-void Pipeline::CreateDescriptorSetLayout()
+void Pipeline::CreateDescriptorSetLayout(Texture* texturePtr)
 {
     const VkDescriptorSetLayoutBinding uboLayoutBinding{
 
@@ -179,12 +186,30 @@ void Pipeline::CreateDescriptorSetLayout()
         .pImmutableSamplers = nullptr
     };
 
+    std::vector<VkDescriptorSetLayoutBinding> bindings = { uboLayoutBinding };
+    if(texturePtr != nullptr)
+    {
+        VkDescriptorSetLayoutBinding samplerLayoutBinding{
+            .binding = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .descriptorCount = 1,
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .pImmutableSamplers = nullptr,
+        };
+
+        bindings.push_back(samplerLayoutBinding);
+    }
+
+
     const VkDescriptorSetLayoutCreateInfo layoutInfo{
 
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO, .bindingCount = 1, .pBindings = &uboLayoutBinding
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .bindingCount = static_cast<uint32_t>(bindings.size()),
+        .pBindings = bindings.data()
     };
-    
-    if(vkCreateDescriptorSetLayout(VulkanGlobals::GetDevice(), &layoutInfo, nullptr, &m_DescriptorSetlayout) != VK_SUCCESS)
+
+    if(vkCreateDescriptorSetLayout(VulkanGlobals::GetDevice(), &layoutInfo, nullptr, &m_DescriptorSetlayout) !=
+       VK_SUCCESS)
         throw std::runtime_error("fialed to create descriptor set layout!");
 }
 

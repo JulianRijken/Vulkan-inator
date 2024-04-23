@@ -4,12 +4,14 @@
 #include "jul/DescriptorPool.h"
 #include "jul/Shader.h"
 
+
 class Pipeline
 {
 public:
     Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo,
-             VkDeviceSize uboSize, uint32_t pushConstantSize = 0, VkCullModeFlagBits cullMode = VK_CULL_MODE_FRONT_BIT,
-             VkBool32 depthTestEnable = VK_TRUE, VkBool32 depthWriteEnable = VK_TRUE);
+             VkDeviceSize uboSize, uint32_t pushConstantSize = 0, Texture* texturePtr = nullptr,
+             VkCullModeFlagBits cullMode = VK_CULL_MODE_FRONT_BIT, VkBool32 depthTestEnable = VK_TRUE,
+             VkBool32 depthWriteEnable = VK_TRUE);
 
     ~Pipeline();
 
@@ -18,7 +20,7 @@ public:
     void UpdatePushConstant(VkCommandBuffer commandBuffer, void* pushConstants, uint32_t pushConstantSize);
 
 private:
-    void CreateDescriptorSetLayout();
+    void CreateDescriptorSetLayout(Texture* texturePtr);
     void CreateUniformbuffers(int maxFramesCount, VkDeviceSize uboBufferSize);
 
 

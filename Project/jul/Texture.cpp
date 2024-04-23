@@ -11,7 +11,7 @@
 #include "vulkanbase/VulkanGlobals.h"
 #include "vulkanbase/VulkanUtil.h"
 
-jul::Texture::Texture(const std::string& filePath)
+Texture::Texture(const std::string& filePath)
 {
     using namespace std::string_literals;
 
@@ -37,17 +37,20 @@ jul::Texture::Texture(const std::string& filePath)
                             VK_IMAGE_TILING_OPTIMAL,
                             VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                            m_TextureImage,
-                            m_TextureImageMemory);
+                            m_Image,
+                            m_ImageMemory);
 
-    TransitionImageLayout(m_TextureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    CopyBufferToImage(imageStagingBuffer, m_TextureImage, imageSize.x, imageSize.y);
+    TransitionImageLayout(m_Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    CopyBufferToImage(imageStagingBuffer, m_Image, imageSize.x, imageSize.y);
 
-    TransitionImageLayout(
-        m_TextureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    TransitionImageLayout(m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    m_ImageView = vulkanUtil::CreateImageView(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+
+    CreateTextureSampler(VK_SAMPLER_ADDRESS_MODE_REPEAT);
 }
 
-void jul::Texture::TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout)
+void Texture::TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
     VkImageMemoryBarrier barrier
         {
@@ -102,7 +105,7 @@ void jul::Texture::TransitionImageLayout(VkImage image, VkImageLayout oldLayout,
     transitionBuffer.EndBuffer();
 }
 
-void jul::Texture::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+void Texture::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
 {
     const VkBufferImageCopy region{
         .bufferOffset = 0,
@@ -127,8 +130,38 @@ void jul::Texture::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t wi
     imageCopyBuffer.EndBuffer();
 }
 
-jul::Texture::~Texture()
+void Texture::CreateTextureSampler(VkSamplerAddressMode addressMode)
 {
-    vkDestroyImage(VulkanGlobals::GetDevice(), m_TextureImage, nullptr);
-    vkFreeMemory(VulkanGlobals::GetDevice(), m_TextureImageMemory, nullptr);
+    VkPhysicalDeviceProperties properties{};
+    vkGetPhysicalDeviceProperties(VulkanGlobals::GetPhysicalDevice(), &properties);
+
+    VkSamplerCreateInfo info{
+        .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+        .magFilter = VK_FILTER_LINEAR,
+        .minFilter = VK_FILTER_LINEAR,
+        .mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
+        .addressModeU = addressMode,
+        .addressModeV = addressMode,
+        .addressModeW = addressMode,
+        .mipLodBias = 0.0f,
+        .anisotropyEnable = VK_TRUE,
+        .maxAnisotropy = properties.limits.maxSamplerAnisotropy,
+        .compareEnable = VK_FALSE,
+        .compareOp = VK_COMPARE_OP_ALWAYS,
+        .minLod = 0.0f,
+        .maxLod = 0.0f,
+        .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+        .unnormalizedCoordinates = VK_FALSE,
+    };
+
+    if(vkCreateSampler(VulkanGlobals::GetDevice(), &info, nullptr, &m_Sampler) != VK_SUCCESS)
+        throw std::runtime_error("failed to create texture sampler!");
+}
+
+Texture::~Texture()
+{
+    vkDestroySampler(VulkanGlobals::GetDevice(), m_Sampler, nullptr);
+    vkDestroyImageView(VulkanGlobals::GetDevice(), m_ImageView, nullptr);
+    vkDestroyImage(VulkanGlobals::GetDevice(), m_Image, nullptr);
+    vkFreeMemory(VulkanGlobals::GetDevice(), m_ImageMemory, nullptr);
 }

@@ -30,9 +30,11 @@ public:
         glm::vec3 pos;
         glm::vec3 normal;
         glm::vec3 color;
+        glm::vec2 texCoord;
 
         static const VkVertexInputBindingDescription BINDING_DESCRIPTION;
-        static const std::array<VkVertexInputAttributeDescription, 3> ATTRIBUTE_DESCRIPTIONS;
+        static const std::array<VkVertexInputAttributeDescription, 4> ATTRIBUTE_DESCRIPTIONS;
+
 
         bool operator==(const Vertex3D& other) const
         {

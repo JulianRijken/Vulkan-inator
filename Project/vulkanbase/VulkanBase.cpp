@@ -169,8 +169,11 @@ void VulkanBase::PickPhysicalDevice()
 
 bool VulkanBase::IsDeviceSuitable(VkPhysicalDevice device)
 {
+    VkPhysicalDeviceFeatures supportedFeatures;
+    vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
     vulkanUtil::QueueFamilyIndices indices = vulkanUtil::FindQueueFamilies(device);
-    return indices.IsComplete() && CheckDeviceExtensionSupport(device);
+    return indices.IsComplete() and CheckDeviceExtensionSupport(device) and supportedFeatures.samplerAnisotropy;
 }
 
 void VulkanBase::CreateLogicalDevice()
@@ -205,7 +208,7 @@ void VulkanBase::CreateLogicalDevice()
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
         createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-        const VkPhysicalDeviceFeatures deviceFeatures{};
+        const VkPhysicalDeviceFeatures deviceFeatures{ .samplerAnisotropy = VK_TRUE };
         createInfo.pEnabledFeatures = &deviceFeatures;
 
         createInfo.enabledExtensionCount = static_cast<uint32_t>(DEVICE_EXTENSIONS.size());

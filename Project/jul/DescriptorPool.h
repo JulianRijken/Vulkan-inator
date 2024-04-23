@@ -6,11 +6,15 @@
 #include "Buffer.h"
 #include "vulkan/vulkan_core.h"
 
+
+class Texture;
+
 class DescriptorPool
 {
 public:
-    DescriptorPool(VkDevice device, int frameCount, VkDescriptorType type, VkDescriptorSetLayout descriptorSetLayout,
-                   const std::vector<std::unique_ptr<Buffer>>& buffers);
+    DescriptorPool(VkDevice device, int frameCount, const std::vector<VkDescriptorType>& types,
+                   VkDescriptorSetLayout descriptorSetLayout, const std::vector<std::unique_ptr<Buffer>>& buffers,
+                   Texture* texturePtr = nullptr);
     ~DescriptorPool();
 
     DescriptorPool(DescriptorPool&&) = delete;
@@ -21,12 +25,12 @@ public:
     VkDescriptorSet* GetDescriptorSet(int index) { return &m_DescriptorSets[index]; }
 
 private:
-    void CreatePool(int frameCount, VkDescriptorType type);
-    void CreateSets(int frameCount, VkDescriptorType type, VkDescriptorSetLayout descriptorSetLayout,
-                    const std::vector<std::unique_ptr<Buffer>>& buffers);
+    void CreatePool(int frameCount, const std::vector<VkDescriptorType>& types);
+    void CreateSets(int frameCount, const std::vector<VkDescriptorType>& types,
+                    VkDescriptorSetLayout descriptorSetLayout, const std::vector<std::unique_ptr<Buffer>>& buffers,
+                    Texture* texturePtr = nullptr);
 
     VkDevice m_Device{};
     VkDescriptorPool m_DescriptorPool{};
     std::vector<VkDescriptorSet> m_DescriptorSets{};
 };
-

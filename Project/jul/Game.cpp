@@ -17,16 +17,13 @@
 
 Game::Game()
 {
-    jul::Texture* texture = new jul::Texture("resources/Diorama/T_Clothing_Color.png");
-
-
-    delete texture;
-
+    m_TestTexture = std::make_unique<Texture>("resources/Diorama/T_Grass_Color.png");
 
     m_Pipline2D = std::make_unique<Pipeline>(Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv" },
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
                                              sizeof(UniformBufferObject2D),
                                              sizeof(MeshPushConstants),
+                                             nullptr,
                                              VK_CULL_MODE_NONE,
                                              VK_FALSE,
                                              VK_FALSE);
@@ -35,6 +32,7 @@ Game::Game()
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex3D>(),
                                              sizeof(UniformBufferObject3D),
                                              sizeof(MeshPushConstants),
+                                             m_TestTexture.get(),
                                              VK_CULL_MODE_NONE);
 
 
@@ -79,6 +77,8 @@ Game::Game()
     AddMesh(LoadMesh("resources/Terrain/Terrain.obj"));
 }
 
+Game::~Game() = default;
+
 void Game::Update() { m_Camera.Update(); }
 
 void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
@@ -101,7 +101,7 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
     }
 
     m_Pipline2D->UpdatePushConstant(commandBuffer, &meshPushConstant2D, sizeof(meshPushConstant2D));
-    m_Meshes[0].Draw(commandBuffer);
+    // m_Meshes[0].Draw(commandBuffer);
 
 
     MeshPushConstants meshPushConstant2D2{};
@@ -111,7 +111,7 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
         meshPushConstant2D2.model[3][0] = -1.0f;
     }
     m_Pipline2D->UpdatePushConstant(commandBuffer, &meshPushConstant2D2, sizeof(meshPushConstant2D2));
-    m_Meshes[1].Draw(commandBuffer);
+    // m_Meshes[1].Draw(commandBuffer);
 
 
     // 3D Meshesh
@@ -187,15 +187,17 @@ Mesh Game::LoadMesh(const std::string& meshPath)
         for(auto&& index : shape.mesh.indices)
         {
             const Mesh::Vertex3D vertex{
-                .pos = {attrib.vertices[3 * index.vertex_index + 0],
+                .pos = { attrib.vertices[3 * index.vertex_index + 0],
                         attrib.vertices[3 * index.vertex_index + 1],
-                        attrib.vertices[3 * index.vertex_index + 2]},
+                        attrib.vertices[3 * index.vertex_index + 2] },
                 .normal = { attrib.normals[3 * index.normal_index + 0],
                         attrib.normals[3 * index.normal_index + 1],
                         attrib.normals[3 * index.normal_index + 2] },
-                .color = {            jul::math::RandomValue<float>(),
+                .color = { jul::math::RandomValue<float>(),
                         jul::math::RandomValue<float>(),
-                        jul::math::RandomValue<float>()            }
+                        jul::math::RandomValue<float>() },
+                .texCoord = { attrib.texcoords[2 * index.texcoord_index + 0],
+                        attrib.texcoords[2 * index.texcoord_index + 1] }
             };
 
             if(not uniqueVertices.contains(vertex))

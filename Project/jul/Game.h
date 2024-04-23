@@ -28,6 +28,7 @@ class Game final
 
 public:
     Game();
+    ~Game();
 
     void Update();
     void Draw(VkCommandBuffer commandBuffer, int imageIndex);
@@ -48,4 +49,5 @@ private:
     };
 
     std::vector<Mesh> m_Meshes{};
+    std::unique_ptr<Texture> m_TestTexture;
 };

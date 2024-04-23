@@ -68,7 +68,7 @@ const VkVertexInputBindingDescription Mesh::Vertex3D::BINDING_DESCRIPTION{ .bind
                                                                            .stride = sizeof(Mesh::Vertex3D),
                                                                            .inputRate = VK_VERTEX_INPUT_RATE_VERTEX };
 
-const std::array<VkVertexInputAttributeDescription, 3> Mesh::Vertex3D::ATTRIBUTE_DESCRIPTIONS{
+const std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex3D::ATTRIBUTE_DESCRIPTIONS{
     VkVertexInputAttributeDescription{
                                       .location = 0,
                                       .binding = 0,
@@ -78,5 +78,7 @@ const std::array<VkVertexInputAttributeDescription, 3> Mesh::Vertex3D::ATTRIBUTE
     VkVertexInputAttributeDescription{
                                       .location = 1, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, normal) },
     VkVertexInputAttributeDescription{
-                                      .location = 2, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, color) }
+                                      .location = 2, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, color) },
+    VkVertexInputAttributeDescription{
+                                      .location = 3, .binding = 0, .format = VK_FORMAT_R32G32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, texCoord) }
 };
