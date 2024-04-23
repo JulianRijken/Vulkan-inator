@@ -5,6 +5,7 @@
 #include "jul/GameTime.h"
 #include "jul/MathExtensions.h"
 #include "jul/SwapChain.h"
+#include "jul/Texture.h"
 
 #define GLM_FORCE_RADIANS
 #include <tiny_obj_loader.h>
@@ -16,6 +17,12 @@
 
 Game::Game()
 {
+    jul::Texture* texture = new jul::Texture("resources/Diorama/T_Clothing_Color.png");
+
+
+    delete texture;
+
+
     m_Pipline2D = std::make_unique<Pipeline>(Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv" },
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
                                              sizeof(UniformBufferObject2D),

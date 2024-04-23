@@ -1,12 +1,11 @@
 
+#include <cstring>
 #include <iostream>
 #include <set>
-#include <cstring>
 
 #include "vulkanbase/VulkanBase.h"
 #include "vulkanbase/VulkanGlobals.h"
 #include "vulkanbase/VulkanUtil.h"
-
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                     VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -71,13 +70,13 @@ void VulkanBase::DrawFrame()
     vkResetFences(m_Device, 1, &m_InFlightFence);
 
 
-    vkResetCommandBuffer(m_CommandBufferUPtr->Get(), /*VkCommandBufferResetFlagBits*/ 0);
-    
+    vkResetCommandBuffer(*m_CommandBufferUPtr, /*VkCommandBufferResetFlagBits*/ 0);
+
     m_CommandBufferUPtr->BeginBuffer();
     m_RenderPassUPtr->Begin(
-        m_SwapChainUPtr->GetFrameBuffer(imageIndex), m_SwapChainUPtr->GetExtent(), m_CommandBufferUPtr->Get());
-    m_GameUPtr->Draw(m_CommandBufferUPtr->Get(), imageIndex);
-    m_RenderPassUPtr->End(m_CommandBufferUPtr->Get());
+        m_SwapChainUPtr->GetFrameBuffer(imageIndex), m_SwapChainUPtr->GetExtent(), *m_CommandBufferUPtr);
+    m_GameUPtr->Draw(*m_CommandBufferUPtr, imageIndex);
+    m_RenderPassUPtr->End(*m_CommandBufferUPtr);
     m_CommandBufferUPtr->EndBuffer();
 
     VkSubmitInfo submitInfo{};
@@ -90,7 +89,7 @@ void VulkanBase::DrawFrame()
     submitInfo.pWaitDstStageMask = waitStages;
 
     submitInfo.commandBufferCount = 1;
-    auto commandBuffer = m_CommandBufferUPtr->Get();
+    VkCommandBuffer commandBuffer = *m_CommandBufferUPtr;
     submitInfo.pCommandBuffers = &commandBuffer;
 
     VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore };

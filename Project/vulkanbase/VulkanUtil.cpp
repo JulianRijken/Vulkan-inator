@@ -77,15 +77,15 @@ vulkanUtil::QueueFamilyIndices vulkanUtil::FindQueueFamilies(VkPhysicalDevice de
 
 void vulkanUtil::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
-    CommandBuffer commandBufferUPtr{ VulkanGlobals::GetDevice() };
+    CommandBuffer commandBuffer{ VulkanGlobals::GetDevice() };
 
     const VkBufferCopy copyRegion{ .size = size };
 
-    commandBufferUPtr.BeginBuffer();
+    commandBuffer.BeginBuffer();
     {
-        vkCmdCopyBuffer(commandBufferUPtr.Get(), srcBuffer, dstBuffer, 1, &copyRegion);
+        vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
     }
-    commandBufferUPtr.EndBuffer();
+    commandBuffer.EndBuffer();
 }
 
 VkFormat vulkanUtil::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,

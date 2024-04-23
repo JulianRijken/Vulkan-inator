@@ -18,6 +18,10 @@ namespace jul
         Texture& operator=(const Texture&) = delete;
 
     private:
+        static void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
+        static void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+
         VkImage m_TextureImage;
         VkDeviceMemory m_TextureImageMemory;
     };
