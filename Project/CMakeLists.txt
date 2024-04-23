@@ -34,6 +34,10 @@ set(SOURCES
 
     labwork/Week06.cpp
 
+    external/HeaderLibs.cpp
+    external/stb/stb_image.h
+
+    jul/Texture.h           jul/Texture.cpp
     jul/Pipeline.cpp        jul/Pipeline.h
     jul/Shader.cpp          jul/Shader.h
     jul/CommandBuffer.cpp   jul/CommandBuffer.h

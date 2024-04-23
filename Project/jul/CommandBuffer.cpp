@@ -1,7 +1,10 @@
 #include "CommandBuffer.h"
 
-#include <stdexcept>
 #include <vulkan/vulkan_core.h>
+
+#include <stdexcept>
+
+#include "vulkanbase/VulkanGlobals.h"
 
 
 CommandBuffer::CommandBuffer(VkDevice device, uint32_t familyIndex) :
@@ -44,7 +47,7 @@ CommandBuffer::~CommandBuffer()
     }
 }
 
-void CommandBuffer::BeginCommandBuffer() const
+void CommandBuffer::BeginBuffer()
 {
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -55,9 +58,17 @@ void CommandBuffer::BeginCommandBuffer() const
 		throw std::runtime_error("failed to begin recording command buffer!");
 }
 
-void CommandBuffer::EndCommandBuffer() const
+void CommandBuffer::EndBuffer()
 {
 	if (vkEndCommandBuffer(m_CommandBuffer) != VK_SUCCESS)
-		throw std::runtime_error("failed to record command buffer!");
-}
+        throw std::runtime_error("failed to record command buffer!");
 
+    const VkSubmitInfo submitInfo{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .commandBufferCount = 1,
+        .pCommandBuffers = &m_CommandBuffer,
+    };
+
+    vkQueueSubmit(VulkanGlobals::GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(VulkanGlobals::GetGraphicsQueue());
+}

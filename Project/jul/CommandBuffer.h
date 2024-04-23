@@ -8,10 +8,10 @@ public:
     CommandBuffer(VkDevice device,uint32_t familyIndex = 0);
 	~CommandBuffer();
 
-	[[nodiscard]] VkCommandBuffer Get() const { return m_CommandBuffer; }
+    [[nodiscard]] VkCommandBuffer Get() const { return m_CommandBuffer; }
 
-	void BeginCommandBuffer() const;
-	void EndCommandBuffer() const;
+    void BeginBuffer();
+    void EndBuffer();
 
 private:
     static inline VkCommandPool s_CommandPool{nullptr};

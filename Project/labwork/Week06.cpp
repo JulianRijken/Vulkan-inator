@@ -72,13 +72,13 @@ void VulkanBase::DrawFrame()
 
 
     vkResetCommandBuffer(m_CommandBufferUPtr->Get(), /*VkCommandBufferResetFlagBits*/ 0);
-
-    m_CommandBufferUPtr->BeginCommandBuffer();
+    
+    m_CommandBufferUPtr->BeginBuffer();
     m_RenderPassUPtr->Begin(
         m_SwapChainUPtr->GetFrameBuffer(imageIndex), m_SwapChainUPtr->GetExtent(), m_CommandBufferUPtr->Get());
     m_GameUPtr->Draw(m_CommandBufferUPtr->Get(), imageIndex);
     m_RenderPassUPtr->End(m_CommandBufferUPtr->Get());
-    m_CommandBufferUPtr->EndCommandBuffer();
+    m_CommandBufferUPtr->EndBuffer();
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

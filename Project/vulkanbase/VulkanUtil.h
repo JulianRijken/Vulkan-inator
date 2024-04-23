@@ -3,7 +3,9 @@
 
 #ifdef WIN32
 #define VK_USE_PLATFORM_WIN32_KHR
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #else
 #define VK_USE_PLATFORM_WAYLAND_KHR
 #define VK_USE_PLATFORM_XLIB_KHR
@@ -49,6 +51,7 @@ namespace vulkanUtil
     QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
 
     VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
                                  VkFormatFeatureFlags features);
