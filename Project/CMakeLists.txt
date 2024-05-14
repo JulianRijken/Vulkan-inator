@@ -32,8 +32,6 @@ set(SOURCES
     vulkanbase/VulkanBase.cpp  vulkanbase/VulkanBase.h
     vulkanbase/VulkanGlobals.h
 
-    labwork/Week06.cpp
-
     external/HeaderLibs.cpp
     external/stb/stb_image.h
 
@@ -52,6 +50,7 @@ set(SOURCES
     jul/GameTime.cpp        jul/GameTime.h
     jul/Game.cpp            jul/Game.h
                             jul/MathExtensions.h
+    jul/Material.h          jul/Material.cpp
 )
 
 # Create the executable

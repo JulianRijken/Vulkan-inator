@@ -1,15 +1,19 @@
 #pragma once
 
 
+#include <optional>
+
 #include "jul/DescriptorPool.h"
 #include "jul/Shader.h"
+#include "Material.h"
 
 
 class Pipeline
 {
 public:
     Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo,
-             VkDeviceSize uboSize, uint32_t pushConstantSize = 0, Texture* texturePtr = nullptr,
+             VkDeviceSize uboSize, uint32_t pushConstantSize = 0,
+             std::optional<VkDescriptorSetLayout> materialSetLayout = std::nullopt,
              VkCullModeFlagBits cullMode = VK_CULL_MODE_FRONT_BIT, VkBool32 depthTestEnable = VK_TRUE,
              VkBool32 depthWriteEnable = VK_TRUE);
 
@@ -18,9 +22,10 @@ public:
     void Bind(VkCommandBuffer commandBuffer, int imageIndex);
     void UpdateUBO(int imageIndex, void* uboData, VkDeviceSize uboSize);
     void UpdatePushConstant(VkCommandBuffer commandBuffer, void* pushConstants, uint32_t pushConstantSize);
+    void UpdateMaterial(VkCommandBuffer commandBuffer, const Material& material);
 
 private:
-    void CreateDescriptorSetLayout(Texture* texturePtr);
+    void CreateDescriptorSetLayout();
     void CreateUniformbuffers(int maxFramesCount, VkDeviceSize uboBufferSize);
 
 

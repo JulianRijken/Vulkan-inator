@@ -18,12 +18,16 @@
 Game::Game()
 {
     m_TestTexture = std::make_unique<Texture>("resources/Diorama/T_Grass_Color.png");
+    m_TestTexture2 = std::make_unique<Texture>("resources/Diorama/T_FordGT40_Color.png");
+
+    m_Material = std::make_unique<Material>(std::vector<const Texture*>{ m_TestTexture.get() });
+    m_Material2 = std::make_unique<Material>(std::vector<const Texture*>{ m_TestTexture2.get() });
 
     m_Pipline2D = std::make_unique<Pipeline>(Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv" },
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
                                              sizeof(UniformBufferObject2D),
                                              sizeof(MeshPushConstants),
-                                             nullptr,
+                                             std::nullopt,
                                              VK_CULL_MODE_NONE,
                                              VK_FALSE,
                                              VK_FALSE);
@@ -32,7 +36,7 @@ Game::Game()
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex3D>(),
                                              sizeof(UniformBufferObject3D),
                                              sizeof(MeshPushConstants),
-                                             m_TestTexture.get(),
+                                             Material::GetMaterialSetLayout(),
                                              VK_CULL_MODE_NONE);
 
 
@@ -122,16 +126,17 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
         ubo3D.proj[1][1] *= -1;
     }
 
+
+    m_Pipline3D->Bind(commandBuffer, imageIndex);
+    m_Pipline3D->UpdateUBO(imageIndex, &ubo3D, sizeof(ubo3D));
+
     MeshPushConstants meshPushConstantDiorama{};
     {
         meshPushConstantDiorama.model = glm::rotate(
             glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF() * glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
-    m_Pipline3D->Bind(commandBuffer, imageIndex);
-    m_Pipline3D->UpdateUBO(imageIndex, &ubo3D, sizeof(ubo3D));
-
-
+    m_Pipline3D->UpdateMaterial(commandBuffer, *m_Material);
     m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstantDiorama, sizeof(meshPushConstantDiorama));
     m_Meshes[2].Draw(commandBuffer);
 
@@ -143,6 +148,8 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
                  glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 })
     };
 
+
+    m_Pipline3D->UpdateMaterial(commandBuffer, *m_Material2);
     m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstantPlane, sizeof(meshPushConstantPlane));
     m_Meshes[3].Draw(commandBuffer);
 

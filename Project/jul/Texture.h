@@ -16,9 +16,18 @@ public:
     Texture& operator=(Texture&&) = delete;
     Texture& operator=(const Texture&) = delete;
 
-    [[nodiscard]] VkImageView GetImageView() { return m_ImageView; }
+    [[nodiscard]] VkDescriptorImageInfo GetDescriptorInfo() const
+    {
+        return {
+            .sampler = m_Sampler,
+            .imageView = m_ImageView,
+            .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        };
+    }
 
-    [[nodiscard]] VkSampler GetSampler() { return m_Sampler; }
+    [[nodiscard]] VkImageView GetImageView() const { return m_ImageView; }
+
+    [[nodiscard]] VkSampler GetSampler() const { return m_Sampler; }
 
 private:
     static void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);

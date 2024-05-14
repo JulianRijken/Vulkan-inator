@@ -1,16 +1,15 @@
 #include "Pipeline.h"
 
-#include <array>
-
 #include "SwapChain.h"
 #include "vulkanbase/VulkanGlobals.h"
 
 Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateInfo,
-                   VkDeviceSize uboSize, uint32_t pushConstantSize, Texture* texturePtr, VkCullModeFlagBits cullMode,
+                   VkDeviceSize uboSize, uint32_t pushConstantSize,
+                   std::optional<VkDescriptorSetLayout> materialSetLayout, VkCullModeFlagBits cullMode,
                    VkBool32 depthTestEnable, VkBool32 depthWriteEnable) :
     m_RenderPass(*&VulkanGlobals::GetRederPass())
 {
-    CreateDescriptorSetLayout(texturePtr);
+    CreateDescriptorSetLayout();
     CreateUniformbuffers(VulkanGlobals::GetSwapChain().GetImageCount(), uboSize);
 
 
@@ -73,10 +72,15 @@ Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pi
         .pDynamicStates = dynamicStates.data(),
     };
 
+    std::vector<VkDescriptorSetLayout> piplineLayoutSets{ m_DescriptorSetlayout };
+    if(materialSetLayout.has_value())
+        piplineLayoutSets.push_back(materialSetLayout.value());
+
+
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-        .setLayoutCount = 1,
-        .pSetLayouts = &m_DescriptorSetlayout,
+        .setLayoutCount = static_cast<uint32_t>(piplineLayoutSets.size()),
+        .pSetLayouts = piplineLayoutSets.data(),
         .pushConstantRangeCount = 0,
     };
 
@@ -91,6 +95,7 @@ Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pi
         pipelineLayoutInfo.pPushConstantRanges = &pushConstant;
         pipelineLayoutInfo.pushConstantRangeCount = 1;
     }
+
 
     if(vkCreatePipelineLayout(VulkanGlobals::GetDevice(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) !=
        VK_SUCCESS)
@@ -127,17 +132,11 @@ Pipeline::Pipeline(const Shader& shader, VkPipelineVertexInputStateCreateInfo pi
         throw std::runtime_error("failed to create graphics pipeline!");
 
 
-    auto types = std::vector<VkDescriptorType>{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER };
-
-    if(texturePtr != nullptr)
-        types.push_back(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
     m_DescriptorPoolUPtr = std::make_unique<DescriptorPool>(VulkanGlobals::GetDevice(),
                                                             VulkanGlobals::GetSwapChain().GetImageCount(),
-                                                            types,
+                                                            std::vector{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER },
                                                             m_DescriptorSetlayout,
-                                                            m_UniformBuffers,
-                                                            texturePtr);
+                                                            m_UniformBuffers);
 }
 
 Pipeline::~Pipeline()
@@ -168,14 +167,14 @@ void Pipeline::Bind(VkCommandBuffer commandBuffer, int imageIndex)
     vkCmdBindDescriptorSets(commandBuffer,
                             VK_PIPELINE_BIND_POINT_GRAPHICS,
                             m_PipelineLayout,
-                            0,
+                            0,  // First set = 0
                             1,
                             m_DescriptorPoolUPtr->GetDescriptorSet(imageIndex),
                             0,
                             nullptr);
 }
 
-void Pipeline::CreateDescriptorSetLayout(Texture* texturePtr)
+void Pipeline::CreateDescriptorSetLayout()
 {
     const VkDescriptorSetLayoutBinding uboLayoutBinding{
 
@@ -186,26 +185,11 @@ void Pipeline::CreateDescriptorSetLayout(Texture* texturePtr)
         .pImmutableSamplers = nullptr
     };
 
-    std::vector<VkDescriptorSetLayoutBinding> bindings = { uboLayoutBinding };
-    if(texturePtr != nullptr)
-    {
-        VkDescriptorSetLayoutBinding samplerLayoutBinding{
-            .binding = 1,
-            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = 1,
-            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .pImmutableSamplers = nullptr,
-        };
-
-        bindings.push_back(samplerLayoutBinding);
-    }
-
-
     const VkDescriptorSetLayoutCreateInfo layoutInfo{
 
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-        .bindingCount = static_cast<uint32_t>(bindings.size()),
-        .pBindings = bindings.data()
+        .bindingCount = static_cast<uint32_t>(1),
+        .pBindings = &uboLayoutBinding
     };
 
     if(vkCreateDescriptorSetLayout(VulkanGlobals::GetDevice(), &layoutInfo, nullptr, &m_DescriptorSetlayout) !=
@@ -236,4 +220,12 @@ void Pipeline::UpdateUBO(int imageIndex, void* uboData, VkDeviceSize uboSize)
 void Pipeline::UpdatePushConstant(VkCommandBuffer commandBuffer, void* pushConstants, uint32_t pushConstantSize)
 {
     vkCmdPushConstants(commandBuffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstantSize, pushConstants);
+}
+
+void Pipeline::UpdateMaterial(VkCommandBuffer commandBuffer, const Material& material)
+{
+    auto descriptorSet = material.GetDescriptorSet();
+
+    vkCmdBindDescriptorSets(
+        commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 1, 1, &descriptorSet, 0, nullptr);
 }

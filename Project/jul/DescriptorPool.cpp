@@ -4,15 +4,14 @@
 #include <vector>
 
 #include "Buffer.h"
-#include "Texture.h"
 
 DescriptorPool::DescriptorPool(VkDevice device, int frameCount, const std::vector<VkDescriptorType>& types,
                                VkDescriptorSetLayout descriptorSetLayout,
-                               const std::vector<std::unique_ptr<Buffer>>& buffers, Texture* texturePtr) :
+                               const std::vector<std::unique_ptr<Buffer>>& buffers) :
     m_Device(device)
 {
     CreatePool(frameCount, types);
-    CreateSets(frameCount, types, descriptorSetLayout, buffers, texturePtr);
+    CreateSets(frameCount, types, descriptorSetLayout, buffers);
 }
 
 void DescriptorPool::CreatePool(int frameCount, const std::vector<VkDescriptorType>& types)
@@ -38,7 +37,7 @@ void DescriptorPool::CreatePool(int frameCount, const std::vector<VkDescriptorTy
 
 void DescriptorPool::CreateSets(int frameCount, const std::vector<VkDescriptorType>& types,
                                 VkDescriptorSetLayout descriptorSetLayout,
-                                const std::vector<std::unique_ptr<Buffer>>& buffers, Texture* texturePtr)
+                                const std::vector<std::unique_ptr<Buffer>>& buffers)
 {
     std::vector<VkDescriptorSetLayout> layouts(frameCount, descriptorSetLayout);
 
@@ -57,15 +56,9 @@ void DescriptorPool::CreateSets(int frameCount, const std::vector<VkDescriptorTy
         const VkDescriptorBufferInfo bufferInfo{ .buffer = *buffers[i], .offset = 0, .range = VK_WHOLE_SIZE };
 
 
-        VkDescriptorImageInfo imageInfo{
+        const VkDescriptorImageInfo imageInfo{
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
         };
-
-        if(texturePtr != nullptr)
-        {
-            imageInfo.sampler = texturePtr->GetSampler();
-            imageInfo.imageView = texturePtr->GetImageView();
-        }
 
 
         std::vector<VkWriteDescriptorSet> descriptorWrites{};
