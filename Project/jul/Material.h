@@ -12,7 +12,7 @@ class Material final
 public:
     Material(const std::vector<const Texture*>& textures);
 
-    static void CreateMaterialPool(int maxMaterialCount);
+    static void CreateMaterialPool(int maxMaterialCount, int maxTexturesPerMaterial);
     static void Cleanup();
 
     [[nodiscard]] VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }

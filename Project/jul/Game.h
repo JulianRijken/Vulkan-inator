@@ -49,8 +49,7 @@ private:
     };
 
     std::vector<Mesh> m_Meshes{};
-    std::unique_ptr<Texture> m_TestTexture;
-    std::unique_ptr<Texture> m_TestTexture2;
-    std::unique_ptr<Material> m_Material;
-    std::unique_ptr<Material> m_Material2;
+
+    std::unordered_map<std::string, std::unique_ptr<Texture>> m_Textures;
+    std::unordered_map<std::string, std::unique_ptr<Material>> m_Materials;
 };

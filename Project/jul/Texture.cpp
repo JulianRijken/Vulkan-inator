@@ -45,9 +45,13 @@ Texture::Texture(const std::string& filePath)
 
     TransitionImageLayout(m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    m_ImageView = vulkanUtil::CreateImageView(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    descriptorImageInfo.imageView =
+        vulkanUtil::CreateImageView(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 
     CreateTextureSampler(VK_SAMPLER_ADDRESS_MODE_REPEAT);
+
+
+    descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }
 
 void Texture::TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout)
@@ -154,14 +158,14 @@ void Texture::CreateTextureSampler(VkSamplerAddressMode addressMode)
         .unnormalizedCoordinates = VK_FALSE,
     };
 
-    if(vkCreateSampler(VulkanGlobals::GetDevice(), &info, nullptr, &m_Sampler) != VK_SUCCESS)
+    if(vkCreateSampler(VulkanGlobals::GetDevice(), &info, nullptr, &descriptorImageInfo.sampler) != VK_SUCCESS)
         throw std::runtime_error("failed to create texture sampler!");
 }
 
 Texture::~Texture()
 {
-    vkDestroySampler(VulkanGlobals::GetDevice(), m_Sampler, nullptr);
-    vkDestroyImageView(VulkanGlobals::GetDevice(), m_ImageView, nullptr);
+    vkDestroySampler(VulkanGlobals::GetDevice(), descriptorImageInfo.sampler, nullptr);
+    vkDestroyImageView(VulkanGlobals::GetDevice(), descriptorImageInfo.imageView, nullptr);
     vkDestroyImage(VulkanGlobals::GetDevice(), m_Image, nullptr);
     vkFreeMemory(VulkanGlobals::GetDevice(), m_ImageMemory, nullptr);
 }

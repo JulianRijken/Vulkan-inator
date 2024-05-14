@@ -2,6 +2,7 @@
 
 #include <vulkanbase/VulkanGlobals.h>
 
+#include <iostream>
 #include <stdexcept>
 #include <vector>
 
@@ -10,8 +11,6 @@
 Material::Material(const std::vector<const Texture*>& textures) :
     m_Texture(textures)
 {
-
-
     const VkDescriptorSetAllocateInfo allocInfo{
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
         .descriptorPool = g_MaterialPool,
@@ -24,16 +23,16 @@ Material::Material(const std::vector<const Texture*>& textures) :
 
 
     std::vector<VkWriteDescriptorSet> descriptorWrites;
-    descriptorWrites.reserve(textures.size());
+    descriptorWrites.reserve(m_Texture.size());
 
-    for(const Texture* texture : m_Texture)
+    for(size_t textureIndex{}; textureIndex < m_Texture.size(); ++textureIndex)
     {
-        auto descriptorInfo = texture->GetDescriptorInfo();
+        const VkDescriptorImageInfo& descriptorInfo = m_Texture[textureIndex]->GetDescriptorInfo();
 
         descriptorWrites.emplace_back(VkWriteDescriptorSet{
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
             .dstSet = m_DescriptorSet,
-            .dstBinding = 0,
+            .dstBinding = static_cast<uint32_t>(textureIndex),
             .dstArrayElement = 0,
             .descriptorCount = 1,
             .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -48,28 +47,20 @@ Material::Material(const std::vector<const Texture*>& textures) :
         VulkanGlobals::GetDevice(), uint32_t(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
-void Material::CreateMaterialPool(int maxMaterialCount)
+void Material::CreateMaterialPool(int maxMaterialCount, int maxTexturesPerMaterial)
 {
     std::vector<VkDescriptorSetLayoutBinding> bindings{};
 
-    // Add Albedo
-    bindings.push_back({
-        .binding = 0,
-        .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-        .descriptorCount = 1,
-        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-        .pImmutableSamplers = nullptr,
-    });
-
-    // Add Normal
-    bindings.push_back({
-        .binding = 1,
-        .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-        .descriptorCount = 1,
-        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-        .pImmutableSamplers = nullptr,
-    });
-
+    for(size_t textureIndex{}; textureIndex < maxTexturesPerMaterial; ++textureIndex)
+    {
+        bindings.push_back({
+            .binding = static_cast<uint32_t>(textureIndex),
+            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .descriptorCount = 1,
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .pImmutableSamplers = nullptr,
+        });
+    }
 
     const VkDescriptorSetLayoutCreateInfo setInfo{ .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
                                                    .bindingCount = static_cast<uint32_t>(bindings.size()),

@@ -17,11 +17,23 @@
 
 Game::Game()
 {
-    m_TestTexture = std::make_unique<Texture>("resources/Diorama/T_Grass_Color.png");
-    m_TestTexture2 = std::make_unique<Texture>("resources/Diorama/T_FordGT40_Color.png");
+    m_Textures["Grass"] = std::make_unique<Texture>("resources/Diorama/T_Grass_Color.png");
+    m_Textures["Car"] = std::make_unique<Texture>("resources/Diorama/T_FordGT40_Color.png");
+    m_Textures["Konker"] = std::make_unique<Texture>("resources/Diorama/T_Konker_Color.png");
 
-    m_Material = std::make_unique<Material>(std::vector<const Texture*>{ m_TestTexture.get() });
-    m_Material2 = std::make_unique<Material>(std::vector<const Texture*>{ m_TestTexture2.get() });
+    m_Textures["subaru_Outside_BaseColor"] = std::make_unique<Texture>("resources/Car/subaru_Outside_BaseColor.png");
+    m_Textures["subaru_Outside_Metallic"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Metallic.png");
+    // m_Textures["subaru_Outside_Normal"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Normal.png");
+    m_Textures["subaru_Outside_Roughness"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Roughness.png");
+
+    m_Textures["subaru_Outside_Normal"] = std::make_unique<Texture>("resources/Diorama/T_Clothing_Color.png");
+
+
+    m_Materials["PBR"] =
+        std::make_unique<Material>(std::vector<const Texture*>{ m_Textures["subaru_Outside_BaseColor"].get(),
+                                                                m_Textures["subaru_Outside_Metallic"].get(),
+                                                                m_Textures["subaru_Outside_Normal"].get(),
+                                                                m_Textures["subaru_Outside_Roughness"].get() });
 
     m_Pipline2D = std::make_unique<Pipeline>(Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv" },
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
@@ -77,6 +89,7 @@ Game::Game()
 
 
     AddMesh(LoadMesh("resources/Diorama/DioramaGP.obj"));
+    // AddMesh(LoadMesh("resources/Car/Subaru.obj"));
     AddMesh(LoadMesh("resources/Airplane/Airplane.obj"));
     AddMesh(LoadMesh("resources/Terrain/Terrain.obj"));
 }
@@ -132,11 +145,13 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
 
     MeshPushConstants meshPushConstantDiorama{};
     {
-        meshPushConstantDiorama.model = glm::rotate(
-            glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF() * glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        meshPushConstantDiorama.model =
+            glm::rotate(
+                glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF() * glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+            glm::scale(glm::mat4(1.0f), { 0.1f, 0.1f, 0.1f });
     }
 
-    m_Pipline3D->UpdateMaterial(commandBuffer, *m_Material);
+    m_Pipline3D->UpdateMaterial(commandBuffer, *m_Materials["PBR"]);
     m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstantDiorama, sizeof(meshPushConstantDiorama));
     m_Meshes[2].Draw(commandBuffer);
 
@@ -149,7 +164,7 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
     };
 
 
-    m_Pipline3D->UpdateMaterial(commandBuffer, *m_Material2);
+    m_Pipline3D->UpdateMaterial(commandBuffer, *m_Materials["PBR"]);
     m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstantPlane, sizeof(meshPushConstantPlane));
     m_Meshes[3].Draw(commandBuffer);
 

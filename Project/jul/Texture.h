@@ -16,18 +16,8 @@ public:
     Texture& operator=(Texture&&) = delete;
     Texture& operator=(const Texture&) = delete;
 
-    [[nodiscard]] VkDescriptorImageInfo GetDescriptorInfo() const
-    {
-        return {
-            .sampler = m_Sampler,
-            .imageView = m_ImageView,
-            .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-        };
-    }
+    [[nodiscard]] const VkDescriptorImageInfo& GetDescriptorInfo() const { return descriptorImageInfo; }
 
-    [[nodiscard]] VkImageView GetImageView() const { return m_ImageView; }
-
-    [[nodiscard]] VkSampler GetSampler() const { return m_Sampler; }
 
 private:
     static void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -35,8 +25,7 @@ private:
 
     void CreateTextureSampler(VkSamplerAddressMode addressMode);
 
-    VkSampler m_Sampler{};
-    VkImageView m_ImageView{};
+    VkDescriptorImageInfo descriptorImageInfo{};
     VkImage m_Image{};
     VkDeviceMemory m_ImageMemory{};
 };

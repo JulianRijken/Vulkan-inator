@@ -167,7 +167,7 @@ void Pipeline::Bind(VkCommandBuffer commandBuffer, int imageIndex)
     vkCmdBindDescriptorSets(commandBuffer,
                             VK_PIPELINE_BIND_POINT_GRAPHICS,
                             m_PipelineLayout,
-                            0,  // First set = 0
+                            0,  // Set 0
                             1,
                             m_DescriptorPoolUPtr->GetDescriptorSet(imageIndex),
                             0,
@@ -224,7 +224,7 @@ void Pipeline::UpdatePushConstant(VkCommandBuffer commandBuffer, void* pushConst
 
 void Pipeline::UpdateMaterial(VkCommandBuffer commandBuffer, const Material& material)
 {
-    auto descriptorSet = material.GetDescriptorSet();
+    auto* descriptorSet = material.GetDescriptorSet();
 
     vkCmdBindDescriptorSets(
         commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 1, 1, &descriptorSet, 0, nullptr);
