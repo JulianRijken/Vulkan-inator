@@ -2,6 +2,7 @@
 
 #include <external/stb/stb_image.h>
 
+#include <filesystem>
 #include <glm/vec2.hpp>
 #include <stdexcept>
 
@@ -14,6 +15,9 @@
 Texture::Texture(const std::string& filePath)
 {
     using namespace std::string_literals;
+
+    if(not std::filesystem::exists(filePath))
+        throw std::runtime_error("Failed to find file: " + filePath);
 
     glm::ivec2 imageSize{};
     int channelCount{};  // We force STBI_rgb_alpha so always 4
@@ -139,7 +143,7 @@ void Texture::CreateTextureSampler(VkSamplerAddressMode addressMode)
     VkPhysicalDeviceProperties properties{};
     vkGetPhysicalDeviceProperties(VulkanGlobals::GetPhysicalDevice(), &properties);
 
-    VkSamplerCreateInfo info{
+    const VkSamplerCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
         .magFilter = VK_FILTER_LINEAR,
         .minFilter = VK_FILTER_LINEAR,

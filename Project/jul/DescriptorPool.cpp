@@ -49,7 +49,7 @@ void DescriptorPool::CreateSets(int frameCount, const std::vector<VkDescriptorTy
 
     m_DescriptorSets.resize(frameCount);
     if(vkAllocateDescriptorSets(m_Device, &descriptorAllocateInfo, m_DescriptorSets.data()) != VK_SUCCESS)
-        throw std::runtime_error("failed to allocate descriptor sets!");
+        throw std::runtime_error("failed to allocate descriptor sets! For General Descriptor Pool");
 
     for(size_t i = 0; i < frameCount; i++)
     {

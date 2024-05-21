@@ -1,12 +1,14 @@
 #include "Material.h"
 
+#include <vulkan/vk_enum_string_helper.h>
 #include <vulkanbase/VulkanGlobals.h>
 
-#include <iostream>
 #include <stdexcept>
 #include <vector>
 
 #include "Texture.h"
+
+using namespace std::string_literals;
 
 Material::Material(const std::vector<const Texture*>& textures) :
     m_Texture(textures)
@@ -18,8 +20,10 @@ Material::Material(const std::vector<const Texture*>& textures) :
         .pSetLayouts = &g_MaterialSetLayout,
     };
 
-    if(vkAllocateDescriptorSets(VulkanGlobals::GetDevice(), &allocInfo, &m_DescriptorSet) != VK_SUCCESS)
-        throw std::runtime_error{ "failed to allocate descriptor sets!" };
+    auto result = vkAllocateDescriptorSets(VulkanGlobals::GetDevice(), &allocInfo, &m_DescriptorSet);
+    if(result != VK_SUCCESS)
+        throw std::runtime_error{ "failed to allocate descriptor sets! For Material, error: "s +
+                                  string_VkResult(result) };
 
 
     std::vector<VkWriteDescriptorSet> descriptorWrites;
@@ -72,7 +76,7 @@ void Material::CreateMaterialPool(int maxMaterialCount, int maxTexturesPerMateri
 
 
     const VkDescriptorPoolSize poolSize{ .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                         .descriptorCount = static_cast<uint32_t>(maxMaterialCount)
+                                         .descriptorCount = static_cast<uint32_t>(bindings.size())
 
     };
 

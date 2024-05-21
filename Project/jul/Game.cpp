@@ -20,13 +20,16 @@ Game::Game()
     m_Textures["Grass"] = std::make_unique<Texture>("resources/Diorama/T_Grass_Color.png");
     m_Textures["Car"] = std::make_unique<Texture>("resources/Diorama/T_FordGT40_Color.png");
     m_Textures["Konker"] = std::make_unique<Texture>("resources/Diorama/T_Konker_Color.png");
+    m_Textures["Clothing"] = std::make_unique<Texture>("resources/Diorama/T_Clothing_Color.png");
+
 
     m_Textures["subaru_Outside_BaseColor"] = std::make_unique<Texture>("resources/Car/subaru_Outside_BaseColor.png");
     m_Textures["subaru_Outside_Metallic"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Metallic.png");
-    // m_Textures["subaru_Outside_Normal"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Normal.png");
+    m_Textures["subaru_Outside_Normal"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Normal.png");
     m_Textures["subaru_Outside_Roughness"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Roughness.png");
 
-    m_Textures["subaru_Outside_Normal"] = std::make_unique<Texture>("resources/Diorama/T_Clothing_Color.png");
+    // m_Textures["JAKUB"] = std::make_unique<Texture>("resources/Testing/Jakub.png");
+    // m_Textures["SWORD"] = std::make_unique<Texture>("resources/Testing/Sword.jpg");
 
 
     m_Materials["PBR"] =
@@ -35,14 +38,14 @@ Game::Game()
                                                                 m_Textures["subaru_Outside_Normal"].get(),
                                                                 m_Textures["subaru_Outside_Roughness"].get() });
 
-    m_Pipline2D = std::make_unique<Pipeline>(Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv" },
-                                             Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
-                                             sizeof(UniformBufferObject2D),
-                                             sizeof(MeshPushConstants),
-                                             std::nullopt,
-                                             VK_CULL_MODE_NONE,
-                                             VK_FALSE,
-                                             VK_FALSE);
+    // m_Pipline2D = std::make_unique<Pipeline>(Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv" },
+    //                                          Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
+    //                                          sizeof(UniformBufferObject2D),
+    //                                          sizeof(MeshPushConstants),
+    //                                          std::nullopt,
+    //                                          VK_CULL_MODE_NONE,
+    //                                          VK_FALSE,
+    //                                          VK_FALSE);
 
     m_Pipline3D = std::make_unique<Pipeline>(Shader{ "shaders/shader3D.vert.spv", "shaders/shader3D.frag.spv" },
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex3D>(),
@@ -52,13 +55,13 @@ Game::Game()
                                              VK_CULL_MODE_NONE);
 
 
-    const std::vector<Mesh::Vertex2D> triangleVertices = {
-        {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
-        { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
-        {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
-    };
+    // const std::vector<Mesh::Vertex2D> triangleVertices = {
+    //     {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
+    //     { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
+    //     {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
+    // };
 
-    const std::vector<uint32_t> triangleIndeces = { 0, 1, 2 };
+    // const std::vector<uint32_t> triangleIndeces = { 0, 1, 2 };
 
 
     // AddMesh(Mesh{
@@ -69,29 +72,32 @@ Game::Game()
     // });
 
 
-    const std::vector<Mesh::Vertex2D> squareVertices = {
-        {{ -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
-        { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }},
-        {  { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }},
-        { { -0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f }}
-    };
+    // const std::vector<Mesh::Vertex2D> squareVertices = {
+    //     {{ -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
+    //     { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }},
+    //     {  { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }},
+    //     { { -0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f }}
+    // };
 
-    const std::vector<uint32_t> squareIndices = { 0, 1, 2, 0, 2, 3 };
+    // const std::vector<uint32_t> squareIndices = { 0, 1, 2, 0, 2, 3 };
 
-    AddMesh(Mesh{
-        squareIndices,
-        Mesh::VertexData{.data = (void*)squareVertices.data(),
-                         .vertexCount = static_cast<uint32_t>(squareVertices.size()),
-                         .typeSize = sizeof(Mesh::Vertex2D)}
-    });
+    // AddMesh(Mesh{
+    //     squareIndices,
+    //     Mesh::VertexData{.data = (void*)squareVertices.data(),
+    //                      .vertexCount = static_cast<uint32_t>(squareVertices.size()),
+    //                      .typeSize = sizeof(Mesh::Vertex2D)}
+    // });
 
-    AddMesh(GenerateCircle({ 0, 0 }, { 0.4f, 0.6f }));
+    // AddMesh(GenerateCircle({ 0, 0 }, { 0.4f, 0.6f }));
 
 
-    AddMesh(LoadMesh("resources/Diorama/DioramaGP.obj"));
-    // AddMesh(LoadMesh("resources/Car/Subaru.obj"));
-    AddMesh(LoadMesh("resources/Airplane/Airplane.obj"));
-    AddMesh(LoadMesh("resources/Terrain/Terrain.obj"));
+    // AddMesh(LoadMesh("resources/Diorama/DioramaGP.obj"));
+    AddMesh(LoadMesh("resources/Car/Subaru.obj"));
+    // AddMesh(LoadMesh("resources/Airplane/Airplane.obj"));
+    // AddMesh(LoadMesh("resources/Terrain/Terrain.obj"));
+
+    // AddMesh(LoadMesh("resources/Testing/Jakub.obj"));
+    // AddMesh(LoadMesh("resources/Testing/Sword.obj"));
 }
 
 Game::~Game() = default;
@@ -100,34 +106,13 @@ void Game::Update() { m_Camera.Update(); }
 
 void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
 {
-    // 2D Meshesh
-    UniformBufferObject2D ubo2D{};
-    {
-        ubo2D.proj = m_Camera.GetOrthoProjectionMatrix();
-    }
-
-    m_Pipline2D->Bind(commandBuffer, imageIndex);
-    m_Pipline2D->UpdateUBO(imageIndex, &ubo2D, sizeof(ubo2D));
-
-
-    MeshPushConstants meshPushConstant2D{};
-    {
-        meshPushConstant2D.model = glm::rotate(
-            glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        meshPushConstant2D.model[3][0] = 1.0f;
-    }
-
-    m_Pipline2D->UpdatePushConstant(commandBuffer, &meshPushConstant2D, sizeof(meshPushConstant2D));
-    // m_Meshes[0].Draw(commandBuffer);
-
-
-    MeshPushConstants meshPushConstant2D2{};
-    {
-        meshPushConstant2D2.model = glm::rotate(
-            glm::mat4(1.0f), -jul::GameTime::GetElapsedTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        meshPushConstant2D2.model[3][0] = -1.0f;
-    }
-    m_Pipline2D->UpdatePushConstant(commandBuffer, &meshPushConstant2D2, sizeof(meshPushConstant2D2));
+    // MeshPushConstants meshPushConstant2D2{};
+    // {
+    //     meshPushConstant2D2.model = glm::rotate(
+    //         glm::mat4(1.0f), -jul::GameTime::GetElapsedTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    //     meshPushConstant2D2.model[3][0] = -1.0f;
+    // }
+    // m_Pipline2D->UpdatePushConstant(commandBuffer, &meshPushConstant2D2, sizeof(meshPushConstant2D2));
     // m_Meshes[1].Draw(commandBuffer);
 
 
@@ -153,20 +138,20 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
 
     m_Pipline3D->UpdateMaterial(commandBuffer, *m_Materials["PBR"]);
     m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstantDiorama, sizeof(meshPushConstantDiorama));
-    m_Meshes[2].Draw(commandBuffer);
+    m_Meshes[0].Draw(commandBuffer);
 
 
-    const float planePosition = jul::math::ClampLoop(jul::GameTime::GetElapsedTimeF() * 50.0f, -100.0f, 100.0f);
-    MeshPushConstants meshPushConstantPlane{
-        .model = glm::translate(glm::mat4(1.0f), { 0, 25, planePosition }) *
-                 glm::scale(glm::mat4(1.0f), { 0.01f, 0.01f, 0.01f }) *
-                 glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 })
-    };
+    // const float planePosition = jul::math::ClampLoop(jul::GameTime::GetElapsedTimeF() * 50.0f, -100.0f, 100.0f);
+    // MeshPushConstants meshPushConstantPlane{
+    //     .model = glm::translate(glm::mat4(1.0f), { 0, 25, planePosition }) *
+    //              glm::scale(glm::mat4(1.0f), { 0.01f, 0.01f, 0.01f }) *
+    //              glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 })
+    // };
 
 
-    m_Pipline3D->UpdateMaterial(commandBuffer, *m_Materials["PBR"]);
-    m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstantPlane, sizeof(meshPushConstantPlane));
-    m_Meshes[3].Draw(commandBuffer);
+    // m_Pipline3D->UpdateMaterial(commandBuffer, *m_Materials["PBR"]);
+    // m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstantPlane, sizeof(meshPushConstantPlane));
+    // m_Meshes[3].Draw(commandBuffer);
 
 
     // MeshPushConstants TerrainMesh{ .model = glm::translate(glm::mat4(1.0f), { -50, 0, 50 }) *
@@ -219,7 +204,7 @@ Mesh Game::LoadMesh(const std::string& meshPath)
                         jul::math::RandomValue<float>(),
                         jul::math::RandomValue<float>() },
                 .texCoord = { attrib.texcoords[2 * index.texcoord_index + 0],
-                        attrib.texcoords[2 * index.texcoord_index + 1] }
+                        1.0f - attrib.texcoords[2 * index.texcoord_index + 1] }
             };
 
             if(not uniqueVertices.contains(vertex))
