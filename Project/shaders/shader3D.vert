@@ -18,14 +18,14 @@ layout(location = 3) in vec2 inUV;
 
 layout(location = 0) out vec3 outWorldPosition;
 layout(location = 1) out vec3 outNormal;
-layout(location = 2) out vec4 outTangent;
+layout(location = 2) out vec3 outTangent;
 layout(location = 3) out vec2 outUV;
 
 void main()
 {
     outWorldPosition = vec3(push.model * vec4(inPosition, 1.0));
     outNormal = mat3(push.model) * inNormal;
-    outTangent = vec4(mat3(push.model) * inTangent, 1);
+    outTangent = mat3(push.model) * inTangent;
     outUV = inUV;
     gl_Position =  ubo.viewProjection * vec4(outWorldPosition, 1.0);
 }

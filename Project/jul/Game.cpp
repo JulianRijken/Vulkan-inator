@@ -195,19 +195,25 @@ Mesh Game::LoadMesh(const std::string& meshPath)
     {
         for(auto&& index : shape.mesh.indices)
         {
-            const Mesh::Vertex3D vertex{
-                .pos = { attrib.vertices[3 * index.vertex_index + 0],
-                        attrib.vertices[3 * index.vertex_index + 1],
-                        attrib.vertices[3 * index.vertex_index + 2] },
+            Mesh::Vertex3D vertex{
+                .position = { attrib.vertices[3 * index.vertex_index + 0],
+                             attrib.vertices[3 * index.vertex_index + 1],
+                             attrib.vertices[3 * index.vertex_index + 2] },
                 .normal = { attrib.normals[3 * index.normal_index + 0],
-                        attrib.normals[3 * index.normal_index + 1],
-                        attrib.normals[3 * index.normal_index + 2] },
-                .color = { jul::math::RandomValue<float>(),
-                        jul::math::RandomValue<float>(),
-                        jul::math::RandomValue<float>() },
-                .texCoord = { attrib.texcoords[2 * index.texcoord_index + 0],
-                        1.0f - attrib.texcoords[2 * index.texcoord_index + 1] }
+                             attrib.normals[3 * index.normal_index + 1],
+                             attrib.normals[3 * index.normal_index + 2] },
+                .tangent = { 
+                             
+                             },
+                .uv = { attrib.texcoords[2 * index.texcoord_index + 0],
+                             1.0f - attrib.texcoords[2 * index.texcoord_index + 1] }
             };
+
+
+            vertex.tangent = glm::cross(vertex.position, vertex.normal);
+
+            vertex.tangent = glm::normalize(vertex.tangent);
+            vertex.normal = glm::normalize(vertex.normal);
 
             if(not uniqueVertices.contains(vertex))
             {

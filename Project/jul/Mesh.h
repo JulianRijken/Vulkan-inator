@@ -27,18 +27,18 @@ public:
 
     struct Vertex3D
     {
-        glm::vec3 pos;
+        glm::vec3 position;
         glm::vec3 normal;
-        glm::vec3 color;
-        glm::vec2 texCoord;
+        glm::vec3 tangent;
+        glm::vec2 uv;
 
         static const VkVertexInputBindingDescription BINDING_DESCRIPTION;
         static const std::array<VkVertexInputAttributeDescription, 4> ATTRIBUTE_DESCRIPTIONS;
 
-
         bool operator==(const Vertex3D& other) const
         {
-            return pos == other.pos and normal == other.normal and color == other.color;
+            return position == other.position and normal == other.normal and tangent == other.tangent and
+                   uv == other.uv;
         }
     };
 
@@ -70,7 +70,8 @@ namespace std
         {
             auto&& hash{ std::hash<glm::vec3>() };
 
-            return (hash(vert.pos) ^ hash(vert.color) << 1) >> 1 ^ hash(vert.normal) << 1;
+            return (hash(vert.position) ^ hash(vert.tangent) << 1) >> 1 ^ hash(vert.normal) << 1 ^
+                   hash(glm::vec3(vert.uv, 1.0f));
         }
     };
 };  // namespace std

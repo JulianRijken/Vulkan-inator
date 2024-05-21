@@ -73,12 +73,14 @@ const std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex3D::ATTRIBUTE
                                       .location = 0,
                                       .binding = 0,
                                       .format = VK_FORMAT_R32G32B32_SFLOAT,
-                                      .offset = offsetof(Mesh::Vertex3D, pos),
+                                      .offset = offsetof(Mesh::Vertex3D, position),
                                       },
     VkVertexInputAttributeDescription{
                                       .location = 1, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, normal) },
+    VkVertexInputAttributeDescription{ .location = 2,
+                                      .binding = 0,
+                                      .format = VK_FORMAT_R32G32B32_SFLOAT,
+                                      .offset = offsetof(Mesh::Vertex3D, tangent) },
     VkVertexInputAttributeDescription{
-                                      .location = 2, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, color) },
-    VkVertexInputAttributeDescription{
-                                      .location = 3, .binding = 0, .format = VK_FORMAT_R32G32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, texCoord) }
+                                      .location = 3, .binding = 0, .format = VK_FORMAT_R32G32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, uv) }
 };
