@@ -10,9 +10,9 @@
 #include "SwapChain.h"
 #include "vulkanbase/VulkanGlobals.h"
 
-Camera::Camera(const glm::vec3& origin, float fovAngle) :
-    m_Origin{ origin },
-    m_TargetOrigin{ m_Origin },
+Camera::Camera(const glm::vec3& position, float fovAngle) :
+    m_Position{ position },
+    m_TargetPosition{ m_Position },
     m_AspectRatio{ VulkanGlobals::GetSwapChain().GetAspect() },
     m_FovAngle{ fovAngle },
     m_TargetFovAngle{ m_FovAngle }
@@ -55,10 +55,11 @@ void Camera::Update()
 
     movementInputVector = pitchYawRotation * glm::vec4(movementInputVector, 0.0f);
 
-    m_TargetOrigin += (movementInputVector * jul::GameTime::GetDeltaTimeF() * KEY_MOVE_SPEED *
-                       (m_IsBoosting ? BOOST_SPEED_MULTIPLIER : 1.0f));
+    m_TargetPosition += (movementInputVector * jul::GameTime::GetDeltaTimeF() * KEY_MOVE_SPEED *
+                         (m_IsBoosting ? BOOST_SPEED_MULTIPLIER : 1.0f));
 
-    m_Origin = jul::math::LerpSmooth(m_Origin, m_TargetOrigin, jul::GameTime::GetDeltaTimeF(), MOVE_LERP_DURATION);
+    m_Position =
+        jul::math::LerpSmooth(m_Position, m_TargetPosition, jul::GameTime::GetDeltaTimeF(), MOVE_LERP_DURATION);
 
     UpdateViewMatrix();
     UpdateProjectionMatrix();
@@ -74,10 +75,10 @@ void Camera::SetFovAngle(float fovAngle) { m_FovAngle = fovAngle; }
 
 void Camera::SetPosition(glm::vec3 position, bool teleport)
 {
-    m_TargetOrigin = position;
+    m_TargetPosition = position;
 
     if(teleport)
-        m_Origin = position;
+        m_Position = position;
 }
 
 void Camera::SetNearClipping(float value) { m_NearClippingPlane = value; }
@@ -103,7 +104,7 @@ void Camera::ChangeFovAngle(float fovAngleChange)
 
 void Camera::SetAspect(float aspectRatio) { m_AspectRatio = aspectRatio; }
 
-void Camera::UpdateViewMatrix() { m_ViewMatrix = glm::lookAt(m_Origin, m_Origin + m_Forward, m_Up); }
+void Camera::UpdateViewMatrix() { m_ViewMatrix = glm::lookAt(m_Position, m_Position + m_Forward, m_Up); }
 
 
 void Camera::UpdateProjectionMatrix()

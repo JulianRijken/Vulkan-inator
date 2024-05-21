@@ -2,8 +2,8 @@
 
 layout(set = 0, binding = 0) uniform UniformBufferObject
 {
-    mat4 view;
-    mat4 proj;
+    mat4 viewProjection;
+    vec4 viewPosition;
 } ubo;
 
 layout(push_constant) uniform constants
@@ -13,23 +13,19 @@ layout(push_constant) uniform constants
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
-layout(location = 2) in vec3 inColor;
-layout(location = 3) in vec2 inTexCoord;
+layout(location = 2) in vec3 inTangent;
+layout(location = 3) in vec2 inUV;
 
-layout(location = 0) out vec3 outFragColor;
+layout(location = 0) out vec3 outWorldPosition;
 layout(location = 1) out vec3 outNormal;
-layout(location = 2) out vec2 outFragTexCoord;
-layout(location = 3) out vec4 outTangent;
+layout(location = 2) out vec4 outTangent;
+layout(location = 3) out vec2 outUV;
 
 void main()
 {
-    gl_Position = ubo.proj * ubo.view * push.model * vec4(inPosition, 1.0);
-
-    mat4 invModel = inverse(push.model);
-    mat3 modelRotationMatrix = mat3(transpose(invModel));
-
-    // outFragColor = inColor;
-    outFragColor = vec3(1,1,1);
-    outNormal = modelRotationMatrix * inNormal;
-    outFragTexCoord = inTexCoord;
+    outWorldPosition = vec3(push.model * vec4(inPosition, 1.0));
+    outNormal = mat3(push.model) * inNormal;
+    outTangent = vec4(mat3(push.model) * inTangent, 1);
+    outUV = inUV;
+    gl_Position =  ubo.viewProjection * vec4(outWorldPosition, 1.0);
 }

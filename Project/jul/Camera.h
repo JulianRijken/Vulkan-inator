@@ -19,7 +19,7 @@ public:
 
     [[nodiscard]] const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
 
-    [[nodiscard]] const glm::vec3& GetOrigin() const { return m_Origin; }
+    [[nodiscard]] const glm::vec3& GetPosition() const { return m_Position; }
 
     void SetFovAngle(float fovAngle);
 
@@ -41,8 +41,8 @@ private:
     void UpdateViewMatrix();
     void UpdateProjectionMatrix();
 
-    glm::vec3 m_Origin;
-    glm::vec3 m_TargetOrigin;
+    glm::vec3 m_Position;
+    glm::vec3 m_TargetPosition;
 
     float m_FovAngle{};
     float m_TargetFovAngle{};

@@ -119,9 +119,11 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
     // 3D Meshesh
     UniformBufferObject3D ubo3D{};
     {
-        ubo3D.view = m_Camera.GetViewMatrix();
-        ubo3D.proj = m_Camera.GetProjectionMatrix();
-        ubo3D.proj[1][1] *= -1;
+        auto projectionMatrix = m_Camera.GetProjectionMatrix();
+        projectionMatrix[1][1] *= -1;
+
+        ubo3D.viewProjection = projectionMatrix * m_Camera.GetViewMatrix();
+        ubo3D.viewPosition = glm::vec4(m_Camera.GetPosition(), 1.0f);
     }
 
 

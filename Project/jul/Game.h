@@ -14,8 +14,8 @@ class Game final
 
     struct UniformBufferObject3D
     {
-        glm::mat4 view;
-        glm::mat4 proj;
+        glm::mat4 viewProjection;
+        glm::vec4 viewPosition;
     };
 
     struct MeshPushConstants
