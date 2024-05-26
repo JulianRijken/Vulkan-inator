@@ -35,8 +35,17 @@ public:
     void OnResize();
 
 private:
-    const Mesh& AddMesh(Mesh&& mesh) { return m_Meshes.emplace_back(std::move(mesh)); }
-    Mesh LoadMesh(const std::string& meshPath);
+    Mesh& AddMesh3D(const std::string& name, Mesh&& mesh)
+    {
+        return *(m_Meshes3D[name] = std::make_unique<Mesh>(std::move(mesh)));
+    }
+
+    Mesh& AddMesh2D(const std::string& name, Mesh&& mesh)
+    {
+        return *(m_Meshes2D[name] = std::make_unique<Mesh>(std::move(mesh)));
+    }
+
+    Mesh LoadMesh(const std::string& meshPath, Material* material);
     Mesh GenerateCircle(glm::vec2 center, glm::vec2 size = { 1, 1 }, uint32_t segmentSize = 64);
 
     std::unique_ptr<Pipeline> m_Pipline2D{};
@@ -48,8 +57,8 @@ private:
         80
     };
 
-    std::vector<Mesh> m_Meshes{};
-
+    std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes2D{};
+    std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes3D{};
     std::unordered_map<std::string, std::unique_ptr<Texture>> m_Textures;
     std::unordered_map<std::string, std::unique_ptr<Material>> m_Materials;
 };

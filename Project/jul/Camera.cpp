@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+#include <iostream>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -40,6 +42,10 @@ void Camera::Update()
         movementInputVector.y += 1;
     if(Input::GetKeyHeld(GLFW_KEY_Q))
         movementInputVector.y -= 1;
+
+    if(Input::GetKeyDown(GLFW_KEY_P))
+        std::cout << "Camera Position: (" << m_Position.x << ", " << m_Position.y << ", " << m_Position.z << ")"
+                  << std::endl;
 
     ChangeFovAngle(Input::GetScrollDelta().y * -ZOOM_SPEED);
     m_FovAngle =

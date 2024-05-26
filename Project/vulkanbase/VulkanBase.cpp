@@ -41,7 +41,7 @@ void VulkanBase::InitVulkan()
     CreateDepthResources();
 
     m_SwapChainUPtr->CreateFrameBuffers(m_RenderPassUPtr.get(), m_DepthImageView);
-    Material::CreateMaterialPool(1, 4);
+    Material::CreateMaterialPool(4, 4);
     CreateSyncObjects();
 }
 

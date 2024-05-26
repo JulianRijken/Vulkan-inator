@@ -2,8 +2,9 @@
 
 #include "vulkanbase/VulkanUtil.h"
 
-Mesh::Mesh(const std::vector<uint32_t>& indicies, const VertexData& vertexData) :
-    m_NumIndices{ static_cast<uint32_t>(indicies.size()) }
+Mesh::Mesh(const std::vector<uint32_t>& indicies, const VertexData& vertexData, Material* material) :
+    m_NumIndices{ static_cast<uint32_t>(indicies.size()) },
+    m_MaterialPtr(material)
 {
     const VkDeviceSize vertexBufferSize{ vertexData.typeSize * vertexData.vertexCount };
     const VkDeviceSize indicesBufferSize{ indicies.size() * sizeof(uint32_t) };
@@ -75,6 +76,7 @@ const std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex3D::ATTRIBUTE
                                       .format = VK_FORMAT_R32G32B32_SFLOAT,
                                       .offset = offsetof(Mesh::Vertex3D, position),
                                       },
+
     VkVertexInputAttributeDescription{
                                       .location = 1, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = offsetof(Mesh::Vertex3D, normal) },
     VkVertexInputAttributeDescription{ .location = 2,

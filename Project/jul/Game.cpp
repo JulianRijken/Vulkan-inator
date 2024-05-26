@@ -13,7 +13,7 @@
 
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <glm/gtx/orthonormalize.hpp>
 
 Game::Game()
 {
@@ -22,30 +22,49 @@ Game::Game()
     m_Textures["Konker"] = std::make_unique<Texture>("resources/Diorama/T_Konker_Color.png");
     m_Textures["Clothing"] = std::make_unique<Texture>("resources/Diorama/T_Clothing_Color.png");
 
+    m_Textures["defaultBlack"] = std::make_unique<Texture>("resources/Default/defaultBlack.png");
+    m_Textures["defaultNormal"] = std::make_unique<Texture>("resources/Default/defaultNormal.png");
+    m_Textures["defaultWhite"] = std::make_unique<Texture>("resources/Default/defaultWhite.png");
+    m_Textures["uv_grid"] = std::make_unique<Texture>("resources/Default/uv_grid.png");
+    m_Textures["uv_grid_2"] = std::make_unique<Texture>("resources/Default/uv_grid_2.png");
+    m_Textures["uv_grid_3"] = std::make_unique<Texture>("resources/Default/uv_grid_3.png");
 
     m_Textures["subaru_Outside_BaseColor"] = std::make_unique<Texture>("resources/Car/subaru_Outside_BaseColor.png");
-    m_Textures["subaru_Outside_Metallic"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Metallic.png");
     m_Textures["subaru_Outside_Normal"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Normal.png");
+    m_Textures["subaru_Outside_Metallic"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Metallic.png");
     m_Textures["subaru_Outside_Roughness"] = std::make_unique<Texture>("resources/Car/subaru_Outside_Roughness.png");
 
-    // m_Textures["JAKUB"] = std::make_unique<Texture>("resources/Testing/Jakub.png");
-    // m_Textures["SWORD"] = std::make_unique<Texture>("resources/Testing/Sword.jpg");
+    m_Textures["fire_BaseColor"] = std::make_unique<Texture>("resources/FireHydrant/fire_hydrant_Base_Color.png");
+    m_Textures["fire_Normal"] = std::make_unique<Texture>("resources/FireHydrant/fire_hydrant_Normal_OpenGL.png");
+    m_Textures["fire_Metallic"] = std::make_unique<Texture>("resources/FireHydrant/fire_hydrant_Metallic.png");
+    m_Textures["fire_Roughness"] = std::make_unique<Texture>("resources/FireHydrant/fire_hydrant_Roughness.png");
 
 
-    m_Materials["PBR"] =
+    m_Materials["subaru"] =
         std::make_unique<Material>(std::vector<const Texture*>{ m_Textures["subaru_Outside_BaseColor"].get(),
-                                                                m_Textures["subaru_Outside_Metallic"].get(),
                                                                 m_Textures["subaru_Outside_Normal"].get(),
+                                                                m_Textures["subaru_Outside_Metallic"].get(),
                                                                 m_Textures["subaru_Outside_Roughness"].get() });
 
-    // m_Pipline2D = std::make_unique<Pipeline>(Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv" },
-    //                                          Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
-    //                                          sizeof(UniformBufferObject2D),
-    //                                          sizeof(MeshPushConstants),
-    //                                          std::nullopt,
-    //                                          VK_CULL_MODE_NONE,
-    //                                          VK_FALSE,
-    //                                          VK_FALSE);
+    m_Materials["grid"] = std::make_unique<Material>(std::vector<const Texture*>{ m_Textures["uv_grid_3"].get(),
+                                                                                  m_Textures["defaultNormal"].get(),
+                                                                                  m_Textures["defaultBlack"].get(),
+                                                                                  m_Textures["uv_grid"].get() });
+
+
+    m_Materials["fire"] = std::make_unique<Material>(std::vector<const Texture*>{ m_Textures["fire_BaseColor"].get(),
+                                                                                  m_Textures["fire_Normal"].get(),
+                                                                                  m_Textures["fire_Metallic"].get(),
+                                                                                  m_Textures["fire_Roughness"].get() });
+
+    m_Pipline2D = std::make_unique<Pipeline>(Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv" },
+                                             Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
+                                             sizeof(UniformBufferObject2D),
+                                             sizeof(MeshPushConstants),
+                                             std::nullopt,
+                                             VK_CULL_MODE_NONE,
+                                             VK_FALSE,
+                                             VK_FALSE);
 
     m_Pipline3D = std::make_unique<Pipeline>(Shader{ "shaders/shader3D.vert.spv", "shaders/shader3D.frag.spv" },
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex3D>(),
@@ -55,68 +74,100 @@ Game::Game()
                                              VK_CULL_MODE_NONE);
 
 
-    // const std::vector<Mesh::Vertex2D> triangleVertices = {
-    //     {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
-    //     { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
-    //     {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
-    // };
+    const std::vector<Mesh::Vertex2D> triangleVertices = {
+        {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
+        { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
+        {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
+    };
 
-    // const std::vector<uint32_t> triangleIndeces = { 0, 1, 2 };
-
-
-    // AddMesh(Mesh{
-    //     triangleIndeces,
-    //     Mesh::VertexData{.data = (void*)triangleVertices.data(),
-    //                      .vertexCount = static_cast<uint32_t>(triangleVertices.size()),
-    //                      .typeSize = sizeof(Mesh::Vertex2D)}
-    // });
+    const std::vector<uint32_t> triangleIndeces = { 0, 1, 2 };
 
 
-    // const std::vector<Mesh::Vertex2D> squareVertices = {
-    //     {{ -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
-    //     { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }},
-    //     {  { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }},
-    //     { { -0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f }}
-    // };
-
-    // const std::vector<uint32_t> squareIndices = { 0, 1, 2, 0, 2, 3 };
-
-    // AddMesh(Mesh{
-    //     squareIndices,
-    //     Mesh::VertexData{.data = (void*)squareVertices.data(),
-    //                      .vertexCount = static_cast<uint32_t>(squareVertices.size()),
-    //                      .typeSize = sizeof(Mesh::Vertex2D)}
-    // });
-
-    // AddMesh(GenerateCircle({ 0, 0 }, { 0.4f, 0.6f }));
+    AddMesh2D("Triable",
+              Mesh{
+                  triangleIndeces,
+                  Mesh::VertexData{.data = (void*)triangleVertices.data(),
+                                   .vertexCount = static_cast<uint32_t>(triangleVertices.size()),
+                                   .typeSize = sizeof(Mesh::Vertex2D)},
+                  nullptr
+    });
 
 
-    // AddMesh(LoadMesh("resources/Diorama/DioramaGP.obj"));
-    AddMesh(LoadMesh("resources/Car/Subaru.obj"));
-    // AddMesh(LoadMesh("resources/Airplane/Airplane.obj"));
-    // AddMesh(LoadMesh("resources/Terrain/Terrain.obj"));
+    const std::vector<Mesh::Vertex2D> squareVertices = {
+        {{ -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
+        { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }},
+        {  { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }},
+        { { -0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f }}
+    };
 
-    // AddMesh(LoadMesh("resources/Testing/Jakub.obj"));
-    // AddMesh(LoadMesh("resources/Testing/Sword.obj"));
+    const std::vector<uint32_t> squareIndices = { 0, 1, 2, 0, 2, 3 };
+
+    AddMesh2D("Square",
+              Mesh{
+                  squareIndices,
+                  Mesh::VertexData{.data = (void*)squareVertices.data(),
+                                   .vertexCount = static_cast<uint32_t>(squareVertices.size()),
+                                   .typeSize = sizeof(Mesh::Vertex2D)},
+                  nullptr
+    });
+
+    AddMesh2D("Circle2D", GenerateCircle({ 0, 0 }, { 0.4f, 0.6f }));
+    AddMesh3D("Airplane", LoadMesh("resources/Airplane/Airplane.obj", m_Materials["grid"].get()));
+    AddMesh3D("Diorama", LoadMesh("resources/Diorama/DioramaGP.obj", m_Materials["grid"].get()));
+
+
+    auto& carMesh = AddMesh3D("Subaru", LoadMesh("resources/Car/Subaru.obj", m_Materials["subaru"].get()));
+    carMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-6.89595, 4.0f, -0.306714)) *
+                            rotate(glm::mat4(1.0f), glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f)) *
+                            scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+
+
+    auto& fireMesh = AddMesh3D("Fire", LoadMesh("resources/FireHydrant/fire_hydrant.obj", m_Materials["fire"].get()));
+    fireMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-8.07224, 3.65116, 2.53493)) *
+                             scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
 }
 
 Game::~Game() = default;
 
-void Game::Update() { m_Camera.Update(); }
+void Game::Update()
+{
+    m_Camera.Update();
+
+    // Update plane position
+    const float planePosition = jul::math::ClampLoop(jul::GameTime::GetElapsedTimeF() * 50.0f, -100.0f, 100.0f);
+    m_Meshes3D["Airplane"]->m_ModelMatrix = glm::translate(glm::mat4(1.0f), { 0, 25, planePosition }) *
+                                            glm::scale(glm::mat4(1.0f), { 0.01f, 0.01f, 0.01f }) *
+                                            glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 });
+}
 
 void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
 {
-    // MeshPushConstants meshPushConstant2D2{};
-    // {
-    //     meshPushConstant2D2.model = glm::rotate(
-    //         glm::mat4(1.0f), -jul::GameTime::GetElapsedTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    //     meshPushConstant2D2.model[3][0] = -1.0f;
-    // }
-    // m_Pipline2D->UpdatePushConstant(commandBuffer, &meshPushConstant2D2, sizeof(meshPushConstant2D2));
-    // m_Meshes[1].Draw(commandBuffer);
+    UniformBufferObject2D ubo2D{};
+    {
+        ubo2D.proj = m_Camera.GetOrthoProjectionMatrix();
+    }
+    m_Pipline2D->Bind(commandBuffer, imageIndex);
+    m_Pipline2D->UpdateUBO(imageIndex, &ubo2D, sizeof(ubo2D));
+
+    for(auto&& mesh : m_Meshes2D)
+    {
+
+        MeshPushConstants meshPushConstant{};
+        {
+            meshPushConstant.model = mesh.second->m_ModelMatrix;
+        }
+        m_Pipline2D->UpdatePushConstant(commandBuffer, &meshPushConstant, sizeof(meshPushConstant));
 
 
-    // 3D Meshesh
+        // Update Material
+        Material* material = mesh.second->GetMaterial();
+        if(material != nullptr)
+            m_Pipline2D->UpdateMaterial(commandBuffer, *material);
+
+        // Draw mesh
+        mesh.second->Draw(commandBuffer);
+    }
+
     UniformBufferObject3D ubo3D{};
     {
         auto projectionMatrix = m_Camera.GetProjectionMatrix();
@@ -126,47 +177,62 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
         ubo3D.viewPosition = glm::vec4(m_Camera.GetPosition(), 1.0f);
     }
 
-
     m_Pipline3D->Bind(commandBuffer, imageIndex);
     m_Pipline3D->UpdateUBO(imageIndex, &ubo3D, sizeof(ubo3D));
 
-    MeshPushConstants meshPushConstantDiorama{};
+    for(auto&& mesh : m_Meshes3D)
     {
-        meshPushConstantDiorama.model =
-            glm::rotate(
-                glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF() * glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-            glm::scale(glm::mat4(1.0f), { 0.1f, 0.1f, 0.1f });
+        MeshPushConstants meshPushConstant{};
+        {
+            meshPushConstant.model = mesh.second->m_ModelMatrix;
+        }
+        m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstant, sizeof(meshPushConstant));
+
+
+        // Update Material
+        Material* material = mesh.second->GetMaterial();
+        if(material != nullptr)
+            m_Pipline3D->UpdateMaterial(commandBuffer, *material);
+
+        // Draw mesh
+        mesh.second->Draw(commandBuffer);
     }
-
-    m_Pipline3D->UpdateMaterial(commandBuffer, *m_Materials["PBR"]);
-    m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstantDiorama, sizeof(meshPushConstantDiorama));
-    m_Meshes[0].Draw(commandBuffer);
-
-
-    // const float planePosition = jul::math::ClampLoop(jul::GameTime::GetElapsedTimeF() * 50.0f, -100.0f, 100.0f);
-    // MeshPushConstants meshPushConstantPlane{
-    //     .model = glm::translate(glm::mat4(1.0f), { 0, 25, planePosition }) *
-    //              glm::scale(glm::mat4(1.0f), { 0.01f, 0.01f, 0.01f }) *
-    //              glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 })
-    // };
-
-
-    // m_Pipline3D->UpdateMaterial(commandBuffer, *m_Materials["PBR"]);
-    // m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstantPlane, sizeof(meshPushConstantPlane));
-    // m_Meshes[3].Draw(commandBuffer);
-
-
-    // MeshPushConstants TerrainMesh{ .model = glm::translate(glm::mat4(1.0f), { -50, 0, 50 }) *
-    //                                         glm::scale(glm::mat4(1.0f), { 0.1f, 0.1f, 0.1f }) *
-    //                                         glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), { 0, 1, 0 }) };
-
-    // m_Pipline3D->UpdatePushConstant(commandBuffer, &TerrainMesh, sizeof(TerrainMesh));
-    // m_Meshes[3].Draw(commandBuffer);
 }
 
 void Game::OnResize() { m_Camera.SetAspect(VulkanGlobals::GetSwapChain().GetAspect()); }
 
-Mesh Game::LoadMesh(const std::string& meshPath)
+void ComputeTangents(std::vector<Mesh::Vertex3D>& vertices, const std::vector<uint32_t>& indices)
+{
+    for(size_t i = 0; i < indices.size(); i += 3)
+    {
+        const Mesh::Vertex3D& v0 = vertices[indices[i]];
+        const Mesh::Vertex3D& v1 = vertices[indices[i + 1]];
+        const Mesh::Vertex3D& v2 = vertices[indices[i + 2]];
+
+        const glm::vec3 edge1 = v1.position - v0.position;
+        const glm::vec3 edge2 = v2.position - v0.position;
+
+        const glm::vec2 deltaUV1 = v1.uv - v0.uv;
+        const glm::vec2 deltaUV2 = v2.uv - v0.uv;
+
+        const float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        glm::vec3 tangent;
+        tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+        // Normalize the Tangent
+        tangent = glm::normalize(tangent);
+
+        // Add the Tangent to the vertices
+        vertices[indices[i + 0]].tangent += tangent;
+        vertices[indices[i + 1]].tangent += tangent;
+        vertices[indices[i + 2]].tangent += tangent;
+    }
+}
+
+Mesh Game::LoadMesh(const std::string& meshPath, Material* material)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -178,7 +244,6 @@ Mesh Game::LoadMesh(const std::string& meshPath)
     if(not tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, meshPath.c_str()))
         std::cerr << "Loading OBJ Failed: \n";
 
-
     if(not warn.empty())
         std::cerr << "Loading OBJ Failed: " << warn << '\n';
     if(not err.empty())
@@ -186,7 +251,7 @@ Mesh Game::LoadMesh(const std::string& meshPath)
 
 
     std::vector<Mesh::Vertex3D> vertices{};
-    std::vector<uint32_t> indeces{};
+    std::vector<uint32_t> indices{};
 
 
     std::unordered_map<Mesh::Vertex3D, uint32_t> uniqueVertices{};
@@ -195,25 +260,17 @@ Mesh Game::LoadMesh(const std::string& meshPath)
     {
         for(auto&& index : shape.mesh.indices)
         {
-            Mesh::Vertex3D vertex{
+            const Mesh::Vertex3D vertex{
                 .position = { attrib.vertices[3 * index.vertex_index + 0],
                              attrib.vertices[3 * index.vertex_index + 1],
                              attrib.vertices[3 * index.vertex_index + 2] },
                 .normal = { attrib.normals[3 * index.normal_index + 0],
                              attrib.normals[3 * index.normal_index + 1],
                              attrib.normals[3 * index.normal_index + 2] },
-                .tangent = { 
-                             
-                             },
+                .tangent = { glm::vec3(0.0f, 0.0f, 0.0f) },
                 .uv = { attrib.texcoords[2 * index.texcoord_index + 0],
                              1.0f - attrib.texcoords[2 * index.texcoord_index + 1] }
             };
-
-
-            vertex.tangent = glm::cross(vertex.position, vertex.normal);
-
-            vertex.tangent = glm::normalize(vertex.tangent);
-            vertex.normal = glm::normalize(vertex.normal);
 
             if(not uniqueVertices.contains(vertex))
             {
@@ -221,17 +278,18 @@ Mesh Game::LoadMesh(const std::string& meshPath)
                 vertices.push_back(vertex);
             }
 
-            indeces.push_back(uniqueVertices[vertex]);
+            indices.push_back(uniqueVertices[vertex]);
         }
     }
 
-    std::cout << "Loaded: " << meshPath << " Successfully :)\n";
+    ComputeTangents(vertices, indices);
 
     return Mesh{
-        indeces,
+        indices,
         Mesh::VertexData{.data = (void*)vertices.data(),
                          .vertexCount = static_cast<uint32_t>(vertices.size()),
-                         .typeSize = sizeof(Mesh::Vertex3D)}
+                         .typeSize = sizeof(Mesh::Vertex3D)},
+        material
     };
 }
 
@@ -264,6 +322,7 @@ Mesh Game::GenerateCircle(glm::vec2 center, glm::vec2 size, uint32_t segmentCoun
         circleIndices,
         Mesh::VertexData{.data = (void*)circleVertices.data(),
                          .vertexCount = static_cast<uint32_t>(circleVertices.size()),
-                         .typeSize = sizeof(Mesh::Vertex2D)}
+                         .typeSize = sizeof(Mesh::Vertex2D)},
+        nullptr
     };
 }

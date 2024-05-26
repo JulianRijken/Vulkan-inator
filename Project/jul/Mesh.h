@@ -11,6 +11,7 @@
 
 #include "Buffer.h"
 
+class Material;
 class Mesh final
 {
 public:
@@ -49,14 +50,20 @@ public:
         uint32_t typeSize;
     };
 
-    Mesh(const std::vector<uint32_t>& indicies, const VertexData& vertexData);
+    Mesh(const std::vector<uint32_t>& indicies, const VertexData& vertexData, Material* material);
 
     void Draw(VkCommandBuffer commandBuffer) const;
+
+    [[nodiscard]] Material* GetMaterial() const { return m_MaterialPtr; }
+
+    glm::mat4 m_ModelMatrix = glm::mat4(1.0f);  // Trivial set and get
 
 private:
     std::unique_ptr<Buffer> m_StagingBuffer;
     std::unique_ptr<Buffer> m_VertexBuffer;
     std::unique_ptr<Buffer> m_IndexBuffer;
+
+    Material* m_MaterialPtr;
 
     uint32_t m_NumIndices;
 };
