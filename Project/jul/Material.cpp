@@ -76,7 +76,7 @@ void Material::CreateMaterialPool(int maxMaterialCount, int maxTexturesPerMateri
 
 
     const VkDescriptorPoolSize poolSize{ .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                         .descriptorCount = static_cast<uint32_t>(bindings.size())
+                                         .descriptorCount = static_cast<uint32_t>(bindings.size() * maxMaterialCount)
 
     };
 

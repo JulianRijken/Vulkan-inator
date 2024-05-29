@@ -40,6 +40,12 @@ Game::Game()
     m_Textures["fire_Roughness"] = std::make_unique<Texture>("resources/FireHydrant/fire_hydrant_Roughness.png");
 
 
+    m_Materials["test"] =
+        std::make_unique<Material>(std::vector<const Texture*>{ m_Textures["subaru_Outside_BaseColor"].get(),
+                                                                m_Textures["subaru_Outside_Normal"].get(),
+                                                                m_Textures["subaru_Outside_Metallic"].get(),
+                                                                m_Textures["subaru_Outside_Roughness"].get() });
+
     m_Materials["subaru"] =
         std::make_unique<Material>(std::vector<const Texture*>{ m_Textures["subaru_Outside_BaseColor"].get(),
                                                                 m_Textures["subaru_Outside_Normal"].get(),
