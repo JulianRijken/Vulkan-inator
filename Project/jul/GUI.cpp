@@ -61,7 +61,7 @@ void GUI::Init(GLFWwindow* windowPtr)
         .MinImageCount = 2,
         .ImageCount = static_cast<uint32_t>(VulkanGlobals::GetSwapChain().GetImageCount()),
         .MSAASamples = VK_SAMPLE_COUNT_1_BIT,
-        .UseDynamicRendering = true,
+        .UseDynamicRendering = false,
         .PipelineRenderingCreateInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
                                         .colorAttachmentCount = 1,
                                         .pColorAttachmentFormats = &imageFormat},
