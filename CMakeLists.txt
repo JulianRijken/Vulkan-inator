@@ -44,7 +44,9 @@ FetchContent_MakeAvailable(tinyobjloader)
 find_package(Vulkan REQUIRED)
 
 # Include Directories
-include_directories(${Vulkan_INCLUDE_DIRS})
+include_directories(
+    ${Vulkan_INCLUDE_DIRS}
+)
 
 add_subdirectory(Project)
 

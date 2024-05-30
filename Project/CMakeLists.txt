@@ -1,6 +1,8 @@
 # Source files
 set(SHADER_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
 set(SHADER_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+set(EXTERNAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
+
 
 file(MAKE_DIRECTORY ${SHADER_BINARY_DIR})
 
@@ -26,15 +28,29 @@ add_custom_target(
 )
 
 
+set(IMGUI_SOURCE_FILES
+    ${EXTERNAL_DIR}/imgui/imgui_demo.cpp
+
+    ${EXTERNAL_DIR}/imgui/imgui.cpp
+    ${EXTERNAL_DIR}/imgui/imgui_draw.cpp
+    ${EXTERNAL_DIR}/imgui/imgui_widgets.cpp
+    ${EXTERNAL_DIR}/imgui/imgui_tables.cpp
+
+    ${EXTERNAL_DIR}/imgui/backends/imgui_impl_glfw.cpp
+    ${EXTERNAL_DIR}/imgui/backends/imgui_impl_vulkan.cpp
+)
+
+
 set(SOURCES
     main.cpp
     vulkanbase/VulkanUtil.cpp  vulkanbase/VulkanUtil.h
     vulkanbase/VulkanBase.cpp  vulkanbase/VulkanBase.h
     vulkanbase/VulkanGlobals.h
 
-    external/HeaderLibs.cpp
-    external/stb/stb_image.h
+    ${EXTERNAL_DIR}/HeaderLibs.cpp
+    ${EXTERNAL_DIR}/stb/stb_image.h
 
+    jul/GUI.h               jul/GUI.cpp
     jul/Texture.h           jul/Texture.cpp
     jul/Pipeline.cpp        jul/Pipeline.h
     jul/Shader.cpp          jul/Shader.h
@@ -54,13 +70,22 @@ set(SOURCES
 )
 
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES})
+add_executable(${PROJECT_NAME}
+    ${SOURCES}
+    ${IMGUI_SOURCE_FILES}
+    ${GLSL_SOURCE_FILES})
 
 # target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wpedantic)
 
 add_dependencies(${PROJECT_NAME} Shaders)
 # Link libraries
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/external
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/backends
+)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES} glfw glm::glm tinyobjloader)
 
 

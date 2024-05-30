@@ -5,6 +5,7 @@
 #include <set>
 
 #include "jul/GameTime.h"
+#include "jul/GUI.h"
 #include "jul/Input.h"
 #include "jul/Material.h"
 #include "vulkanbase/VulkanGlobals.h"
@@ -14,6 +15,7 @@ void VulkanBase::Run()
 {
     InitWindow();
     InitVulkan();
+    GUI::Init(m_Window);
     MainLoop();
     Cleanup();
 }
@@ -28,7 +30,7 @@ void VulkanBase::InitVulkan()
     CreateLogicalDevice();
 
     glm::ivec2 windowSize{};
-    glfwGetFramebufferSize(m_window, &windowSize.x, &windowSize.y);
+    glfwGetFramebufferSize(m_Window, &windowSize.x, &windowSize.y);
     m_SwapChainUPtr = std::make_unique<SwapChain>(m_Surface, windowSize);
     VulkanGlobals::s_SwapChainPtr = m_SwapChainUPtr.get();
 
@@ -49,7 +51,7 @@ void VulkanBase::MainLoop()
 {
     m_GameUPtr = std::make_unique<Game>();
 
-    while(not glfwWindowShouldClose(m_window))
+    while(not glfwWindowShouldClose(m_Window))
     {
         jul::GameTime::Update();
 
@@ -57,7 +59,10 @@ void VulkanBase::MainLoop()
         glfwPollEvents();
 
         m_GameUPtr->Update();
+
+        GUI::NewFrame();
         DrawFrame();
+        GUI::EndFrame();
 
         jul::GameTime::AddToFrameCount();
     }
@@ -66,6 +71,8 @@ void VulkanBase::MainLoop()
 
 void VulkanBase::Cleanup()
 {
+    GUI::Cleanup();
+
     vkDestroySemaphore(m_Device, m_RenderFinishedSemaphore, nullptr);
     vkDestroySemaphore(m_Device, m_ImageAvailableSemaphore, nullptr);
     vkDestroyFence(m_Device, m_InFlightFence, nullptr);
@@ -90,7 +97,7 @@ void VulkanBase::Cleanup()
     vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
     vkDestroyInstance(m_Instance, nullptr);
 
-    glfwDestroyWindow(m_window);
+    glfwDestroyWindow(m_Window);
     glfwTerminate();
 }
 
@@ -99,12 +106,12 @@ void VulkanBase::InitWindow()
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+    m_Window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 
-    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetWindowUserPointer(m_window, this);
+    glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetWindowUserPointer(m_Window, this);
 
-    glfwSetKeyCallback(m_window,
+    glfwSetKeyCallback(m_Window,
                        [](GLFWwindow*, int key, int, int action, int)
                        {
                            if(action == GLFW_PRESS)
@@ -112,17 +119,17 @@ void VulkanBase::InitWindow()
                            else if(action == GLFW_RELEASE)
                                Input::OnKeyUp(key);
                        });
-    glfwSetCursorPosCallback(m_window,
+    glfwSetCursorPosCallback(m_Window,
                              [](GLFWwindow*, double xpos, double ypos) {
                                  Input::OnMouseMove({ xpos, ypos });
                              });
 
-    glfwSetScrollCallback(m_window,
+    glfwSetScrollCallback(m_Window,
                           [](GLFWwindow*, double xpos, double ypos) {
                               Input::OnMouseScroll({ xpos, ypos });
                           });
 
-    glfwSetFramebufferSizeCallback(m_window,
+    glfwSetFramebufferSizeCallback(m_Window,
                                    [](GLFWwindow* window, int, int)
                                    {
                                        auto* app = reinterpret_cast<VulkanBase*>(glfwGetWindowUserPointer(window));
@@ -132,7 +139,7 @@ void VulkanBase::InitWindow()
 
 void VulkanBase::CreateSurface()
 {
-    if (glfwCreateWindowSurface(m_Instance, m_window, nullptr, &m_Surface) != VK_SUCCESS)
+    if(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface) != VK_SUCCESS)
         throw std::runtime_error("failed to create window surface!");
 
     VulkanGlobals::s_Surface = m_Surface;
@@ -296,6 +303,7 @@ uint32_t VulkanBase::RateDeviceSuitability(VkPhysicalDevice device)
     return score;
 }
 
+#include <jul/GUI.h>
 #include <jul/Material.h>
 
 #include <cstring>
@@ -359,7 +367,7 @@ void VulkanBase::CreateSyncObjects()
 }
 
 void VulkanBase::DrawFrame()
-{
+{  
     vkWaitForFences(m_Device, 1, &m_InFlightFence, VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex = 0;
@@ -415,10 +423,10 @@ void VulkanBase::DrawFrame()
     if(m_NeedsWindowResize or presentResult == VK_ERROR_OUT_OF_DATE_KHR)
     {
         int width = 0, height = 0;
-        glfwGetFramebufferSize(m_window, &width, &height);
+        glfwGetFramebufferSize(m_Window, &width, &height);
         while(width == 0 || height == 0)
         {
-            glfwGetFramebufferSize(m_window, &width, &height);
+            glfwGetFramebufferSize(m_Window, &width, &height);
             glfwWaitEvents();
         }
 
@@ -430,7 +438,7 @@ void VulkanBase::DrawFrame()
 
 
         glm::ivec2 windowSize{};
-        glfwGetFramebufferSize(m_window, &windowSize.x, &windowSize.y);
+        glfwGetFramebufferSize(m_Window, &windowSize.x, &windowSize.y);
         m_SwapChainUPtr = std::make_unique<SwapChain>(m_Surface, windowSize);
         VulkanGlobals::s_SwapChainPtr = m_SwapChainUPtr.get();
 
@@ -540,4 +548,6 @@ void VulkanBase::CreateInstance()
 
     if(vkCreateInstance(&createInfo, nullptr, &m_Instance) != VK_SUCCESS)
         throw std::runtime_error("failed to create instance!");
+
+    VulkanGlobals::s_Instance = m_Instance;
 }

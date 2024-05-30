@@ -23,6 +23,8 @@ public:
 
     [[nodiscard]] static inline VkSurfaceKHR GetSurface() { return s_Surface; }
 
+    [[nodiscard]] static inline VkInstance GetInstance() { return s_Instance; }
+
 
 private:
     static inline VkDevice s_Device{};
@@ -31,4 +33,5 @@ private:
     static inline SwapChain* s_SwapChainPtr{};
     static inline RenderPass* s_RenderPassPtr{};
     static inline VkSurfaceKHR s_Surface{};
+    static inline VkInstance s_Instance{};
 };

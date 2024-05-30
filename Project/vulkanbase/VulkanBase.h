@@ -51,7 +51,7 @@ private:
     std::vector<const char*> GetRequiredExtensions();
 
 
-    GLFWwindow* m_window;
+    GLFWwindow* m_Window;
     bool m_NeedsWindowResize{ false };
 
     std::unique_ptr<Game> m_GameUPtr{};
