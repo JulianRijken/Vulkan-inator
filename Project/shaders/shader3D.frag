@@ -5,7 +5,9 @@ layout(set = 0, binding = 0) uniform UniformBufferObject
 {
     mat4 viewProjection;
     vec4 viewPosition;
+    int renderMode;
 } ubo;
+
 
 layout(set = 1,binding = 0) uniform sampler2D colorSample;
 layout(set = 1,binding = 1) uniform sampler2D normalSample;
@@ -31,7 +33,7 @@ struct Light
 };
 
 
-void main()
+vec3 GetColorPBR()
 {
     vec3 N = calculateNormal(normalSample, inNormal, inTangent.xyz, inUV);
     vec3 V = normalize(ubo.viewPosition.xyz - inWorldPosition);
@@ -77,18 +79,50 @@ void main()
 
     vec3 color = ambient + Lo;
 
-    outColor = vec4(color, 1.0);
-
-
-    // outColor = texture(colorSample, inUV);
-    // outColor = texture(normalSample, inUV);
-    // outColor = texture(metallicSample, inUV);
-    // outColor = texture(roughnessSample, inUV);
-
-    // outColor = vec4(inNormal,1.0f);
-    //outColor = vec4(inTangent,1.0f);
+    return color;
 }
 
+
+
+
+void main()
+{
+    if(ubo.renderMode == 0)
+    {
+        outColor = vec4(GetColorPBR(),1.0f);
+        return;
+    }
+    else if(ubo.renderMode == 1)
+    {
+        outColor = texture(colorSample, inUV);
+        return;
+    }
+    else if(ubo.renderMode == 2)
+    {
+        outColor = texture(normalSample, inUV);
+        return;
+    }
+    else if(ubo.renderMode == 3)
+    {
+        outColor = texture(metallicSample, inUV);
+        return;
+    }
+    else if(ubo.renderMode == 4)
+    {
+        outColor = texture(roughnessSample, inUV);
+        return;
+    }
+    else if(ubo.renderMode == 5)
+    {
+        outColor = vec4(inNormal,1.0f);
+        return;
+    }
+    else if(ubo.renderMode == 6)
+    {
+        outColor = vec4(inTangent,1.0f);
+        return;
+    }
+}
 
 
 

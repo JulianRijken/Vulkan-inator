@@ -16,6 +16,7 @@ class Game final
     {
         glm::mat4 viewProjection;
         glm::vec4 viewPosition;
+        int renderMode;
     };
 
     struct MeshPushConstants
@@ -56,6 +57,8 @@ private:
         glm::vec3{0, 1, -2},
         80
     };
+
+    int m_RenderMode{};
 
     std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes2D{};
     std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes3D{};

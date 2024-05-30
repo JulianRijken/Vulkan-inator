@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "jul/GameTime.h"
+#include "jul/Input.h"
 #include "jul/MathExtensions.h"
 #include "jul/SwapChain.h"
 #include "jul/Texture.h"
@@ -80,44 +81,47 @@ Game::Game()
                                              VK_CULL_MODE_NONE);
 
 
-    const std::vector<Mesh::Vertex2D> triangleVertices = {
-        {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
-        { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
-        {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
-    };
+    // const std::vector<Mesh::Vertex2D> triangleVertices = {
+    //     {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
+    //     { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
+    //     {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
+    // };
 
-    const std::vector<uint32_t> triangleIndeces = { 0, 1, 2 };
-
-
-    AddMesh2D("Triable",
-              Mesh{
-                  triangleIndeces,
-                  Mesh::VertexData{.data = (void*)triangleVertices.data(),
-                                   .vertexCount = static_cast<uint32_t>(triangleVertices.size()),
-                                   .typeSize = sizeof(Mesh::Vertex2D)},
-                  nullptr
-    });
+    // const std::vector<uint32_t> triangleIndeces = { 0, 1, 2 };
 
 
-    const std::vector<Mesh::Vertex2D> squareVertices = {
-        {{ -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
-        { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }},
-        {  { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }},
-        { { -0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f }}
-    };
+    // AddMesh2D("Triangle",
+    //           Mesh{
+    //               triangleIndeces,
+    //               Mesh::VertexData{.data = (void*)triangleVertices.data(),
+    //                                .vertexCount = static_cast<uint32_t>(triangleVertices.size()),
+    //                                .typeSize = sizeof(Mesh::Vertex2D)},
+    //               nullptr
+    // });
 
-    const std::vector<uint32_t> squareIndices = { 0, 1, 2, 0, 2, 3 };
 
-    AddMesh2D("Square",
-              Mesh{
-                  squareIndices,
-                  Mesh::VertexData{.data = (void*)squareVertices.data(),
-                                   .vertexCount = static_cast<uint32_t>(squareVertices.size()),
-                                   .typeSize = sizeof(Mesh::Vertex2D)},
-                  nullptr
-    });
+    // const std::vector<Mesh::Vertex2D> squareVertices = {
+    //     {{ -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
+    //     { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }},
+    //     {  { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }},
+    //     { { -0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f }}
+    // };
 
-    AddMesh2D("Circle2D", GenerateCircle({ 0, 0 }, { 0.4f, 0.6f }));
+    // const std::vector<uint32_t> squareIndices = { 0, 1, 2, 0, 2, 3 };
+
+    // auto& squareMesh = AddMesh2D("Square",
+    //                              Mesh{
+    //                                  squareIndices,
+    //                                  Mesh::VertexData{.data = (void*)squareVertices.data(),
+    //                                                   .vertexCount = static_cast<uint32_t>(squareVertices.size()),
+    //                                                   .typeSize = sizeof(Mesh::Vertex2D)},
+    //                                  nullptr
+    // });
+    // squareMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(1, 0, 0));
+
+    // auto& circleMesh = AddMesh2D("Circle2D", GenerateCircle({ 0, 0 }, { 0.4f, 0.6f }));
+    // circleMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-1, 0, 0));
+
     AddMesh3D("Airplane", LoadMesh("resources/Airplane/Airplane.obj", m_Materials["grid"].get()));
     AddMesh3D("Diorama", LoadMesh("resources/Diorama/DioramaGP.obj", m_Materials["grid"].get()));
 
@@ -144,6 +148,21 @@ void Game::Update()
     m_Meshes3D["Airplane"]->m_ModelMatrix = glm::translate(glm::mat4(1.0f), { 0, 25, planePosition }) *
                                             glm::scale(glm::mat4(1.0f), { 0.01f, 0.01f, 0.01f }) *
                                             glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 });
+
+    if(Input::GetKeyHeld(GLFW_KEY_1))
+        m_RenderMode = 0;
+    if(Input::GetKeyHeld(GLFW_KEY_2))
+        m_RenderMode = 1;
+    if(Input::GetKeyHeld(GLFW_KEY_3))
+        m_RenderMode = 2;
+    if(Input::GetKeyHeld(GLFW_KEY_4))
+        m_RenderMode = 3;
+    if(Input::GetKeyHeld(GLFW_KEY_5))
+        m_RenderMode = 4;
+    if(Input::GetKeyHeld(GLFW_KEY_6))
+        m_RenderMode = 5;
+    if(Input::GetKeyHeld(GLFW_KEY_7))
+        m_RenderMode = 6;
 }
 
 void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
@@ -174,14 +193,13 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
         mesh.second->Draw(commandBuffer);
     }
 
-    UniformBufferObject3D ubo3D{};
-    {
-        auto projectionMatrix = m_Camera.GetProjectionMatrix();
-        projectionMatrix[1][1] *= -1;
+    auto projectionMatrix = m_Camera.GetProjectionMatrix();
+    projectionMatrix[1][1] *= -1;
 
-        ubo3D.viewProjection = projectionMatrix * m_Camera.GetViewMatrix();
-        ubo3D.viewPosition = glm::vec4(m_Camera.GetPosition(), 1.0f);
-    }
+    UniformBufferObject3D ubo3D{ .viewProjection = projectionMatrix * m_Camera.GetViewMatrix(),
+                                 .viewPosition = glm::vec4(m_Camera.GetPosition(), 1.0f),
+                                 .renderMode = m_RenderMode };
+
 
     m_Pipline3D->Bind(commandBuffer, imageIndex);
     m_Pipline3D->UpdateUBO(imageIndex, &ubo3D, sizeof(ubo3D));
