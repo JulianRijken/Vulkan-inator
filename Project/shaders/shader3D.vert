@@ -24,8 +24,8 @@ layout(location = 3) out vec2 outUV;
 void main()
 {
     outWorldPosition = vec3(push.model * vec4(inPosition, 1.0));
-    outNormal = mat3(push.model) * inNormal;
-    outTangent = mat3(push.model) * inTangent;
+    outNormal =  normalize(mat3(push.model) *inNormal);
+    outTangent =  normalize(mat3(push.model) *inTangent);
     outUV = inUV;
     gl_Position =  ubo.viewProjection * vec4(outWorldPosition, 1.0);
 }

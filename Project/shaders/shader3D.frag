@@ -114,7 +114,8 @@ void main()
     }
     else if(ubo.renderMode == 5)
     {
-        outColor = vec4(inNormal,1.0f);
+        // vec3 N = calculateNormal(normalSample, inNormal, inTangent.xyz, inUV);
+        outColor = vec4(inNormal ,1.0f);
         return;
     }
     else if(ubo.renderMode == 6)

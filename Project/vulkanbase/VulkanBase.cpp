@@ -422,7 +422,8 @@ void VulkanBase::DrawFrame()
     const VkResult presentResult = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
     if(m_NeedsWindowResize or presentResult == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        int width = 0, height = 0;
+        int width = 0;
+        int height = 0;
         glfwGetFramebufferSize(m_Window, &width, &height);
         while(width == 0 || height == 0)
         {
@@ -441,6 +442,13 @@ void VulkanBase::DrawFrame()
         glfwGetFramebufferSize(m_Window, &windowSize.x, &windowSize.y);
         m_SwapChainUPtr = std::make_unique<SwapChain>(m_Surface, windowSize);
         VulkanGlobals::s_SwapChainPtr = m_SwapChainUPtr.get();
+
+        vkDestroyImageView(VulkanGlobals::GetDevice(), m_DepthImageView, nullptr);
+        vkDestroyImage(VulkanGlobals::GetDevice(), m_DepthImage, nullptr);
+        vkFreeMemory(VulkanGlobals::GetDevice(), m_DepthImageMemory, nullptr);
+
+        CreateDepthResources();
+
 
         m_GameUPtr->OnResize();
 
