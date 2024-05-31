@@ -10,8 +10,8 @@
 
 using namespace std::string_literals;
 
-Material::Material(const std::vector<const Texture*>& textures) :
-    m_Texture(textures)
+Material::Material(std::vector<Texture*>&& textures) :
+    m_Texture(std::move(textures))
 {
     const VkDescriptorSetAllocateInfo allocInfo{
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,

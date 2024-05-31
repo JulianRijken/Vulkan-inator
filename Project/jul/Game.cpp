@@ -41,28 +41,47 @@ Game::Game()
     m_Textures["fire_Roughness"] = std::make_unique<Texture>("resources/FireHydrant/fire_hydrant_Roughness.png");
 
 
+    m_Textures["robot_BaseColor"] = std::make_unique<Texture>("resources/Robot/robot_steampunk_color.png");
+    m_Textures["robot_Normal"] = std::make_unique<Texture>("resources/Robot/robot_steampunk_nmap.png");
+    m_Textures["robot_Metallic"] = std::make_unique<Texture>("resources/Robot/robot_steampunk_metalness.png");
+    m_Textures["robot_Roughness"] = std::make_unique<Texture>("resources/Robot/robot_steampunk_rough.png");
+    m_Textures["robot_ambientOcclusion"] = std::make_unique<Texture>("resources/Robot/robot_steampunk_ao.png");
+
+
+    m_Materials["robot"] =
+        std::make_unique<Material>(std::vector<Texture*>{ m_Textures["robot_BaseColor"].get(),
+                                                          m_Textures["robot_Normal"].get(),
+                                                          m_Textures["robot_Metallic"].get(),
+                                                          m_Textures["robot_Roughness"].get(),
+                                                          m_Textures["robot_ambientOcclusion"].get() });
+
+
     m_Materials["test"] =
-        std::make_unique<Material>(std::vector<const Texture*>{ m_Textures["subaru_Outside_BaseColor"].get(),
-                                                                m_Textures["subaru_Outside_Normal"].get(),
-                                                                m_Textures["subaru_Outside_Metallic"].get(),
-                                                                m_Textures["subaru_Outside_Roughness"].get() });
+        std::make_unique<Material>(std::vector<Texture*>{ m_Textures["subaru_Outside_BaseColor"].get(),
+                                                          m_Textures["subaru_Outside_Normal"].get(),
+                                                          m_Textures["subaru_Outside_Metallic"].get(),
+                                                          m_Textures["subaru_Outside_Roughness"].get(),
+                                                          m_Textures["defaultWhite"].get() });
 
     m_Materials["subaru"] =
-        std::make_unique<Material>(std::vector<const Texture*>{ m_Textures["subaru_Outside_BaseColor"].get(),
-                                                                m_Textures["subaru_Outside_Normal"].get(),
-                                                                m_Textures["subaru_Outside_Metallic"].get(),
-                                                                m_Textures["subaru_Outside_Roughness"].get() });
+        std::make_unique<Material>(std::vector<Texture*>{ m_Textures["subaru_Outside_BaseColor"].get(),
+                                                          m_Textures["subaru_Outside_Normal"].get(),
+                                                          m_Textures["subaru_Outside_Metallic"].get(),
+                                                          m_Textures["subaru_Outside_Roughness"].get(),
+                                                          m_Textures["defaultWhite"].get() });
 
-    m_Materials["grid"] = std::make_unique<Material>(std::vector<const Texture*>{ m_Textures["uv_grid_3"].get(),
-                                                                                  m_Textures["defaultNormal"].get(),
-                                                                                  m_Textures["defaultBlack"].get(),
-                                                                                  m_Textures["uv_grid"].get() });
+    m_Materials["grid"] = std::make_unique<Material>(std::vector<Texture*>{ m_Textures["uv_grid_3"].get(),
+                                                                            m_Textures["defaultNormal"].get(),
+                                                                            m_Textures["defaultBlack"].get(),
+                                                                            m_Textures["uv_grid"].get(),
+                                                                            m_Textures["defaultWhite"].get() });
 
 
-    m_Materials["fire"] = std::make_unique<Material>(std::vector<const Texture*>{ m_Textures["fire_BaseColor"].get(),
-                                                                                  m_Textures["fire_Normal"].get(),
-                                                                                  m_Textures["fire_Metallic"].get(),
-                                                                                  m_Textures["fire_Roughness"].get() });
+    m_Materials["fire"] = std::make_unique<Material>(std::vector<Texture*>{ m_Textures["fire_BaseColor"].get(),
+                                                                            m_Textures["fire_Normal"].get(),
+                                                                            m_Textures["fire_Metallic"].get(),
+                                                                            m_Textures["fire_Roughness"].get(),
+                                                                            m_Textures["defaultWhite"].get() });
 
     m_Pipline2D = std::make_unique<Pipeline>(Shader{ "shaders/shader2D.vert.spv", "shaders/shader2D.frag.spv" },
                                              Shader::CreateVertexInputStateInfo<Mesh::Vertex2D>(),
@@ -124,6 +143,10 @@ Game::Game()
 
     AddMesh3D("Airplane", LoadMesh("resources/Airplane/Airplane.obj", m_Materials["grid"].get()));
     AddMesh3D("Diorama", LoadMesh("resources/Diorama/DioramaGP.obj", m_Materials["grid"].get()));
+    auto& robot = AddMesh3D("Robot", LoadMesh("resources/Robot/Robot.obj", m_Materials["robot"].get()));
+    robot.m_ModelMatrix = scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+
+    // AddMesh3D("Ball", LoadMesh("resources/Primitives/sphere.obj", m_Materials["grid"].get()));
 
 
     auto& carMesh = AddMesh3D("Subaru", LoadMesh("resources/Car/Subaru.obj", m_Materials["subaru"].get()));
@@ -229,7 +252,7 @@ void ComputeTangents(std::vector<Mesh::Vertex3D>& vertices, const std::vector<ui
 {
     for(size_t i = 0; i < indices.size(); i += 3)
     {
-        const Mesh::Vertex3D& v0 = vertices[indices[i]];
+        const Mesh::Vertex3D& v0 = vertices[indices[i + 0]];
         const Mesh::Vertex3D& v1 = vertices[indices[i + 1]];
         const Mesh::Vertex3D& v2 = vertices[indices[i + 2]];
 
