@@ -66,7 +66,9 @@ namespace vulkanUtil
 
     bool FasDepthComponent(VkFormat format);
     void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
-                     VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+                     VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory,
+                     bool isCubeMap = false);
 
     VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+    VkImageView CreateCubeImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 }  // namespace vulkanUtil

@@ -12,7 +12,7 @@
 #include "vulkanbase/VulkanGlobals.h"
 #include "vulkanbase/VulkanUtil.h"
 
-Texture::Texture(const std::string& filePath)
+Texture::Texture(const std::string& filePath, bool isCubeMap)
 {
     using namespace std::string_literals;
 
@@ -49,8 +49,16 @@ Texture::Texture(const std::string& filePath)
 
     TransitionImageLayout(m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    descriptorImageInfo.imageView =
-        vulkanUtil::CreateImageView(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    if(isCubeMap)
+    {
+        descriptorImageInfo.imageView =
+            vulkanUtil::CreateCubeImageView(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    }
+    else
+    {
+        descriptorImageInfo.imageView =
+            vulkanUtil::CreateImageView(m_Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    }
 
     CreateTextureSampler(VK_SAMPLER_ADDRESS_MODE_REPEAT);
 

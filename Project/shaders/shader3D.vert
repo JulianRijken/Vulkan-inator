@@ -4,6 +4,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject
 {
     mat4 viewProjection;
     vec4 viewPosition;
+    int renderMode;
 } ubo;
 
 layout(push_constant) uniform constants

@@ -8,7 +8,7 @@
 class Texture
 {
 public:
-    Texture(const std::string& filePath);
+    Texture(const std::string& filePath, bool isCubeMap = false);
     ~Texture();
 
     Texture(Texture&&) = delete;

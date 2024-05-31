@@ -144,9 +144,11 @@ Game::Game()
     AddMesh3D("Airplane", LoadMesh("resources/Airplane/Airplane.obj", m_Materials["grid"].get()));
     AddMesh3D("Diorama", LoadMesh("resources/Diorama/DioramaGP.obj", m_Materials["grid"].get()));
     auto& robot = AddMesh3D("Robot", LoadMesh("resources/Robot/Robot.obj", m_Materials["robot"].get()));
-    robot.m_ModelMatrix = scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+    robot.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-8.47186, 9.9, -0.140288)) *
+                          scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
 
-    // AddMesh3D("Ball", LoadMesh("resources/Primitives/sphere.obj", m_Materials["grid"].get()));
+
+    AddMesh3D("Ball", LoadMesh("resources/Primitives/sphere.obj", m_Materials["grid"].get()));
 
 
     auto& carMesh = AddMesh3D("Subaru", LoadMesh("resources/Car/Subaru.obj", m_Materials["subaru"].get()));
@@ -362,7 +364,6 @@ Mesh Game::GenerateCircle(glm::vec2 center, glm::vec2 size, uint32_t segmentCoun
         circleIndices.push_back(segment + 1);
         circleIndices.push_back(segment < segmentCount - 1 ? segment + 2 : 1);  // Flip
     }
-
 
     // Add the circle to the mesh
     return {

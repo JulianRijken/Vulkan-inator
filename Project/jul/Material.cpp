@@ -47,6 +47,7 @@ Material::Material(std::vector<Texture*>&& textures) :
         });
     }
 
+
     vkUpdateDescriptorSets(
         VulkanGlobals::GetDevice(), uint32_t(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }

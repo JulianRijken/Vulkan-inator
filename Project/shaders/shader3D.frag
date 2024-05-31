@@ -9,11 +9,11 @@ layout(set = 0, binding = 0) uniform UniformBufferObject
 } ubo;
 
 
-layout(set = 1, binding = 0) uniform sampler2D colorSample;
-layout(set = 1, binding = 1) uniform sampler2D normalSample;
-layout(set = 1, binding = 2) uniform sampler2D metallicSample;
-layout(set = 1, binding = 3) uniform sampler2D roughnessSample;
-layout(set = 1, binding = 4) uniform sampler2D ambientOcclusionSample;
+layout(set = 1, binding = 0) uniform sampler2D colorSampler;
+layout(set = 1, binding = 1) uniform sampler2D normalSampler;
+layout(set = 1, binding = 2) uniform sampler2D metallicSampler;
+layout(set = 1, binding = 3) uniform sampler2D roughnessSampler;
+layout(set = 1, binding = 4) uniform sampler2D ambientOcclusionSampler;
 
 layout(location = 0) in vec3 inWorldPosition;
 layout(location = 1) in vec3 inNormal;
@@ -31,62 +31,98 @@ struct Light
 
 vec3 GetColorPBR()
 {
-    vec3 N = calculateNormal(normalSample, inNormal, inTangent.xyz, inUV);
-    vec3 V = normalize(ubo.viewPosition.xyz - inWorldPosition);
-    vec3 R = reflect(-V, N);
-    float metallic = texture(metallicSample, inUV).r;
-    float roughness = texture(roughnessSample, inUV).r;
+    float metallic = texture(metallicSampler, inUV).r;
+    float roughness = texture(roughnessSampler, inUV).r;
+    vec3 albedo = texture(colorSampler, inUV).rgb;
 
-    vec3 albedo = texture(colorSample, inUV).rgb;
-    albedo *= texture(ambientOcclusionSample, inUV).rgb;
+    // Calculate normal
+    vec3 normal = normalize(inNormal);
+    vec3 tangent = normalize(inTangent.xyz);
+    vec3 bitangent = normalize(cross(normal, tangent));
+    mat3 tbn = mat3(tangent, bitangent, normal);
+    vec3 sampledNormal = normalize(tbn * (texture(normalSampler, inUV).xyz * 2.0 - 1.0));
 
-    vec3 F0 = vec3(0.04);
-    F0 = mix(F0, albedo, metallic);
+
+    vec3 worldToView = normalize(ubo.viewPosition.xyz - inWorldPosition);
+
+    // Reflection is the reflection from view to world based on the normal
+    vec3 reflection = reflect(-worldToView, sampledNormal);
+
+    // Fresnel Mix
+    vec3 F0 = mix(vec3(0.04), albedo, metallic);
 
 
-    //Hard Define lights for now
-    const int numLights = 2;
+    const int numLights = 4;
     Light lights[numLights];
     lights[0].position = vec3(10.0, 0.0, 10.0);
     lights[0].color = vec3(1.0, 1.0, 1.0);
     lights[1].position = vec3(-100.0, 0.0, 0.0);
     lights[1].color = vec3(1.0, 1.0, 0.0);
+    lights[2].position = vec3(50.0, 50.0, 0.0);
+    lights[2].color = vec3(0.0, 1.0, 1.0);
 
-    vec3 Lo = vec3(0.0);
-    for(int i = 0; i < lights.length(); i++)
+    vec3 finalColor;
+
+    for(int i = 0; i < numLights; i++)
     {
-        vec3 L = normalize(lights[i].position - inWorldPosition);
-        Lo += specularContribution(L, V, N, F0, metallic, roughness, inUV, albedo);
+        vec3 worldToLight = normalize(lights[i].position - inWorldPosition);
     }
 
-
-    //vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-    vec2 brdf = (0.08 * vec2(max(dot(N, V), 0.0), roughness)).rg;
-    //vec3 reflection = prefilteredReflection(R, roughness).rgb;
-    vec3 reflection = vec3(0.3);
-    //vec3 irradiance = texture(samplerIrradiance, N).rgb;
-
-    // Diffuse based on irradiance
-    vec3 diffuse = 0.7 * albedo;
-
-    vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
-
-    // Specular reflectance
-    vec3 specular = reflection * (F * brdf.x + brdf.y);
-
-    // Ambient part
-    vec3 kD = 1.0 - F;
-    kD *= 1.0 - metallic;
-
-    // mat4 inverseModel = inverse(mat4(push.model));
-    // vec4 skyboxReflection = SkyboxReflectionColor(inWorldPosition, inNormal, inverseModel, vec3(1,1,1,1));
-    // vec3 ambient = skyboxReflection.rgb * 0.2 +  (kD * diffuse + specular);
-    vec3 ambient = 0.01 +  (kD * diffuse + specular);
+    return finalColor;
 
 
-    vec3 color = ambient + Lo;
+    // vec3 N = CalculateNormal(normalSample, inNormal, inTangent.xyz, inUV);
+    // vec3 V = normalize(ubo.viewPosition.xyz - inWorldPosition);
+    // vec3 R = reflect(-V, N);
+    // float metallic = texture(metallicSample, inUV).r;
+    // float roughness = texture(roughnessSample, inUV).r;
 
-    return color;
+    // vec3 albedo = texture(colorSample, inUV).rgb * texture(ambientOcclusionSample, inUV).rgb;
+
+    // vec3 F0 = vec3(0.04);
+    // F0 = mix(F0, albedo, metallic);
+
+
+    // //Hard Define lights for now
+    // const int numLights = 4;
+    // Light lights[numLights];
+    // lights[0].position = vec3(10.0, 0.0, 10.0);
+    // lights[0].color = vec3(1.0, 1.0, 1.0);
+    // lights[1].position = vec3(-100.0, 0.0, 0.0);
+    // lights[1].color = vec3(1.0, 1.0, 0.0);
+    // lights[2].position = vec3(50.0, 50.0, 0.0);
+    // lights[2].color = vec3(0.0, 1.0, 1.0);
+    // vec3 Lo = vec3(0.0);
+    // for(int i = 0; i < lights.length(); i++)
+    // {
+    //     vec3 L = normalize(lights[i].position - inWorldPosition);
+    //     Lo += SpecularContribution(L, V, N, F0, metallic, roughness, inUV, albedo);
+    // }
+
+
+    // vec2 brdf = (0.08 * vec2(max(dot(N, V), 0.0), roughness)).rg;
+    // vec3 reflection = vec3(0.3);
+
+    // vec3 diffuse = 0.7 * albedo;
+
+    // vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
+
+    // // Specular reflectance
+    // vec3 specular = reflection * (F * brdf.x + brdf.y);
+
+    // // Ambient part
+    // vec3 kD = 1.0 - F;
+    // kD *= 1.0 - metallic;
+
+    // vec3 ambient = 0.01 +  (kD * diffuse + specular);
+
+
+    // vec3 color = ambient + Lo;
+
+    // return color;
+    // lights[3].position = vec3(0.0, 1.0, 10.0);
+    // lights[3].color = vec3(1.0, 1.0, 1.0);
+
 }
 
 
@@ -101,22 +137,22 @@ void main()
     }
     else if(ubo.renderMode == 1)
     {
-        outColor = texture(colorSample, inUV);
+        outColor = texture(colorSampler, inUV);
         return;
     }
     else if(ubo.renderMode == 2)
     {
-        outColor = texture(normalSample, inUV);
+        outColor = texture(normalSampler, inUV);
         return;
     }
     else if(ubo.renderMode == 3)
     {
-        outColor = texture(metallicSample, inUV);
+        outColor = texture(metallicSampler, inUV);
         return;
     }
     else if(ubo.renderMode == 4)
     {
-        outColor = texture(roughnessSample, inUV);
+        outColor = texture(roughnessSampler, inUV);
         return;
     }
     else if(ubo.renderMode == 5)

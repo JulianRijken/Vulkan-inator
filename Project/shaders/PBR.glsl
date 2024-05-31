@@ -2,20 +2,6 @@
 
 #define PI 3.1415926535897932384626433832795
 
-
-//Tonemap used in uncharted 2
-vec3 ToneMap(vec3 color)
-{
-    float A = 0.15;
-    float B = 0.50;
-    float C = 0.10;
-    float D = 0.20;
-    float E = 0.02;
-    float F = 0.30;
-
-    return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;
-}
-
 float D_GGX(float dotNH, float roughness)
 {
     float alpha = roughness * roughness;
@@ -43,20 +29,8 @@ vec3 F_SchlickR(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-vec4 SkyboxReflection(vec3 pos, vec3 normal, mat4 invModel, samplerCube skyboxSampler)
-{
-    vec3 cI = normalize (pos);
-    vec3 cR = reflect (cI, normalize(normal));
 
-    // Convert cubemap coordinates into Vulkan coordinate space
-    cR.xy *= -1.0;
-
-    return texture(skyboxSampler, cR);
-}
-
-
-
-vec3 specularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness, vec2 uv, vec3 albedo)
+vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness, vec2 uv, vec3 albedo)
 {
     vec3 H = normalize (V + L);
     float dotNH = clamp(dot(N, H), 0.0, 1.0);
@@ -84,7 +58,7 @@ vec3 specularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
     return color;
 }
 
-vec3 calculateNormal(sampler2D normalMap, vec3 normal, vec3 tangent, vec2 uv)
+vec3 CalculateNormal(sampler2D normalMap, vec3 normal, vec3 tangent, vec2 uv)
 {
     vec3 tangentNormal = texture(normalMap, uv).xyz * 2.0 - 1.0;
 

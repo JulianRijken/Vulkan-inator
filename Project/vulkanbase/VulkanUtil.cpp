@@ -154,9 +154,9 @@ bool vulkanUtil::FasDepthComponent(VkFormat format)
 
 void vulkanUtil::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
                              VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-                             VkDeviceMemory& imageMemory)
+                             VkDeviceMemory& imageMemory, bool isCubeMap)
 {
-    const VkImageCreateInfo imageInfo{
+    VkImageCreateInfo imageInfo{
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .imageType = VK_IMAGE_TYPE_2D,
         .format = format,
@@ -169,6 +169,13 @@ void vulkanUtil::CreateImage(uint32_t width, uint32_t height, VkFormat format, V
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         };
+
+    if(isCubeMap)
+    {
+        imageInfo.arrayLayers = 6;
+        imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+    }
+
 
     if(vkCreateImage(VulkanGlobals::GetDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
         throw std::runtime_error("failed to create image!");
@@ -194,17 +201,41 @@ VkImageView vulkanUtil::CreateImageView(VkImage image, VkFormat format, VkImageA
         .image = image,
         .viewType = VK_IMAGE_VIEW_TYPE_2D,
         .format = format,
-        .subresourceRange = {
-                             .aspectMask = aspectFlags,
- .baseMipLevel = 0,
- .levelCount = 1,
- .baseArrayLayer = 0,
- .layerCount = 1,
-        } };
+        .subresourceRange =
+        {
+            .aspectMask = aspectFlags,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        }};
 
     VkImageView imageView{};
     if(vkCreateImageView(VulkanGlobals::GetDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
         throw std::runtime_error("failed to create texture image view!");
+
+    return imageView;
+}
+
+VkImageView vulkanUtil::CreateCubeImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+{
+    const VkImageViewCreateInfo viewInfo{
+        VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        nullptr,
+        0,
+        image,
+        VK_IMAGE_VIEW_TYPE_CUBE,
+        format,
+        { VK_COMPONENT_SWIZZLE_IDENTITY,
+          VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
+          VK_COMPONENT_SWIZZLE_IDENTITY },
+        { aspectFlags, 0, 1, 0, 6 }
+    };
+
+    VkImageView imageView{};
+    if(vkCreateImageView(VulkanGlobals::GetDevice(), &viewInfo, nullptr, &imageView))
+        throw std::runtime_error("failed to create texture image view for cube image!");
+
 
     return imageView;
 }
