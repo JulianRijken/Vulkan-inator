@@ -133,6 +133,14 @@ Game::Game()
                                    Material::GetMaterialSetLayout(),
                                    VK_CULL_MODE_NONE);
 
+    m_Pipline3D_Cartoon =
+        std::make_unique<Pipeline>(Shader{ "shaders/shader3D_Cartoon.vert.spv", "shaders/shader3D_Cartoon.frag.spv" },
+                                   Shader::CreateVertexInputStateInfo<Mesh::Vertex3D>(),
+                                   sizeof(UniformBufferObject3D),
+                                   sizeof(MeshPushConstants),
+                                   Material::GetMaterialSetLayout(),
+                                   VK_CULL_MODE_NONE);
+
 
     const std::vector<Mesh::Vertex2D> triangleVertices = {
         {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
@@ -194,7 +202,7 @@ Game::Game()
     monkey.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-4.54838, 5.73301, 6.59399));
 
 
-    auto& carMesh = AddMesh3D("Subaru", LoadMesh("resources/Car/Subaru.obj", m_Materials["subaru"].get()));
+    auto& carMesh = AddMesh3D_Cartoon("Subaru", LoadMesh("resources/Car/Subaru.obj", m_Materials["subaru"].get()));
     carMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-6.89595, 4.0f, -0.306714)) *
                             rotate(glm::mat4(1.0f), glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f)) *
                             scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
@@ -328,6 +336,37 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
             Material* material = mesh.second->GetMaterial();
             if(material != nullptr)
                 m_Pipline3D->UpdateMaterial(commandBuffer, *material);
+
+            // Draw mesh
+            mesh.second->Draw(commandBuffer);
+        }
+    }
+
+    {
+        auto projectionMatrix = m_Camera.GetProjectionMatrix();
+        projectionMatrix[1][1] *= -1;
+
+        UniformBufferObject3D ubo3D{ .viewProjection = projectionMatrix * m_Camera.GetViewMatrix(),
+                                     .viewPosition = glm::vec4(m_Camera.GetPosition(), 1.0f),
+                                     .renderMode = m_RenderMode };
+
+
+        m_Pipline3D_Cartoon->Bind(commandBuffer, imageIndex);
+        m_Pipline3D_Cartoon->UpdateUBO(imageIndex, &ubo3D, sizeof(ubo3D));
+
+        for(auto&& mesh : m_Meshes3D_Cartoon)
+        {
+            MeshPushConstants meshPushConstant{};
+            {
+                meshPushConstant.model = mesh.second->m_ModelMatrix;
+            }
+            m_Pipline3D_Cartoon->UpdatePushConstant(commandBuffer, &meshPushConstant, sizeof(meshPushConstant));
+
+
+            // Update Material
+            Material* material = mesh.second->GetMaterial();
+            if(material != nullptr)
+                m_Pipline3D_Cartoon->UpdateMaterial(commandBuffer, *material);
 
             // Draw mesh
             mesh.second->Draw(commandBuffer);

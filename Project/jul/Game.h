@@ -36,6 +36,11 @@ public:
     void OnResize();
 
 private:
+    Mesh& AddMesh3D_Cartoon(const std::string& name, Mesh&& mesh)
+    {
+        return *(m_Meshes3D_Cartoon[name] = std::make_unique<Mesh>(std::move(mesh)));
+    }
+
     Mesh& AddMesh3D_Unlit(const std::string& name, Mesh&& mesh)
     {
         return *(m_Meshes3D_Unlit[name] = std::make_unique<Mesh>(std::move(mesh)));
@@ -57,6 +62,8 @@ private:
     std::unique_ptr<Pipeline> m_Pipline2D{};
     std::unique_ptr<Pipeline> m_Pipline3D{};
     std::unique_ptr<Pipeline> m_Pipline3D_Unlit{};
+    std::unique_ptr<Pipeline> m_Pipline3D_Cartoon{};
+
 
     Camera m_Camera{
         glm::vec3{0, 1, -2},
@@ -68,6 +75,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes2D{};
     std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes3D{};
     std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes3D_Unlit{};
+    std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes3D_Cartoon{};
     std::unordered_map<std::string, std::unique_ptr<Texture>> m_Textures;
     std::unordered_map<std::string, std::unique_ptr<Material>> m_Materials;
 };
