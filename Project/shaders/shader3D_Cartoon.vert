@@ -25,10 +25,28 @@ layout(location = 4) out float outSign;
 
 void main()
 {
-    outWorldPosition = vec3(push.model * vec4(inPosition, 1.0));
-    outNormal =  normalize(mat3(push.model) * inNormal);
+    vec3 worldPostition = vec3(push.model * vec4(inPosition, 1.0));
+    float time = ubo.renderMode / 400.0f;
+
+    float waveSine = (sin(time + inUV.x * 30) + 1) * 0.5;
+    float waveCos = (cos(time * 0.2f+ inUV.y * 30) + 1) * 0.5;
+    float waveCosSmall = (cos(time * 0.1f + inUV.y * 90 + inUV.x * 90 ) + 1) * 0.5;
+    worldPostition.y += (waveSine * 2.5f + waveCos * 3.0f + waveCosSmall * 1.0f) * 0.8f;
+
+
+    outWorldPosition = worldPostition;
+    vec3 normal = normalize(vec3(waveSine,waveCos,waveCosSmall * 0.1f));
+
+    outNormal = normal ;
     outTangent = normalize(mat3(push.model) * inTangent.xyz);
     outUV = inUV;
+
+
+
     gl_Position =  ubo.viewProjection * vec4(outWorldPosition, 1.0);
+
+
+
     outSign = inTangent.a;
+
 }

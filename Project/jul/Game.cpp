@@ -53,6 +53,14 @@ Game::Game()
     m_Textures["monkey_Metallic"] = std::make_unique<Texture>("resources/Monkey/Suz_Metalness.png");
     m_Textures["monkey_Roughness"] = std::make_unique<Texture>("resources/Monkey/Suz_Roughness.png");
 
+    m_Textures["water"] = std::make_unique<Texture>("resources/Water/WaterTexture.png");
+    m_Textures["waterDis"] = std::make_unique<Texture>("resources/Water/water_ind.png");
+    m_Materials["water"] = std::make_unique<Material>(std::vector<Texture*>{ m_Textures["water"].get(),
+                                                                             m_Textures["waterDis"].get(),
+                                                                             m_Textures["defaultBlack"].get(),
+                                                                             m_Textures["defaultWhite"].get(),
+                                                                             m_Textures["defaultWhite"].get() });
+
 
     m_Textures["skybox"] = std::make_unique<Texture>("resources/Skybox/Skybox_baseColor.png");
 
@@ -184,6 +192,7 @@ Game::Game()
 
     AddMesh3D_Unlit("Skybox", LoadMesh("resources/Skybox/Skybox.obj", m_Materials["skybox"].get()));
 
+
     AddMesh3D("Airplane", LoadMesh("resources/Airplane/Airplane.obj", m_Materials["grid"].get()));
     AddMesh3D("Diorama", LoadMesh("resources/Diorama/DioramaGP_2.obj", m_Materials["grid"].get()));
     auto& robot = AddMesh3D("Robot", LoadMesh("resources/Robot/Robot.obj", m_Materials["robot"].get()));
@@ -202,7 +211,7 @@ Game::Game()
     monkey.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-4.54838, 5.73301, 6.59399));
 
 
-    auto& carMesh = AddMesh3D_Cartoon("Subaru", LoadMesh("resources/Car/Subaru.obj", m_Materials["subaru"].get()));
+    auto& carMesh = AddMesh3D("Subaru", LoadMesh("resources/Car/Subaru.obj", m_Materials["subaru"].get()));
     carMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-6.89595, 4.0f, -0.306714)) *
                             rotate(glm::mat4(1.0f), glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f)) *
                             scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
@@ -211,6 +220,8 @@ Game::Game()
     auto& fireMesh = AddMesh3D("Fire", LoadMesh("resources/FireHydrant/fire_hydrant.obj", m_Materials["fire"].get()));
     fireMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-8.07224, 3.65116, 2.53493)) *
                              scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+
+    AddMesh3D_Cartoon("Plane", LoadMesh("resources/Water/Plane.obj", m_Materials["water"].get()));
 }
 
 Game::~Game() = default;
@@ -219,6 +230,8 @@ void Game::Update()
 {
     m_Camera.Update();
 
+    m_Time += jul::GameTime::GetDeltaTimeF() * 1000;
+
     // Update plane position
     const float planePosition = jul::math::ClampLoop(jul::GameTime::GetElapsedTimeF() * 50.0f, -100.0f, 100.0f);
     m_Meshes3D["Airplane"]->m_ModelMatrix = glm::translate(glm::mat4(1.0f), { 0, 25, planePosition }) *
@@ -226,7 +239,9 @@ void Game::Update()
                                             glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 });
 
 
-    m_Meshes3D_Unlit["Skybox"]->m_ModelMatrix = glm::translate(glm::mat4(1.0f), m_Camera.GetPosition());
+    m_Meshes3D_Unlit["Skybox"]->m_ModelMatrix =
+        glm::translate(glm::mat4(1.0f), m_Camera.GetPosition()) * scale(glm::mat4(1.0f), glm::vec3(3, 3, 3));
+    ;
 
 
     m_Meshes2D["Square"]->m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(1, 0, 0)) *
@@ -348,7 +363,7 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
 
         UniformBufferObject3D ubo3D{ .viewProjection = projectionMatrix * m_Camera.GetViewMatrix(),
                                      .viewPosition = glm::vec4(m_Camera.GetPosition(), 1.0f),
-                                     .renderMode = m_RenderMode };
+                                     .renderMode = (int)m_Time };
 
 
         m_Pipline3D_Cartoon->Bind(commandBuffer, imageIndex);

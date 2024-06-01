@@ -72,6 +72,8 @@ private:
 
     int m_RenderMode{};
 
+    float m_Time;
+
     std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes2D{};
     std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes3D{};
     std::unordered_map<std::string, std::unique_ptr<Mesh>> m_Meshes3D_Unlit{};

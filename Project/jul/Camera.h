@@ -48,7 +48,7 @@ private:
     float m_TargetFovAngle{};
 
     float m_NearClippingPlane = 0.1f;
-    float m_FarClippingPlane = 100.0f;
+    float m_FarClippingPlane = 10000.0f;
 
     glm::vec3 m_Forward{ 0, 0, 1 };
     glm::vec3 m_Up{ 0, 1, 0 };
