@@ -29,6 +29,8 @@ struct Light
     vec3 color;
 };
 
+const vec3 g_LightDirection = normalize(vec3(0.5,-1,-1));
+
 vec3 GetColorPBR()
 {
     float metallic = texture(metallicSampler, inUV).r;
@@ -61,9 +63,9 @@ vec3 GetColorPBR()
     for(int i = 0; i < lights.length(); i++)
     {
         vec3 L = normalize(lights[i].position - inWorldPosition);
-        Lo += SpecularContribution(L, worldToView, sampledNormal, F0, metallic, roughness, inUV, albedo);
-    }
 
+         Lo += SpecularContribution(L, worldToView, sampledNormal, F0, metallic, roughness, inUV, albedo);
+    }
 
     vec2 brdf = (0.08 * vec2(max(dot(sampledNormal, worldToView), 0.0), roughness)).rg;
     vec3 reflection = vec3(0.3);
@@ -75,6 +77,8 @@ vec3 GetColorPBR()
     // Specular reflectance
     vec3 specular = reflection * (F * brdf.x + brdf.y);
 
+    float observedArea = max(0.2f, dot(normal, -g_LightDirection));
+
     // Ambient part
     vec3 kD = 1.0 - F;
     kD *= 1.0 - metallic;
@@ -83,7 +87,7 @@ vec3 GetColorPBR()
 
     vec3 color = ambient + Lo;
 
-    return color;
+    return color * observedArea;
 }
 
 

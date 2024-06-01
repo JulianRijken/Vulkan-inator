@@ -96,6 +96,12 @@ Game::Game()
                                                                             m_Textures["uv_grid"].get(),
                                                                             m_Textures["defaultWhite"].get() });
 
+    m_Materials["gridFancy"] = std::make_unique<Material>(std::vector<Texture*>{ m_Textures["uv_grid_2"].get(),
+                                                                                 m_Textures["defaultNormal"].get(),
+                                                                                 m_Textures["defaultBlack"].get(),
+                                                                                 m_Textures["defaultWhite"].get(),
+                                                                                 m_Textures["defaultWhite"].get() });
+
 
     m_Materials["fire"] = std::make_unique<Material>(std::vector<Texture*>{ m_Textures["fire_BaseColor"].get(),
                                                                             m_Textures["fire_Normal"].get(),
@@ -119,50 +125,57 @@ Game::Game()
                                              Material::GetMaterialSetLayout(),
                                              VK_CULL_MODE_NONE);
 
-
-    // const std::vector<Mesh::Vertex2D> triangleVertices = {
-    //     {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
-    //     { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
-    //     {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
-    // };
-
-    // const std::vector<uint32_t> triangleIndeces = { 0, 1, 2 };
-
-
-    // AddMesh2D("Triangle",
-    //           Mesh{
-    //               triangleIndeces,
-    //               Mesh::VertexData{.data = (void*)triangleVertices.data(),
-    //                                .vertexCount = static_cast<uint32_t>(triangleVertices.size()),
-    //                                .typeSize = sizeof(Mesh::Vertex2D)},
-    //               nullptr
-    // });
+    m_Pipline3D_Unlit =
+        std::make_unique<Pipeline>(Shader{ "shaders/shader3D_Flat.vert.spv", "shaders/shader3D_Flat.frag.spv" },
+                                   Shader::CreateVertexInputStateInfo<Mesh::Vertex3D>(),
+                                   sizeof(UniformBufferObject3D),
+                                   sizeof(MeshPushConstants),
+                                   Material::GetMaterialSetLayout(),
+                                   VK_CULL_MODE_NONE);
 
 
-    // const std::vector<Mesh::Vertex2D> squareVertices = {
-    //     {{ -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
-    //     { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }},
-    //     {  { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }},
-    //     { { -0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f }}
-    // };
+    const std::vector<Mesh::Vertex2D> triangleVertices = {
+        {{ 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
+        { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }},
+        {{ -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }}
+    };
 
-    // const std::vector<uint32_t> squareIndices = { 0, 1, 2, 0, 2, 3 };
-
-    // auto& squareMesh = AddMesh2D("Square",
-    //                              Mesh{
-    //                                  squareIndices,
-    //                                  Mesh::VertexData{.data = (void*)squareVertices.data(),
-    //                                                   .vertexCount = static_cast<uint32_t>(squareVertices.size()),
-    //                                                   .typeSize = sizeof(Mesh::Vertex2D)},
-    //                                  nullptr
-    // });
-    // squareMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(1, 0, 0));
-
-    // auto& circleMesh = AddMesh2D("Circle2D", GenerateCircle({ 0, 0 }, { 0.4f, 0.6f }));
-    // circleMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-1, 0, 0));
+    const std::vector<uint32_t> triangleIndeces = { 0, 1, 2 };
 
 
-    AddMesh3D("Skybox", LoadMesh("resources/Skybox/Skybox.obj", m_Materials["skybox"].get()));
+    AddMesh2D("Triangle",
+              Mesh{
+                  triangleIndeces,
+                  Mesh::VertexData{.data = (void*)triangleVertices.data(),
+                                   .vertexCount = static_cast<uint32_t>(triangleVertices.size()),
+                                   .typeSize = sizeof(Mesh::Vertex2D)},
+                  nullptr
+    });
+
+
+    const std::vector<Mesh::Vertex2D> squareVertices = {
+        {{ -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }},
+        { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }},
+        {  { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }},
+        { { -0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f }}
+    };
+
+    const std::vector<uint32_t> squareIndices = { 0, 1, 2, 0, 2, 3 };
+
+    auto& squareMesh = AddMesh2D("Square",
+                                 Mesh{
+                                     squareIndices,
+                                     Mesh::VertexData{.data = (void*)squareVertices.data(),
+                                                      .vertexCount = static_cast<uint32_t>(squareVertices.size()),
+                                                      .typeSize = sizeof(Mesh::Vertex2D)},
+                                     nullptr
+    });
+
+
+    auto& circleMesh = AddMesh2D("Circle2D", GenerateCircle({ 0, 0 }, { 0.4f, 0.6f }));
+
+    AddMesh3D_Unlit("Skybox", LoadMesh("resources/Skybox/Skybox.obj", m_Materials["skybox"].get()));
+
     AddMesh3D("Airplane", LoadMesh("resources/Airplane/Airplane.obj", m_Materials["grid"].get()));
     AddMesh3D("Diorama", LoadMesh("resources/Diorama/DioramaGP_2.obj", m_Materials["grid"].get()));
     auto& robot = AddMesh3D("Robot", LoadMesh("resources/Robot/Robot.obj", m_Materials["robot"].get()));
@@ -170,8 +183,15 @@ Game::Game()
                           scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
 
 
-    // AddMesh3D("Ball", LoadMesh("resources/Primitives/sphere.obj", m_Materials["grid"].get()));
-    AddMesh3D("Monkey", LoadMesh("resources/Monkey/suzanne_steampunk.obj", m_Materials["monkey"].get()));
+    auto& ballMesh = AddMesh3D("Ball", LoadMesh("resources/Primitives/sphere2.obj", m_Materials["gridFancy"].get()));
+    ballMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-1.87057, 6.56198, 6.77501));
+
+    auto& cubeMesh = AddMesh3D("Cube", LoadMesh("resources/Primitives/cube.obj", m_Materials["gridFancy"].get()));
+    cubeMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(1.96337, 7.95447, 7.13516));
+
+
+    auto& monkey = AddMesh3D("Monkey", LoadMesh("resources/Monkey/suzanne_steampunk.obj", m_Materials["monkey"].get()));
+    monkey.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-4.54838, 5.73301, 6.59399));
 
 
     auto& carMesh = AddMesh3D("Subaru", LoadMesh("resources/Car/Subaru.obj", m_Materials["subaru"].get()));
@@ -198,7 +218,14 @@ void Game::Update()
                                             glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 });
 
 
-    m_Meshes3D["Skybox"]->m_ModelMatrix = glm::translate(glm::mat4(1.0f), m_Camera.GetPosition());
+    m_Meshes3D_Unlit["Skybox"]->m_ModelMatrix = glm::translate(glm::mat4(1.0f), m_Camera.GetPosition());
+
+
+    m_Meshes2D["Square"]->m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(1, 0, 0)) *
+                                          glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 });
+    m_Meshes2D["Triangle"]->m_ModelMatrix = glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 });
+    m_Meshes2D["Circle2D"]->m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-1, 0, 0)) *
+                                            glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 });
 
 
     if(Input::GetKeyHeld(GLFW_KEY_1))
@@ -219,6 +246,37 @@ void Game::Update()
 
 void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
 {
+    {
+        auto projectionMatrix = m_Camera.GetProjectionMatrix();
+        projectionMatrix[1][1] *= -1;
+
+        UniformBufferObject3D ubo3D{ .viewProjection = projectionMatrix * m_Camera.GetViewMatrix(),
+                                     .viewPosition = glm::vec4(m_Camera.GetPosition(), 1.0f),
+                                     .renderMode = m_RenderMode };
+
+
+        m_Pipline3D_Unlit->Bind(commandBuffer, imageIndex);
+        m_Pipline3D_Unlit->UpdateUBO(imageIndex, &ubo3D, sizeof(ubo3D));
+
+        for(auto&& mesh : m_Meshes3D_Unlit)
+        {
+            MeshPushConstants meshPushConstant{};
+            {
+                meshPushConstant.model = mesh.second->m_ModelMatrix;
+            }
+            m_Pipline3D_Unlit->UpdatePushConstant(commandBuffer, &meshPushConstant, sizeof(meshPushConstant));
+
+
+            // Update Material
+            Material* material = mesh.second->GetMaterial();
+            if(material != nullptr)
+                m_Pipline3D_Unlit->UpdateMaterial(commandBuffer, *material);
+
+            // Draw mesh
+            mesh.second->Draw(commandBuffer);
+        }
+    }
+
     UniformBufferObject2D ubo2D{};
     {
         ubo2D.proj = m_Camera.GetOrthoProjectionMatrix();
@@ -245,33 +303,35 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
         mesh.second->Draw(commandBuffer);
     }
 
-    auto projectionMatrix = m_Camera.GetProjectionMatrix();
-    projectionMatrix[1][1] *= -1;
-
-    UniformBufferObject3D ubo3D{ .viewProjection = projectionMatrix * m_Camera.GetViewMatrix(),
-                                 .viewPosition = glm::vec4(m_Camera.GetPosition(), 1.0f),
-                                 .renderMode = m_RenderMode };
-
-
-    m_Pipline3D->Bind(commandBuffer, imageIndex);
-    m_Pipline3D->UpdateUBO(imageIndex, &ubo3D, sizeof(ubo3D));
-
-    for(auto&& mesh : m_Meshes3D)
     {
-        MeshPushConstants meshPushConstant{};
+        auto projectionMatrix = m_Camera.GetProjectionMatrix();
+        projectionMatrix[1][1] *= -1;
+
+        UniformBufferObject3D ubo3D{ .viewProjection = projectionMatrix * m_Camera.GetViewMatrix(),
+                                     .viewPosition = glm::vec4(m_Camera.GetPosition(), 1.0f),
+                                     .renderMode = m_RenderMode };
+
+
+        m_Pipline3D->Bind(commandBuffer, imageIndex);
+        m_Pipline3D->UpdateUBO(imageIndex, &ubo3D, sizeof(ubo3D));
+
+        for(auto&& mesh : m_Meshes3D)
         {
-            meshPushConstant.model = mesh.second->m_ModelMatrix;
+            MeshPushConstants meshPushConstant{};
+            {
+                meshPushConstant.model = mesh.second->m_ModelMatrix;
+            }
+            m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstant, sizeof(meshPushConstant));
+
+
+            // Update Material
+            Material* material = mesh.second->GetMaterial();
+            if(material != nullptr)
+                m_Pipline3D->UpdateMaterial(commandBuffer, *material);
+
+            // Draw mesh
+            mesh.second->Draw(commandBuffer);
         }
-        m_Pipline3D->UpdatePushConstant(commandBuffer, &meshPushConstant, sizeof(meshPushConstant));
-
-
-        // Update Material
-        Material* material = mesh.second->GetMaterial();
-        if(material != nullptr)
-            m_Pipline3D->UpdateMaterial(commandBuffer, *material);
-
-        // Draw mesh
-        mesh.second->Draw(commandBuffer);
     }
 }
 
