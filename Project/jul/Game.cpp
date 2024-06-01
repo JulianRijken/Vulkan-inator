@@ -48,6 +48,26 @@ Game::Game()
     m_Textures["robot_ambientOcclusion"] = std::make_unique<Texture>("resources/Robot/robot_steampunk_ao.png");
 
 
+    m_Textures["monkey_BaseColor"] = std::make_unique<Texture>("resources/Monkey/Suz_BaseColor.png");
+    m_Textures["monkey_Normal"] = std::make_unique<Texture>("resources/Monkey/Suz_normal.png");
+    m_Textures["monkey_Metallic"] = std::make_unique<Texture>("resources/Monkey/Suz_Metalness.png");
+    m_Textures["monkey_Roughness"] = std::make_unique<Texture>("resources/Monkey/Suz_Roughness.png");
+
+
+    m_Textures["skybox"] = std::make_unique<Texture>("resources/Skybox/Skybox_baseColor.png");
+
+    m_Materials["skybox"] = std::make_unique<Material>(std::vector<Texture*>{ m_Textures["skybox"].get(),
+                                                                              m_Textures["defaultNormal"].get(),
+                                                                              m_Textures["defaultBlack"].get(),
+                                                                              m_Textures["defaultWhite"].get(),
+                                                                              m_Textures["defaultWhite"].get() });
+
+    m_Materials["monkey"] = std::make_unique<Material>(std::vector<Texture*>{ m_Textures["monkey_BaseColor"].get(),
+                                                                              m_Textures["monkey_Normal"].get(),
+                                                                              m_Textures["monkey_Metallic"].get(),
+                                                                              m_Textures["monkey_Roughness"].get(),
+                                                                              m_Textures["defaultWhite"].get() });
+
     m_Materials["robot"] =
         std::make_unique<Material>(std::vector<Texture*>{ m_Textures["robot_BaseColor"].get(),
                                                           m_Textures["robot_Normal"].get(),
@@ -141,14 +161,17 @@ Game::Game()
     // auto& circleMesh = AddMesh2D("Circle2D", GenerateCircle({ 0, 0 }, { 0.4f, 0.6f }));
     // circleMesh.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-1, 0, 0));
 
+
+    AddMesh3D("Skybox", LoadMesh("resources/Skybox/Skybox.obj", m_Materials["skybox"].get()));
     AddMesh3D("Airplane", LoadMesh("resources/Airplane/Airplane.obj", m_Materials["grid"].get()));
-    AddMesh3D("Diorama", LoadMesh("resources/Diorama/DioramaGP.obj", m_Materials["grid"].get()));
+    AddMesh3D("Diorama", LoadMesh("resources/Diorama/DioramaGP_2.obj", m_Materials["grid"].get()));
     auto& robot = AddMesh3D("Robot", LoadMesh("resources/Robot/Robot.obj", m_Materials["robot"].get()));
     robot.m_ModelMatrix = translate(glm::mat4(1.0f), glm::vec3(-8.47186, 9.9, -0.140288)) *
                           scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
 
 
-    AddMesh3D("Ball", LoadMesh("resources/Primitives/sphere.obj", m_Materials["grid"].get()));
+    // AddMesh3D("Ball", LoadMesh("resources/Primitives/sphere.obj", m_Materials["grid"].get()));
+    AddMesh3D("Monkey", LoadMesh("resources/Monkey/suzanne_steampunk.obj", m_Materials["monkey"].get()));
 
 
     auto& carMesh = AddMesh3D("Subaru", LoadMesh("resources/Car/Subaru.obj", m_Materials["subaru"].get()));
@@ -173,6 +196,10 @@ void Game::Update()
     m_Meshes3D["Airplane"]->m_ModelMatrix = glm::translate(glm::mat4(1.0f), { 0, 25, planePosition }) *
                                             glm::scale(glm::mat4(1.0f), { 0.01f, 0.01f, 0.01f }) *
                                             glm::rotate(glm::mat4(1.0f), jul::GameTime::GetElapsedTimeF(), { 0, 0, 1 });
+
+
+    m_Meshes3D["Skybox"]->m_ModelMatrix = glm::translate(glm::mat4(1.0f), m_Camera.GetPosition());
+
 
     if(Input::GetKeyHeld(GLFW_KEY_1))
         m_RenderMode = 0;
@@ -250,34 +277,47 @@ void Game::Draw(VkCommandBuffer commandBuffer, int imageIndex)
 
 void Game::OnResize() { m_Camera.SetAspect(VulkanGlobals::GetSwapChain().GetAspect()); }
 
+// float Cross(const glm::vec2& v1, const glm::vec2& v2) { return v1.x * v2.y - v1.y * v2.x; }
+
 void ComputeTangents(std::vector<Mesh::Vertex3D>& vertices, const std::vector<uint32_t>& indices)
 {
+    std::vector<glm::vec3> tan1(vertices.size());
+    std::vector<glm::vec3> tan2(vertices.size());
     for(size_t i = 0; i < indices.size(); i += 3)
     {
-        const Mesh::Vertex3D& v0 = vertices[indices[i + 0]];
-        const Mesh::Vertex3D& v1 = vertices[indices[i + 1]];
-        const Mesh::Vertex3D& v2 = vertices[indices[i + 2]];
+        const Mesh::Vertex3D& vertex0 = vertices[indices[i]];
+        const Mesh::Vertex3D& vertex1 = vertices[indices[i + 1]];
+        const Mesh::Vertex3D& vertex2 = vertices[indices[i + 2]];
 
-        const glm::vec3 edge1 = v1.position - v0.position;
-        const glm::vec3 edge2 = v2.position - v0.position;
+        const glm::vec3 dPos1 = vertex1.position - vertex0.position;
+        const glm::vec3 dPos2 = vertex2.position - vertex0.position;
 
-        const glm::vec2 deltaUV1 = v1.uv - v0.uv;
-        const glm::vec2 deltaUV2 = v2.uv - v0.uv;
+        const glm::vec2 dUV1 = vertex1.uv - vertex0.uv;
+        const glm::vec2 dUV2 = vertex2.uv - vertex0.uv;
 
-        const float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+        const float r = 1.0f / (dUV1.x * dUV2.y - dUV1.y * dUV2.x);
 
-        glm::vec3 tangent;
-        tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-        tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-        tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+        const glm::vec3 uDir = (dPos1 * dUV2.y - dPos2 * dUV1.y) * r;
+        const glm::vec3 vDir = (dPos2 * dUV1.x - dPos1 * dUV2.x) * r;
 
-        // Normalize the Tangent
-        tangent = glm::normalize(tangent);
+        tan1[indices[i]] += uDir;
+        tan1[indices[i + 1]] += uDir;
+        tan1[indices[i + 2]] += uDir;
 
-        // Add the Tangent to the vertices
-        vertices[indices[i + 0]].tangent += tangent;
-        vertices[indices[i + 1]].tangent += tangent;
-        vertices[indices[i + 2]].tangent += tangent;
+        tan2[indices[i]] += vDir;
+        tan2[indices[i + 1]] += vDir;
+        tan2[indices[i + 2]] += vDir;
+    }
+
+    for(size_t i = 0; i < vertices.size(); i++)
+    {
+        const glm::vec3 n = vertices[i].normal;
+        const glm::vec3 t = tan1[i];
+
+        const glm::vec3 tangent = glm::normalize(t - n * glm::dot(n, t));
+        const float tangentHandedness = (glm::dot(glm::cross(n, t), tan2[i]) < 0.0f) ? -1.0f : 1.0f;
+
+        vertices[i].tangent = { tangent.x, tangent.y, tangent.z, tangentHandedness };
     }
 }
 
@@ -316,7 +356,7 @@ Mesh Game::LoadMesh(const std::string& meshPath, Material* material)
                 .normal = { attrib.normals[3 * index.normal_index + 0],
                              attrib.normals[3 * index.normal_index + 1],
                              attrib.normals[3 * index.normal_index + 2] },
-                .tangent = { glm::vec3(0.0f, 0.0f, 0.0f) },
+                .tangent = { glm::vec4(0.0f, 0.0f, 0.0f, 0.0f) },
                 .uv = { attrib.texcoords[2 * index.texcoord_index + 0],
                              1.0f - attrib.texcoords[2 * index.texcoord_index + 1] }
             };

@@ -37,8 +37,6 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
     float dotNV = clamp(dot(N, V), 0.0, 1.0);
     float dotNL = clamp(dot(N, L), 0.0, 1.0);
 
-    //TODO Light colors are fixed
-    vec3 lightColor = vec3(1.0);
     vec3 color = vec3(0.0);
 
     if (dotNL > 0.0)
@@ -56,15 +54,4 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
     }
 
     return color;
-}
-
-vec3 CalculateNormal(sampler2D normalMap, vec3 normal, vec3 tangent, vec2 uv)
-{
-    vec3 tangentNormal = texture(normalMap, uv).xyz * 2.0 - 1.0;
-
-    vec3 N = normalize(normal);
-    vec3 T = normalize(tangent.xyz);
-    vec3 B = normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-    return normalize(TBN * tangentNormal);
 }
