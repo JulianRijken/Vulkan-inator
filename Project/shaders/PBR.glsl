@@ -1,4 +1,5 @@
 // Credits go to Xander Berten for helping setup the calculations
+// Actually Xander just got it from sascha :)
 
 #define PI 3.1415926535897932384626433832795
 

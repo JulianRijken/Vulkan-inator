@@ -266,6 +266,8 @@ void VulkanBase::CreateDepthResources()
 
 uint32_t VulkanBase::RateDeviceSuitability(VkPhysicalDevice device)
 {
+    // Credits to Mat and Nigel for explaining and setting up the rating system
+
     VkPhysicalDeviceProperties properties{};
     VkPhysicalDeviceFeatures features{};
 
@@ -279,10 +281,7 @@ uint32_t VulkanBase::RateDeviceSuitability(VkPhysicalDevice device)
     uint32_t score{ 0 };
 
     if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-    {
-        // we want this one :P
         score += 100'000'000'000;
-    }
 
     auto&& indices{ vulkanUtil::FindQueueFamilies(device) };
     bool extensionsSupported = CheckDeviceExtensionSupport(device);
@@ -435,8 +434,9 @@ void VulkanBase::DrawFrame()
         m_NeedsWindowResize = false;
         vkDeviceWaitIdle(VulkanGlobals::GetDevice());
 
+        // Reset before assign, this because the assignment operator calls the destuctor
+        // after making the new swapchain messing with the image views and most importaintly the memory
         m_SwapChainUPtr.reset();
-
 
         glm::ivec2 windowSize{};
         glfwGetFramebufferSize(m_Window, &windowSize.x, &windowSize.y);

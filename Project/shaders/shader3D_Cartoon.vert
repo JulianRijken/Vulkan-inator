@@ -41,10 +41,7 @@ void main()
     outTangent = normalize(mat3(push.model) * inTangent.xyz);
     outUV = inUV;
 
-
-
     gl_Position =  ubo.viewProjection * vec4(outWorldPosition, 1.0);
-
 
 
     outSign = inTangent.a;
